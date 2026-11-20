@@ -1,0 +1,509 @@
+// FungiBd database schema
+// SQLite keeps the whole database in a single file (easy to back up on the office server).
+// Money is stored in Taka (BDT) as Float and always rounded to 2 decimals before saving.
+// Status/type fields are plain strings — allowed values are listed in src/lib/constants.ts
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+// ───────────────────────────── People ─────────────────────────────
+
+model AdminUser {
+  id           String    @id @default(cuid())
+  name         String
+  email        String    @unique
+  passwordHash String
+  role         String    @default("STAFF") // OWNER | MANAGER | STAFF
+  isActive     Boolean   @default(true)
+  lastLoginAt  DateTime?
+  createdAt    DateTime  @default(now())
+}
+
+model Customer {
+  id              String     @id @default(cuid())
+  name            String
+  phone           String     @unique
+  email           String?
+  passwordHash    String?
+  hasAccount      Boolean    @default(false)
+  tags            String     @default("") // comma separated
+  notes           String     @default("")
+  source          String     @default("WEB") // WEB | ADMIN | PHONE | FACEBOOK | LEAD
+  marketingOptIn  Boolean    @default(true)
+  totalOrders     Int        @default(0)
+  totalSpent      Float      @default(0)
+  firstOrderAt    DateTime?
+  lastOrderAt     DateTime?
+  resetToken      String?
+  resetTokenExp   DateTime?
+  createdAt       DateTime   @default(now())
+  updatedAt       DateTime   @updatedAt
+  addresses       Address[]
+  orders          Order[]
+  tickets         Ticket[]
+  activities      Activity[]
+  reviews         Review[]
+  leads           Lead[]
+
+  @@index([email])
+  @@index([lastOrderAt])
+}
+
+model Address {
+  id         String   @id @default(cuid())
+  customerId String
+  customer   Customer @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  label      String   @default("Home")
+  zoneId     String?
+  line       String
+  landmark   String   @default("")
+  lat        Float?
+  lng        Float?
+  isDefault  Boolean  @default(false)
+  createdAt  DateTime @default(now())
+}
+
+// ───────────────────────────── Catalog ─────────────────────────────
+
+model Category {
+  id        String    @id @default(cuid())
+  slug      String    @unique
+  nameEn    String
+  nameBn    String
+  sortOrder Int       @default(0)
+  products  Product[]
+}
+
+model Product {
+  id              String           @id @default(cuid())
+  slug            String           @unique
+  nameEn          String
+  nameBn          String
+  shortEn         String           @default("")
+  shortBn         String           @default("")
+  descriptionEn   String           @default("")
+  descriptionBn   String           @default("")
+  highlights      String           @default("[]") // JSON string[] (bilingual lines)
+  cookingTips     String           @default("")
+  storageTips     String           @default("")
+  images          String           @default("[]") // JSON string[] of image URLs
+  badge           String           @default("")
+  categoryId      String?
+  category        Category?        @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+  isActive        Boolean          @default(true)
+  isFeatured      Boolean          @default(false)
+  sortOrder       Int              @default(0)
+
+  // Stock is tracked in the product's stock unit (kg for fresh mushrooms, pcs for kits/packs)
+  stockUnit       String           @default("kg") // kg | pcs
+  stockQty        Float            @default(0)
+  lowStockAt      Float            @default(2)
+  costPerUnit     Float            @default(0) // production cost per kg/pcs
+  costMode        String           @default("AUTO") // AUTO (from production batches) | MANUAL
+
+  // Pre-order control (per product, from admin panel)
+  preorderEnabled Boolean          @default(false)
+  preorderMode    String           @default("OUT_OF_STOCK") // ALWAYS | OUT_OF_STOCK
+  preorderDate    DateTime? // expected harvest / delivery date
+  preorderCutoff  DateTime? // last moment customers can pre-order
+  preorderCap     Float? // max quantity (stock unit) that can be pre-ordered, null = unlimited
+  preorderBooked  Float            @default(0) // currently reserved by open pre-orders
+  preorderNote    String           @default("")
+
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+  variants        ProductVariant[]
+  orderItems      OrderItem[]
+  batches         ProductionBatch[]
+  harvests        Harvest[]
+  movements       StockMovement[]
+  reviews         Review[]
+}
+
+model ProductVariant {
+  id              String      @id @default(cuid())
+  productId       String
+  product         Product     @relation(fields: [productId], references: [id], onDelete: Cascade)
+  labelEn         String // e.g. "250 g"
+  labelBn         String // e.g. "২৫০ গ্রাম"
+  unitAmount      Float // how much stock one unit uses (0.25 kg, 1 pcs ...)
+  price           Float
+  comparePrice    Float?
+  packagingItemId String? // supply item used to pack one unit
+  packagingQty    Float       @default(1)
+  isActive        Boolean     @default(true)
+  sortOrder       Int         @default(0)
+  orderItems      OrderItem[]
+}
+
+model Review {
+  id         String    @id @default(cuid())
+  productId  String
+  product    Product   @relation(fields: [productId], references: [id], onDelete: Cascade)
+  customerId String?
+  customer   Customer? @relation(fields: [customerId], references: [id], onDelete: SetNull)
+  orderNo    String?
+  name       String
+  area       String    @default("")
+  rating     Int
+  comment    String
+  isApproved Boolean   @default(false)
+  createdAt  DateTime  @default(now())
+}
+
+// ───────────────────────────── Orders & delivery ─────────────────────────────
+
+model Order {
+  id             String       @id @default(cuid())
+  orderNo        String       @unique
+  checkoutGroup  String?
+  type           String       @default("REGULAR") // REGULAR | PREORDER
+  status         String       @default("PENDING") // PENDING | CONFIRMED | PROCESSING | OUT_FOR_DELIVERY | DELIVERED | CANCELLED | RETURNED
+  source         String       @default("WEB") // WEB | ADMIN | PHONE | FACEBOOK | WHATSAPP
+  customerId     String
+  customer       Customer     @relation(fields: [customerId], references: [id])
+
+  name           String
+  phone          String
+  email          String       @default("")
+  zoneId         String?
+  zoneName       String       @default("")
+  addressLine    String
+  landmark       String       @default("")
+  lat            Float?
+  lng            Float?
+  deliveryDate   DateTime?
+  deliverySlot   String       @default("")
+  customerNote   String       @default("")
+  internalNote   String       @default("")
+
+  paymentMethod  String       @default("COD")
+  paymentStatus  String       @default("UNPAID") // UNPAID | PAID
+  paidAt         DateTime?
+  collectedAmount Float       @default(0)
+
+  subtotal       Float
+  discount       Float        @default(0)
+  couponCode     String       @default("")
+  deliveryCharge Float        @default(0)
+  total          Float
+
+  // Cost snapshots for precise profit calculation
+  itemsCost      Float        @default(0) // production cost of the mushrooms sold
+  packagingCost  Float        @default(0)
+  deliveryCost   Float        @default(0) // what we paid the rider/courier
+  stockDeducted  Boolean      @default(false)
+  packed         Boolean      @default(false)
+
+  riderId        String?
+  rider          Rider?       @relation(fields: [riderId], references: [id], onDelete: SetNull)
+  cancelReason   String       @default("")
+
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+  confirmedAt    DateTime?
+  deliveredAt    DateTime?
+  cancelledAt    DateTime?
+  returnedAt     DateTime?
+
+  items          OrderItem[]
+  events         OrderEvent[]
+
+  @@index([status])
+  @@index([createdAt])
+  @@index([deliveredAt])
+  @@index([phone])
+}
+
+model OrderItem {
+  id           String          @id @default(cuid())
+  orderId      String
+  order        Order           @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  productId    String?
+  product      Product?        @relation(fields: [productId], references: [id], onDelete: SetNull)
+  variantId    String?
+  variant      ProductVariant? @relation(fields: [variantId], references: [id], onDelete: SetNull)
+  nameEn       String
+  nameBn       String
+  variantLabel String
+  unitAmount   Float
+  qty          Int
+  unitPrice    Float
+  unitCost     Float           @default(0)
+  lineTotal    Float
+  isPreorder   Boolean         @default(false)
+}
+
+model OrderEvent {
+  id        String   @id @default(cuid())
+  orderId   String
+  order     Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  status    String
+  note      String   @default("")
+  by        String   @default("system")
+  createdAt DateTime @default(now())
+}
+
+model DeliveryZone {
+  id        String  @id @default(cuid())
+  nameEn    String
+  nameBn    String
+  charge    Float // what the customer pays
+  riderCost Float   @default(0) // what delivery costs us (estimate, editable per order)
+  isActive  Boolean @default(true)
+  sortOrder Int     @default(0)
+}
+
+model Rider {
+  id              String  @id @default(cuid())
+  name            String
+  phone           String  @default("")
+  type            String  @default("INHOUSE") // INHOUSE | COURIER
+  costPerDelivery Float   @default(0)
+  isActive        Boolean @default(true)
+  orders          Order[]
+}
+
+model Coupon {
+  id          String    @id @default(cuid())
+  code        String    @unique
+  type        String    @default("PERCENT") // PERCENT | FIXED | FREE_DELIVERY
+  value       Float     @default(0)
+  minOrder    Float     @default(0)
+  maxDiscount Float?
+  usageLimit  Int?
+  usedCount   Int       @default(0)
+  perCustomer Int       @default(1)
+  startsAt    DateTime?
+  expiresAt   DateTime?
+  isActive    Boolean   @default(true)
+  note        String    @default("")
+  createdAt   DateTime  @default(now())
+}
+
+// ───────────────────────────── Farm: production, stock, supplies ─────────────────────────────
+
+model ProductionBatch {
+  id              String        @id @default(cuid())
+  code            String        @unique
+  productId       String
+  product         Product       @relation(fields: [productId], references: [id], onDelete: Cascade)
+  startDate       DateTime
+  expectedHarvest DateTime?
+  bagCount        Int           @default(0)
+  substrate       String        @default("")
+  status          String        @default("GROWING") // GROWING | HARVESTING | COMPLETED | FAILED
+  extraCost       Float         @default(0) // direct costs not tracked as supplies
+  note            String        @default("")
+  createdAt       DateTime      @default(now())
+  harvests        Harvest[]
+  usages          SupplyUsage[]
+}
+
+model Harvest {
+  id        String           @id @default(cuid())
+  batchId   String?
+  batch     ProductionBatch? @relation(fields: [batchId], references: [id], onDelete: SetNull)
+  productId String
+  product   Product          @relation(fields: [productId], references: [id], onDelete: Cascade)
+  date      DateTime
+  qty       Float // kg harvested (sellable)
+  wasteQty  Float            @default(0)
+  grade     String           @default("A")
+  note      String           @default("")
+  createdAt DateTime         @default(now())
+}
+
+model StockMovement {
+  id        String   @id @default(cuid())
+  productId String
+  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  change    Float // + in, - out (stock unit)
+  reason    String // HARVEST | ORDER | ORDER_CANCEL | SPOILAGE | ADJUST | RETURN | PREORDER_FULFIL
+  unitCost  Float    @default(0)
+  refId     String   @default("")
+  note      String   @default("")
+  by        String   @default("system")
+  createdAt DateTime @default(now())
+
+  @@index([productId, createdAt])
+}
+
+model SupplyItem {
+  id           String           @id @default(cuid())
+  name         String
+  nameBn       String           @default("")
+  category     String           @default("PRODUCTION") // PRODUCTION | PACKAGING | OTHER
+  unit         String           @default("pcs")
+  stockQty     Float            @default(0)
+  avgCost      Float            @default(0) // weighted average cost per unit
+  reorderLevel Float            @default(0)
+  isActive     Boolean          @default(true)
+  createdAt    DateTime         @default(now())
+  purchases    SupplyPurchase[]
+  usages       SupplyUsage[]
+}
+
+model Supplier {
+  id        String           @id @default(cuid())
+  name      String
+  phone     String           @default("")
+  address   String           @default("")
+  note      String           @default("")
+  createdAt DateTime         @default(now())
+  purchases SupplyPurchase[]
+}
+
+model SupplyPurchase {
+  id           String     @id @default(cuid())
+  supplyItemId String
+  supplyItem   SupplyItem @relation(fields: [supplyItemId], references: [id], onDelete: Cascade)
+  supplierId   String?
+  supplier     Supplier?  @relation(fields: [supplierId], references: [id], onDelete: SetNull)
+  qty          Float
+  unitCost     Float
+  totalCost    Float
+  date         DateTime
+  note         String     @default("")
+  createdAt    DateTime   @default(now())
+}
+
+model SupplyUsage {
+  id           String           @id @default(cuid())
+  supplyItemId String
+  supplyItem   SupplyItem       @relation(fields: [supplyItemId], references: [id], onDelete: Cascade)
+  qty          Float
+  unitCost     Float
+  totalCost    Float
+  reason       String // PRODUCTION | PACKAGING | WASTE | ADJUST
+  batchId      String?
+  batch        ProductionBatch? @relation(fields: [batchId], references: [id], onDelete: SetNull)
+  orderId      String?
+  date         DateTime
+  note         String           @default("")
+  createdAt    DateTime         @default(now())
+}
+
+model Expense {
+  id        String   @id @default(cuid())
+  category  String // RENT | SALARY | UTILITIES | TRANSPORT | MARKETING | EQUIPMENT | MAINTENANCE | FEES | OTHER
+  amount    Float
+  date      DateTime
+  paidTo    String   @default("")
+  method    String   @default("CASH") // CASH | BKASH | NAGAD | BANK | CARD
+  note      String   @default("")
+  createdAt DateTime @default(now())
+
+  @@index([date])
+}
+
+// ───────────────────────────── CRM ─────────────────────────────
+
+model Lead {
+  id             String     @id @default(cuid())
+  name           String
+  phone          String     @default("")
+  email          String     @default("")
+  company        String     @default("")
+  type           String     @default("RETAIL") // RETAIL | WHOLESALE | RESTAURANT | DISTRIBUTOR | OTHER
+  source         String     @default("WEBSITE") // WEBSITE | HARVEST_ALERT | WHOLESALE_FORM | FACEBOOK | PHONE | REFERRAL | EVENT | OTHER
+  status         String     @default("NEW") // NEW | CONTACTED | QUALIFIED | NEGOTIATION | WON | LOST
+  estValue       Float      @default(0) // estimated monthly value (BDT)
+  interest       String     @default("")
+  message        String     @default("")
+  nextFollowUp   DateTime?
+  assignedTo     String     @default("")
+  lostReason     String     @default("")
+  customerId     String?
+  customer       Customer?  @relation(fields: [customerId], references: [id], onDelete: SetNull)
+  createdAt      DateTime   @default(now())
+  updatedAt      DateTime   @updatedAt
+  activities     Activity[]
+}
+
+model Activity {
+  id         String    @id @default(cuid())
+  leadId     String?
+  lead       Lead?     @relation(fields: [leadId], references: [id], onDelete: Cascade)
+  customerId String?
+  customer   Customer? @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  type       String // CALL | WHATSAPP | EMAIL | MEETING | NOTE | SMS | VISIT
+  summary    String
+  followUpAt DateTime?
+  done       Boolean   @default(false)
+  by         String    @default("")
+  createdAt  DateTime  @default(now())
+}
+
+model Ticket {
+  id         String          @id @default(cuid())
+  ticketNo   String          @unique
+  customerId String?
+  customer   Customer?       @relation(fields: [customerId], references: [id], onDelete: SetNull)
+  name       String
+  email      String
+  phone      String          @default("")
+  subject    String
+  category   String          @default("GENERAL") // ORDER | DELIVERY | QUALITY | GENERAL | FEEDBACK | WHOLESALE
+  priority   String          @default("NORMAL") // LOW | NORMAL | HIGH | URGENT
+  status     String          @default("OPEN") // OPEN | PENDING | RESOLVED | CLOSED
+  orderNo    String          @default("")
+  assignedTo String          @default("")
+  createdAt  DateTime        @default(now())
+  updatedAt  DateTime        @updatedAt
+  messages   TicketMessage[]
+}
+
+model TicketMessage {
+  id         String   @id @default(cuid())
+  ticketId   String
+  ticket     Ticket   @relation(fields: [ticketId], references: [id], onDelete: Cascade)
+  from       String // CUSTOMER | STAFF
+  authorName String
+  body       String
+  isInternal Boolean  @default(false)
+  createdAt  DateTime @default(now())
+}
+
+model Campaign {
+  id        String    @id @default(cuid())
+  name      String
+  subject   String
+  body      String
+  segment   String // ALL | NEW | ACTIVE | LOYAL | AT_RISK | LOST | LEADS | HARVEST_ALERT
+  status    String    @default("DRAFT") // DRAFT | SENT
+  sentCount Int       @default(0)
+  sentAt    DateTime?
+  createdAt DateTime  @default(now())
+}
+
+// ───────────────────────────── System ─────────────────────────────
+
+model EmailLog {
+  id        String   @id @default(cuid())
+  to        String
+  subject   String
+  type      String
+  status    String // SENT | FAILED | SKIPPED
+  error     String   @default("")
+  refId     String   @default("")
+  createdAt DateTime @default(now())
+
+  @@index([createdAt])
+}
+
+model Setting {
+  key   String @id
+  value String // JSON
+}
+
+model Counter {
+  key   String @id
+  value Int    @default(0)
+}

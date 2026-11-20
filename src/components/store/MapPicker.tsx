@@ -1,0 +1,184 @@
+"use client";
+// Loaded only in the browser (see CheckoutForm: dynamic import with ssr:false)
+import { useEffect, useRef, useState } from "react";
+import { Circle, MapContainer, Marker, TileLayer, useMap, useMapEvents } from "react-leaflet";
+import L from "leaflet";
+import "leaflet/dist/leaflet.css";
+import { Crosshair, Loader2, MapPin, Search } from "lucide-react";
+import { distanceKm } from "@/lib/geo";
+
+const pin = L.divIcon({
+  className: "",
+  html: `<svg width="42" height="52" viewBox="0 0 42 52" xmlns="http://www.w3.org/2000/svg"><path d="M21 51s17-17.6 17-30A17 17 0 0 0 4 21c0 12.4 17 30 17 30Z" fill="#02604A" stroke="#F4EDDB" stroke-width="3"/><circle cx="21" cy="20" r="7" fill="#F4EDDB"/></svg>`,
+  iconSize: [42, 52],
+  iconAnchor: [21, 50],
+});
+
+export type Pin = { lat: number; lng: number };
+
+function Clicks({ onPick }: { onPick: (p: Pin) => void }) {
+  useMapEvents({ click: (e) => onPick({ lat: e.latlng.lat, lng: e.latlng.lng }) });
+  return null;
+}
+function Fly({ to }: { to: Pin | null }) {
+  const map = useMap();
+  const last = useRef<string>("");
+  useEffect(() => {
+    if (!to) return;
+    const k = `${to.lat.toFixed(5)},${to.lng.toFixed(5)}`;
+    if (k === last.current) return;
+    last.current = k;
+    map.flyTo([to.lat, to.lng], Math.max(map.getZoom(), 16), { duration: 0.8 });
+  }, [to, map]);
+  return null;
+}
+
+export default function MapPicker({
+  value,
+  onChange,
+  center,
+  radiusKm,
+  onAddress,
+}: {
+  value: Pin | null;
+  onChange: (p: Pin) => void;
+  center: Pin;
+  radiusKm: number;
+  onAddress?: (label: string) => void;
+}) {
+  const [q, setQ] = useState("");
+  const [results, setResults] = useState<{ lat: number; lng: number; label: string }[]>([]);
+  const [busy, setBusy] = useState<"search" | "locate" | null>(null);
+  const [msg, setMsg] = useState<string>("");
+  const [label, setLabel] = useState("");
+  const outside = value ? distanceKm(value.lat, value.lng, center.lat, center.lng) > radiusKm : false;
+
+  const pick = async (p: Pin, knownLabel?: string) => {
+    onChange(p);
+    setResults([]);
+    if (knownLabel) {
+      setLabel(knownLabel);
+      onAddress?.(knownLabel);
+      return;
+    }
+    try {
+      const r = await fetch(`/api/geo/reverse?lat=${p.lat}&lng=${p.lng}`).then((x) => x.json());
+      if (r.label) {
+        setLabel(r.label);
+        onAddress?.(r.label);
+      }
+    } catch {
+      /* ignore */
+    }
+  };
+
+  const search = async () => {
+    if (q.trim().length < 3) return;
+    setBusy("search");
+    setMsg("");
+    try {
+      const r = await fetch(`/api/geo/search?q=${encodeURIComponent(q)}`).then((x) => x.json());
+      setResults(r.results ?? []);
+      if (!r.results?.length) setMsg("কিছু পাওয়া যায়নি — ম্যাপে ক্লিক করে পিন দিন · Not found, tap the map instead");
+    } finally {
+      setBusy(null);
+    }
+  };
+
+  const locate = () => {
+    if (!navigator.geolocation) return setMsg("আপনার ব্রাউজারে লোকেশন সাপোর্ট নেই");
+    setBusy("locate");
+    setMsg("");
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        setBusy(null);
+        pick({ lat: pos.coords.latitude, lng: pos.coords.longitude });
+      },
+      () => {
+        setBusy(null);
+        setMsg("লোকেশন পাওয়া যায়নি — অনুমতি দিন বা ম্যাপে পিন করুন · Location permission denied");
+      },
+      { enableHighAccuracy: true, timeout: 12000 },
+    );
+  };
+
+  return (
+    <div className="space-y-3">
+      <div className="flex flex-col gap-2 sm:flex-row">
+        <div className="relative flex-1">
+          <Search className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted" />
+          <label htmlFor="map-search" className="sr-only">
+            Search your area
+          </label>
+          <input
+            id="map-search"
+            value={q}
+            onChange={(e) => setQ(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") {
+                e.preventDefault();
+                search();
+              }
+            }}
+            placeholder="এলাকা/রোড লিখে খুঁজুন · e.g. Dhanmondi 27"
+            className="input pl-10"
+          />
+          {results.length > 0 && (
+            <ul className="absolute inset-x-0 top-full z-[500] mt-1 max-h-64 overflow-auto rounded-2xl border border-line bg-white p-1 shadow-xl">
+              {results.map((r) => (
+                <li key={`${r.lat},${r.lng}`}>
+                  <button type="button" onClick={() => pick({ lat: r.lat, lng: r.lng }, r.label)} className="flex w-full gap-2 rounded-xl px-3 py-2 text-left text-sm hover:bg-brand-tint">
+                    <MapPin className="mt-0.5 h-4 w-4 shrink-0 text-brand" />
+                    <span className="line-clamp-2">{r.label}</span>
+                  </button>
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
+        <button type="button" onClick={search} className="btn btn-outline" disabled={busy !== null}>
+          {busy === "search" ? <Loader2 className="h-4 w-4 animate-spin" /> : <Search className="h-4 w-4" />} খুঁজুন
+        </button>
+        <button type="button" onClick={locate} className="btn btn-primary" disabled={busy !== null}>
+          {busy === "locate" ? <Loader2 className="h-4 w-4 animate-spin" /> : <Crosshair className="h-4 w-4" />} আমার লোকেশন
+        </button>
+      </div>
+      {msg && <p className="text-xs text-amber-700">{msg}</p>}
+
+      <div className="relative overflow-hidden rounded-2xl border border-line">
+        <MapContainer center={value ?? center} zoom={value ? 16 : 12} scrollWheelZoom={false} className="h-[300px] w-full sm:h-[340px]" attributionControl>
+          <TileLayer attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>' url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
+          <Circle center={center} radius={radiusKm * 1000} pathOptions={{ color: "#02604A", weight: 1.5, fillOpacity: 0.04, dashArray: "6 6" }} />
+          {value && (
+            <Marker
+              position={value}
+              icon={pin}
+              draggable
+              eventHandlers={{
+                dragend: (e) => {
+                  const ll = (e.target as L.Marker).getLatLng();
+                  pick({ lat: ll.lat, lng: ll.lng });
+                },
+              }}
+            />
+          )}
+          <Clicks onPick={(p) => pick(p)} />
+          <Fly to={value} />
+        </MapContainer>
+        {!value && (
+          <div className="pointer-events-none absolute inset-x-0 bottom-3 z-[400] mx-auto w-fit rounded-full bg-ink/80 px-4 py-2 text-xs text-white">👆 ম্যাপে আপনার বাসার জায়গায় ট্যাপ করুন · Tap your home on the map</div>
+        )}
+      </div>
+      {value && !outside && label && (
+        <p className="flex gap-2 rounded-xl bg-brand-tint px-3 py-2 text-xs text-brand-deep">
+          <MapPin className="h-4 w-4 shrink-0" /> <span>{label}</span>
+        </p>
+      )}
+      {outside && (
+        <p className="rounded-xl bg-red-50 px-3 py-2 text-sm text-red-700" role="alert">
+          ⚠️ এই লোকেশনটি আমাদের ডেলিভারি এলাকার বাইরে (ঢাকা সিটি)। Pin is outside our Dhaka delivery area.
+        </p>
+      )}
+    </div>
+  );
+}

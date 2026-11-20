@@ -1,0 +1,13 @@
+services:
+  web:
+    build: .
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    env_file: .env
+    environment:
+      DATABASE_URL: "file:/data/fungibd.db"
+      UPLOAD_DIR: "/data/uploads"
+    volumes:
+      - ./data:/data # database + uploaded photos live here — back up this folder
+      - ./backups:/app/backups
