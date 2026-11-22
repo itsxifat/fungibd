@@ -63,9 +63,19 @@
   }
 }
 
+@keyframes store-menu-in {
+  from {
+    opacity: 0;
+    transform: translateX(0.75rem);
+  }
+}
+
 html {
   -webkit-text-size-adjust: 100%;
   scroll-behavior: smooth;
+}
+html:has(#store-mobile-menu:modal) {
+  overflow: hidden;
 }
 body {
   background: var(--paper);
