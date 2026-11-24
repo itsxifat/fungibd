@@ -25,7 +25,7 @@ type O = {
 
 export function OrderSummaryCard({ o, showTimeline = true }: { o: O; showTimeline?: boolean }) {
   return (
-    <div className="rounded-2xl border border-line bg-white">
+    <div className="rounded-xl border border-line bg-white">
       <div className="flex flex-wrap items-center justify-between gap-3 border-b border-line px-5 py-4 sm:px-6">
         <div>
           <p className="text-xs text-muted">অর্ডার নম্বর · Order no.</p>

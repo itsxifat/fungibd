@@ -23,7 +23,7 @@ export function ProductImage({ src, alt, className, imgClassName }: { src?: stri
     return (
       <div className={cn("relative grid place-items-center overflow-hidden", className)} style={{ background: art.tint }}>
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src={art.src} alt={alt} loading="lazy" className={cn("h-[78%] w-[78%] object-contain transition-transform duration-500", imgClassName)} />
+        <img src={art.src} alt={alt} loading="lazy" className={cn("absolute inset-0 m-auto h-[78%] w-[78%] object-contain transition-transform duration-500", imgClassName)} />
       </div>
     );
   }

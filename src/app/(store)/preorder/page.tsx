@@ -15,10 +15,9 @@ export default async function PreorderPage() {
 
   return (
     <div className="container-x pb-10 pt-10">
-      <div className="grid gap-8 border-b border-line pb-10 lg:grid-cols-[1.1fr_1fr] lg:items-end">
+      <div className="border-b border-line pb-8">
         <div>
-          <p className="eyebrow">প্রি-অর্ডার</p>
-          <h1 className="mt-2 font-display text-3xl sm:text-4xl">পরের হারভেস্ট থেকে বুক করুন</h1>
+          <h1 className="font-display text-3xl sm:text-4xl">পরের হারভেস্ট থেকে বুক করুন</h1>
           <p className="mt-3 max-w-xl font-bangla text-[17px] leading-relaxed text-ink-soft">
             আমাদের খামারের সব তাজা মাশরুম প্রি-অর্ডারে বিক্রি হয়। এখন বুক করে রাখুন — হারভেস্টের পর নির্ধারিত দিনে ডেলিভারি।
           </p>
@@ -28,15 +27,18 @@ export default async function PreorderPage() {
             </p>
           )}
         </div>
-        <PreorderSteps className="sm:grid-cols-3 lg:grid-cols-1 xl:grid-cols-3" />
+        <PreorderSteps className="mt-8 rounded-xl border border-line bg-card px-5 sm:py-5" />
       </div>
 
       {products.length ? (
-        <div className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+        <>
+        <h2 className="sr-only">প্রি-অর্ডারের মাশরুম</h2>
+        <div className="mt-10 grid gap-4 lg:grid-cols-2">
           {products.map((p) => (
-            <ProductCard key={p.id} product={p} />
+            <ProductCard key={p.id} product={p} layout="wide" />
           ))}
         </div>
+        </>
       ) : (
         <div className="mx-auto mt-16 max-w-xl text-center">
           <p className="font-display text-2xl">এই মুহূর্তে প্রি-অর্ডার বন্ধ</p>

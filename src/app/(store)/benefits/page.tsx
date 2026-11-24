@@ -28,7 +28,7 @@ export default async function BenefitsPage() {
       {video && (
         <section id="video" className="mt-16 scroll-mt-24">
           <h2 className="font-display text-2xl">ভিডিও · Video</h2>
-          <div className="mt-6 aspect-video overflow-hidden rounded-2xl bg-ink">
+          <div className="mt-6 aspect-video overflow-hidden rounded-xl bg-ink">
             {video.kind === "youtube" ? (
               <iframe src={video.src} title="FungiBd video" className="h-full w-full" allow="accelerometer; encrypted-media; picture-in-picture" allowFullScreen />
             ) : (
@@ -46,7 +46,7 @@ export default async function BenefitsPage() {
       </section>
 
       <section className="mt-16 grid gap-6 lg:grid-cols-3">
-        <div className="rounded-2xl border border-line bg-white p-6">
+        <div className="rounded-xl border border-line bg-white p-6">
           <h2 className="font-semibold">পুষ্টিগুণ · প্রতি ১০০ গ্রাম</h2>
           <p className="text-xs text-muted">Oyster mushroom, raw · USDA FoodData Central</p>
           <table className="mt-4 w-full text-sm">
@@ -62,7 +62,7 @@ export default async function BenefitsPage() {
             </tbody>
           </table>
         </div>
-        <div className="rounded-2xl border border-line bg-white p-6">
+        <div className="rounded-xl border border-line bg-white p-6">
           <h2 className="font-semibold">সংরক্ষণের নিয়ম · Storage</h2>
           <ul className="mt-4 space-y-3 font-bangla text-sm">
             {STORAGE_TIPS.map((t) => (
@@ -73,7 +73,7 @@ export default async function BenefitsPage() {
             ))}
           </ul>
         </div>
-        <div className="rounded-2xl border border-line bg-white p-6">
+        <div className="rounded-xl border border-line bg-white p-6">
           <h2 className="font-semibold">রান্নার আইডিয়া · Cooking ideas</h2>
           <div className="mt-4 flex flex-wrap gap-2">
             {COOK_IDEAS.map((c) => (

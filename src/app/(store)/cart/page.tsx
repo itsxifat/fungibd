@@ -19,7 +19,7 @@ export default function CartPage() {
       <h1 className="font-display text-4xl">কার্ট</h1>
       <p className="mt-1 text-muted">Your cart · {t.count} items</p>
       {!items.length ? (
-        <div className="mt-10 rounded-2xl border border-line bg-white p-10 text-center">
+        <div className="mt-10 rounded-xl border border-line bg-white p-10 text-center">
           <p className="font-bangla text-lg">আপনার কার্ট খালি</p>
           <Link href="/shop" className="btn btn-primary mt-6">
             শপে যান
@@ -27,7 +27,7 @@ export default function CartPage() {
         </div>
       ) : (
         <div className="mt-8 grid gap-8 md:grid-cols-[1.4fr_1fr]">
-          <div className="rounded-2xl border border-line bg-white p-5">
+          <div className="rounded-xl border border-line bg-white p-5">
             {notes.length > 0 && (
               <div className="mb-4 rounded-xl bg-amber-50 p-3 text-xs text-amber-900">
                 {notes.map((n) => (
@@ -41,7 +41,7 @@ export default function CartPage() {
               ))}
             </ul>
           </div>
-          <div className="h-fit rounded-2xl border border-line bg-white p-5">
+          <div className="h-fit rounded-xl border border-line bg-white p-5">
             <div className="flex justify-between text-sm">
               <span className="text-muted">সাবটোটাল</span>
               <span className="text-lg font-semibold">{taka(t.subtotal)}</span>

@@ -100,7 +100,6 @@ function Split({ visual, children }: { visual: React.ReactNode; children: React.
   );
 }
 
-const kicker = "font-bangla text-[3cqw] font-medium text-tan sm:text-[1.1cqw]";
 const headline = "mt-[1.5cqw] font-display text-[7.2cqw] leading-[1.2] text-cream sm:mt-[1cqw] sm:text-[4.2cqw]";
 const sub = "mt-[2.4cqw] font-bangla text-[3.6cqw] leading-relaxed text-cream/75 sm:mt-[1.6cqw] sm:max-w-[36cqw] sm:text-[1.5cqw]";
 const unit = "mt-[1cqw] font-bangla text-[3cqw] text-cream/70 sm:mt-[0.5cqw] sm:text-[1.15cqw]";
@@ -118,12 +117,9 @@ function Intro() {
         </div>
       }
     >
-      <Fade className={kicker} delay={0.2}>
-        FungiBd · {bnDigits(30)} সেকেন্ডে
-      </Fade>
-      <h3 className={headline}>
+      <p className={headline}>
         <Lines lines={["এক মুঠো মাশরুমে", "কী থাকে?"]} />
-      </h3>
+      </p>
       <Fade className={sub} delay={1.1}>
         What&apos;s inside a handful of mushrooms.
       </Fade>
@@ -143,12 +139,9 @@ function Kcal() {
         </Ring>
       }
     >
-      <Fade className={kicker} delay={0.2}>
-        ০১ · হালকা খাবার
-      </Fade>
-      <h3 className={headline}>
+      <p className={headline}>
         <Lines lines={["হালকা, তবু", "পেট ভরা"]} accentLast />
-      </h3>
+      </p>
       <Fade className={sub} delay={1.1}>
         ১০০ গ্রাম ঝিনুক মাশরুমে মাত্র ৩৩ ক্যালরি — আর আঁশ থাকায় অনেকক্ষণ খিদে লাগে না।
       </Fade>
@@ -180,12 +173,9 @@ function Protein() {
         </div>
       }
     >
-      <Fade className={kicker} delay={0.2}>
-        ০২ · উদ্ভিজ্জ প্রোটিন
-      </Fade>
-      <h3 className={headline}>
+      <p className={headline}>
         <Lines lines={["দরকারি ৯টি অ্যামাইনো", "অ্যাসিডই আছে"]} accentLast />
-      </h3>
+      </p>
       <Fade className={sub} delay={1.1}>
         মাছ-মাংস কম খাওয়ার দিনের জন্য চমৎকার।
       </Fade>
@@ -203,12 +193,9 @@ function Heart() {
         </Ring>
       }
     >
-      <Fade className={kicker} delay={0.2}>
-        ০৩ · হার্টের জন্য হালকা
-      </Fade>
-      <h3 className={headline}>
+      <p className={headline}>
         <Lines lines={["কোলেস্টেরল", "একদম নেই"]} accentLast />
-      </h3>
+      </p>
       <Fade className={sub} delay={1.1}>
         ১০০ গ্রামে চর্বি মাত্র ০.৪ গ্রাম, সোডিয়াম কম — আর আছে ৪২০ মি.গ্রা. পটাশিয়াম।
       </Fade>
@@ -251,12 +238,9 @@ function Sun() {
           </div>
         }
       >
-        <Fade className={kicker} delay={0.2}>
-          ০৪ · রোদের ভিটামিন
-        </Fade>
-        <h3 className={headline}>
+        <p className={headline}>
           <Lines lines={["রান্নার আগে", "৩০ মিনিট রোদে রাখুন"]} accentLast />
-        </h3>
+        </p>
         <Fade className={sub} delay={1.1}>
           রোদ পেলে মাশরুম নিজেই ভিটামিন ডি তৈরি করে — হাড় আর দাঁতের যত্নে।
         </Fade>
@@ -279,9 +263,9 @@ function Outro() {
           <motion.img key={src} src={src} alt="" className="w-[17cqw] sm:w-[9cqw]" initial={{ y: "35%", opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.15 + i * 0.14, duration: 1.1, ease: EASE }} />
         ))}
       </div>
-      <h3 className="mt-[3cqw] font-display text-[6.6cqw] leading-[1.22] text-cream sm:mt-[2cqw] sm:text-[3.7cqw]">
+      <p className="mt-[3cqw] font-display text-[6.6cqw] leading-[1.22] text-cream sm:mt-[2cqw] sm:text-[3.7cqw]">
         <Lines lines={["খামারের তাজা মাশরুম,", "পরের হারভেস্ট থেকে বুক করুন"]} delay={0.8} accentLast />
-      </h3>
+      </p>
       <Fade as="div" delay={1.6} className="mt-[4cqw] flex flex-wrap justify-center gap-2 sm:mt-[2.4cqw] sm:gap-3">
         <Link href="/preorder" className="btn btn-cream max-sm:px-4 max-sm:py-2.5 max-sm:text-sm">
           প্রি-অর্ডার করুন

@@ -13,7 +13,7 @@ export default async function RegisterPage() {
     <div className="container-x max-w-md py-16">
       <h1 className="font-display text-3xl">নতুন অ্যাকাউন্ট</h1>
       <p className="mt-1 text-muted">Create an account to track orders and order faster.</p>
-      <div className="mt-8 rounded-2xl border border-line bg-white p-6">
+      <div className="mt-8 rounded-xl border border-line bg-white p-6">
         <RegisterForm />
         {googleConfig() && (
           <>

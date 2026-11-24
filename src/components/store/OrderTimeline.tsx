@@ -7,7 +7,7 @@ export function OrderTimeline({ status, events }: { status: string; events: { st
   const st = status as OrderStatus;
   if (st === "CANCELLED" || st === "RETURNED")
     return (
-      <div className="flex items-center gap-3 rounded-2xl bg-red-50 p-4 text-red-800">
+      <div className="flex items-center gap-3 rounded-xl bg-red-50 p-4 text-red-800">
         <X className="h-5 w-5" />
         <span className="font-bangla font-semibold">{ORDER_STATUS[st].bn}</span>
         <span className="text-sm">· {ORDER_STATUS[st].en}</span>

@@ -5,7 +5,7 @@ import { ArrowRight, CalendarClock, Search } from "lucide-react";
 import { db } from "@/lib/db";
 import { getProducts, isPreorderOnly } from "@/lib/store-data";
 import { ProductCard } from "@/components/store/ProductCard";
-import { cn } from "@/lib/utils";
+import { bnDigits, cn } from "@/lib/utils";
 import { storefrontMetadata } from "@/lib/seo";
 
 type ShopSearch = { category?: string; filter?: string; q?: string };
@@ -46,26 +46,25 @@ export default async function ShopPage({ searchParams }: { searchParams: Promise
 
   return (
     <div className="container-x pb-10 pt-10">
-      <div className="flex flex-col gap-6 border-b border-line pb-8 md:flex-row md:items-end md:justify-between">
+      <div className="border-b border-line pb-8">
         <div>
-          <p className="eyebrow">শপ</p>
-          <h1 className="mt-2 font-display text-3xl sm:text-4xl">মাশরুমের তৈরি পণ্য</h1>
+          <h1 className="font-display text-3xl sm:text-4xl">মাশরুমের তৈরি পণ্য</h1>
           <p className="mt-2 max-w-xl font-bangla text-ink-soft">
             আমাদের খামারের মাশরুম দিয়ে তৈরি — শুকনো মাশরুম, পাউডার আর ঘরে চাষের কিট। স্টকে যা আছে, আজই অর্ডার করা যায়।{" "}
             <Link href="/delivery" className="font-medium text-brand underline underline-offset-2">ডেলিভারি এলাকা দেখুন</Link>
           </p>
         </div>
-        <form action="/shop" className="flex w-full max-w-sm items-center gap-2 rounded-xl border border-line-strong bg-white p-1.5 pl-4">
-          <Search className="h-4 w-4 text-muted" aria-hidden />
-          {sp.category && <input type="hidden" name="category" value={sp.category} />}
-          {sp.filter && <input type="hidden" name="filter" value={sp.filter} />}
-          <label htmlFor="shop-q" className="sr-only">
-            Search
-          </label>
-          <input id="shop-q" name="q" defaultValue={sp.q} placeholder="খুঁজুন · Search" className="h-10 flex-1 bg-transparent text-sm outline-none" />
-          <button className="btn btn-primary btn-sm">খুঁজুন</button>
-        </form>
       </div>
+
+      {q && (
+        <p className="mt-6 flex flex-wrap items-center gap-x-3 gap-y-1 font-bangla text-[15px] text-ink-soft">
+          <Search className="size-4 text-muted" aria-hidden />
+          “{sp.q}” খোঁজার ফলাফল · {bnDigits(products.length)}টি পণ্য
+          <Link href={href({ q: undefined })} className="font-medium text-brand underline-offset-4 hover:underline">
+            খোঁজা মুছুন
+          </Link>
+        </p>
+      )}
 
       {hasPreorder && (
         <Link href="/preorder" className="group mt-6 flex items-center gap-3 rounded-xl border border-line bg-cream/50 px-5 py-4 transition-colors duration-150 hover:border-line-strong">
@@ -81,11 +80,11 @@ export default async function ShopPage({ searchParams }: { searchParams: Promise
       {shopCats.length > 1 && (
         <div className="no-scrollbar -mx-4 mt-8 flex gap-2 overflow-x-auto px-4">
           <Link href={href({ category: undefined })} className={chip(!sp.category)}>
-            সব · All
+            সব
           </Link>
           {shopCats.map((c) => (
             <Link key={c.id} href={href({ category: c.slug })} className={chip(sp.category === c.slug)}>
-              {c.nameBn} · {c.nameEn}
+              {c.nameBn}
             </Link>
           ))}
           <span className="mx-1 w-px shrink-0 bg-line" />
@@ -95,10 +94,11 @@ export default async function ShopPage({ searchParams }: { searchParams: Promise
         </div>
       )}
 
+      <h2 className="sr-only">পণ্যের তালিকা</h2>
       {products.length ? (
-        <div className="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+        <div className="mt-8 grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4 lg:grid-cols-4">
           {products.map((p) => (
-            <ProductCard key={p.id} product={p} />
+            <ProductCard key={p.id} product={p} buyNow />
           ))}
         </div>
       ) : (

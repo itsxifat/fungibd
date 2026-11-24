@@ -17,7 +17,7 @@ export default async function TrackPage({ searchParams }: { searchParams: Promis
     <div className="container-x max-w-3xl py-14">
       <h1 className="font-display text-4xl">অর্ডার ট্র্যাক করুন</h1>
       <p className="mt-2 text-muted">Track your order with the order number and mobile number.</p>
-      <form className="mt-8 grid gap-3 rounded-2xl border border-line bg-white p-5 sm:grid-cols-[1fr_1fr_auto] sm:items-end">
+      <form className="mt-8 grid gap-3 rounded-xl border border-line bg-white p-5 sm:grid-cols-[1fr_1fr_auto] sm:items-end">
         <div>
           <label className="label" htmlFor="order">
             অর্ডার নম্বর · Order no.

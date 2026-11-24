@@ -22,7 +22,7 @@ export default function WholesalePage() {
             ))}
           </ul>
         </div>
-        <section className="rounded-2xl border border-line bg-white p-6">
+        <section className="rounded-xl border border-line bg-white p-6">
           <WholesaleForm />
         </section>
       </div>

@@ -145,7 +145,7 @@ export default function MapPicker({
       </div>
       {msg && <p className="text-xs text-amber-700">{msg}</p>}
 
-      <div className="relative overflow-hidden rounded-2xl border border-line">
+      <div className="relative overflow-hidden rounded-xl border border-line">
         <MapContainer center={value ?? center} zoom={value ? 16 : 12} scrollWheelZoom={false} className="h-[300px] w-full sm:h-[340px]" attributionControl>
           <TileLayer attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>' url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
           <Circle center={center} radius={radiusKm * 1000} pathOptions={{ color: "#02604A", weight: 1.5, fillOpacity: 0.04, dashArray: "6 6" }} />

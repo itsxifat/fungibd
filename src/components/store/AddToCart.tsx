@@ -1,26 +1,32 @@
 "use client";
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { CalendarClock, Minus, Plus, ShoppingBag } from "lucide-react";
 import { useCart } from "./cart-store";
 import type { ProductDTO } from "@/lib/store-data";
-import { bnDigits, cn, taka } from "@/lib/utils";
+import { bnDigits, cn, takaBn } from "@/lib/utils";
 import { fmtDateBn } from "@/lib/dates";
 import { SOLD_OUT_TEXT } from "@/lib/catalog";
 
-const bnTaka = (n: number) => bnDigits(taka(n));
-
-/** The harvest date line — the one detail used the same way on the hero, cards and emails. */
+/** The harvest date line — the one detail used the same way on the hero, cards, cart and emails. */
 export function HarvestDate({ date, className }: { date: string | null; className?: string }) {
   return (
-    <p className={cn("flex items-center gap-2 font-bangla text-sm text-ink-soft", className)}>
+    <p className={cn("flex items-center gap-1.5 font-bangla text-sm text-ink-soft", className)}>
       <CalendarClock className="size-4 shrink-0 text-muted" aria-hidden />
       {date ? `হারভেস্ট · ${fmtDateBn(new Date(date), { weekday: "short", day: "numeric", month: "long" })}` : "পরের হারভেস্টে ডেলিভারি"}
     </p>
   );
 }
 
-export function AddToCart({ product, size = "card", dark = false, initialVariantId }: { product: ProductDTO; size?: "card" | "full"; dark?: boolean; initialVariantId?: string }) {
+/**
+ * Pack picker + price + actions.
+ * size "card": compact; buyNow adds a second, turmeric "buy now" button that goes straight to checkout.
+ * size "full": product page, with quantity.
+ */
+export function AddToCart({ product, size = "card", buyNow = false, harvestLine = true, initialVariantId }: { product: ProductDTO; size?: "card" | "full"; buyNow?: boolean; harvestLine?: boolean; initialVariantId?: string }) {
+  const router = useRouter();
   const add = useCart((s) => s.add);
+  const setOpen = useCart((s) => s.setOpen);
   const firstBuyable = product.variants.find((v) => v.mode !== "SOLD_OUT") ?? product.variants[0];
   const [vid, setVid] = useState(initialVariantId ?? firstBuyable?.id);
   const [qty, setQty] = useState(1);
@@ -29,9 +35,11 @@ export function AddToCart({ product, size = "card", dark = false, initialVariant
   const pre = v.mode === "PREORDER";
   const out = v.mode === "SOLD_OUT";
   const full = size === "full";
+  const save = v.comparePrice && v.comparePrice > v.price ? v.comparePrice - v.price : 0;
+  const showBuyNow = full || buyNow;
 
-  const onAdd = () => {
-    if (out) return;
+  const put = () => {
+    if (out) return false;
     add(
       {
         variantId: v.id,
@@ -50,12 +58,18 @@ export function AddToCart({ product, size = "card", dark = false, initialVariant
       },
       full ? qty : 1,
     );
+    return true;
+  };
+  const buy = () => {
+    if (!put()) return;
+    setOpen(false);
+    router.push("/checkout");
   };
 
   return (
-    <div className={cn("flex flex-col", full ? "gap-5" : "gap-3")}>
+    <div className={cn("flex flex-col", full ? "gap-5" : "@container gap-3")}>
       {product.variants.length > 1 && (
-        <div role="radiogroup" aria-label="Pack size" className="flex flex-wrap gap-1.5">
+        <div role="radiogroup" aria-label="প্যাকের সাইজ" className="flex flex-wrap gap-1.5">
           {product.variants.map((x) => (
             <button
               key={x.id}
@@ -65,15 +79,9 @@ export function AddToCart({ product, size = "card", dark = false, initialVariant
               onClick={() => setVid(x.id)}
               className={cn(
                 "rounded-lg border px-3 font-bangla font-medium transition-colors duration-150",
-                full ? "py-2 text-sm" : "py-1 text-xs",
-                dark
-                  ? x.id === v.id
-                    ? "border-cream bg-cream text-brand-night"
-                    : "border-cream/25 text-cream/80 hover:border-cream"
-                  : x.id === v.id
-                    ? "border-ink bg-ink text-white"
-                    : "border-line-strong bg-white text-ink-soft hover:border-ink",
-                x.mode === "SOLD_OUT" && "opacity-40 line-through",
+                full ? "min-h-10 text-sm" : "min-h-8 text-[13px]",
+                x.id === v.id ? "border-ink bg-ink text-white" : "border-line-strong bg-white text-ink-soft hover:border-ink",
+                x.mode === "SOLD_OUT" && (x.id === v.id ? "line-through" : "border-dashed text-muted line-through"),
               )}
             >
               {x.labelBn}
@@ -82,62 +90,58 @@ export function AddToCart({ product, size = "card", dark = false, initialVariant
         </div>
       )}
 
-      <div className="flex items-end justify-between gap-3">
-        <div>
-          <div className="flex items-baseline gap-2">
-            <span className={cn("font-display font-semibold tabular-nums", dark ? "text-cream" : "text-ink", full ? "text-4xl" : "text-2xl")}>{bnTaka(v.price)}</span>
-            {v.comparePrice && v.comparePrice > v.price && <span className={cn("text-sm tabular-nums line-through", dark ? "text-cream/50" : "text-muted")}>{bnTaka(v.comparePrice)}</span>}
-          </div>
-          <div className={cn("font-bangla text-xs", dark ? "text-cream/60" : "text-muted")}>{v.labelBn}</div>
+      <div>
+        <div className="flex flex-wrap items-baseline gap-x-2 gap-y-1">
+          <span className={cn("font-display font-semibold tabular-nums text-ink", full ? "text-4xl" : "text-2xl")}>{takaBn(v.price)}</span>
+          {save > 0 && <span className="text-sm tabular-nums text-muted line-through">{takaBn(v.comparePrice)}</span>}
+          {save > 0 && <span className="rounded-md bg-cta/10 px-1.5 py-0.5 font-bangla text-xs font-semibold text-cta-deep">{takaBn(save)} সাশ্রয়</span>}
         </div>
-        {!full && (
-          <button type="button" onClick={onAdd} disabled={out} className={cn("btn btn-sm", dark ? "btn-cream" : "btn-outline bg-white")} aria-label={`Add ${product.nameEn} ${v.labelEn} to cart`}>
-            {out ? (
-              "স্টক শেষ"
-            ) : pre ? (
-              "বুক করুন"
-            ) : (
-              <>
-                <ShoppingBag className="size-4" aria-hidden /> যোগ করুন
-              </>
-            )}
-          </button>
-        )}
+        {product.variants.length === 1 && <p className="mt-0.5 font-bangla text-xs text-muted">{v.labelBn}</p>}
       </div>
 
-      {pre && !dark && (full ? (
-        <div className="rounded-xl border border-line bg-cream/40 p-4">
+      {pre && (full ? (
+        <div>
           <HarvestDate date={v.preorderDate} className="text-[15px] text-ink" />
-          <p className="mt-1 pl-6 font-bangla text-sm text-ink-soft">এখন বুক করুন, হারভেস্টের পর নির্ধারিত দিনে ডেলিভারি। অগ্রিম টাকা লাগে না।</p>
+          <p className="mt-1 pl-[22px] font-bangla text-sm text-ink-soft">এখন বুক করুন, হারভেস্টের পর নির্ধারিত দিনে ডেলিভারি। অগ্রিম টাকা লাগে না।</p>
         </div>
-      ) : (
-        <HarvestDate date={v.preorderDate} className="text-xs" />
-      ))}
+      ) : harvestLine ? (
+        <HarvestDate date={v.preorderDate} className="text-[13px]" />
+      ) : null)}
       {out && v.reason && (
-        <p className={cn("rounded-lg bg-line/60 font-bangla text-ink-soft", full ? "p-4 text-sm" : "px-3 py-2 text-xs")}>
-          {SOLD_OUT_TEXT[v.reason]?.bn} · {SOLD_OUT_TEXT[v.reason]?.en}
-        </p>
+        <p className={cn("rounded-lg bg-paper font-bangla text-ink-soft", full ? "p-4 text-sm" : "px-3 py-2 text-xs")}>{SOLD_OUT_TEXT[v.reason]?.bn}</p>
       )}
 
-      {full && (
-        <div className="flex flex-wrap items-center gap-3">
+      {/* Card buttons stack when the card is too narrow to hold both side by side (2-up phone grid) */}
+      <div className={cn("flex gap-2", full ? "flex-wrap gap-3" : showBuyNow && "flex-col @[15rem]:flex-row")}>
+        {full && (
           <div className="flex items-center rounded-[10px] border border-line-strong bg-white">
-            <button type="button" onClick={() => setQty((q) => Math.max(1, q - 1))} className="grid size-12 place-items-center rounded-l-[10px] transition-colors duration-150 hover:bg-brand-tint" aria-label="Decrease quantity">
+            <button type="button" onClick={() => setQty((q) => Math.max(1, q - 1))} className="grid size-12 place-items-center rounded-l-[10px] transition-colors duration-150 hover:bg-paper" aria-label="পরিমাণ কমান">
               <Minus className="size-4" aria-hidden />
             </button>
             <span className="w-8 text-center font-semibold tabular-nums" aria-live="polite">
               {bnDigits(qty)}
             </span>
-            <button type="button" onClick={() => setQty((q) => Math.min(20, q + 1))} className="grid size-12 place-items-center rounded-r-[10px] transition-colors duration-150 hover:bg-brand-tint" aria-label="Increase quantity">
+            <button type="button" onClick={() => setQty((q) => Math.min(20, q + 1))} className="grid size-12 place-items-center rounded-r-[10px] transition-colors duration-150 hover:bg-paper" aria-label="পরিমাণ বাড়ান">
               <Plus className="size-4" aria-hidden />
             </button>
           </div>
-          <button type="button" onClick={onAdd} disabled={out} className="btn btn-primary btn-lg flex-1">
-            <ShoppingBag className="size-5" aria-hidden />
-            {out ? "স্টক শেষ" : pre ? "প্রি-অর্ডার করুন" : "কার্টে যোগ করুন"}
+        )}
+        <button
+          type="button"
+          onClick={put}
+          disabled={out}
+          className={cn("btn flex-1 border border-brand bg-white text-brand hover:bg-brand-tint disabled:border-line-strong disabled:text-muted", full ? "btn-lg" : "btn-sm min-h-10")}
+          aria-label={`${product.nameEn} ${v.labelEn} কার্টে রাখুন`}
+        >
+          <ShoppingBag className="size-4" aria-hidden />
+          {out ? "শেষ হয়ে গেছে" : "কার্টে রাখুন"}
+        </button>
+        {showBuyNow && !out && (
+          <button type="button" onClick={buy} className={cn("btn btn-cta flex-1", full ? "btn-lg" : "btn-sm min-h-10")}>
+            {pre ? "এখনই বুক করুন" : "এখনই কিনুন"}
           </button>
-        </div>
-      )}
+        )}
+      </div>
     </div>
   );
 }

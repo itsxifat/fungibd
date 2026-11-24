@@ -15,7 +15,9 @@ export { LEAFLET_ID };
  * A4 benefits leaflet — exactly 210 × 297 mm, white paper, all content at least 12 mm from the edges
  * so nothing is cut when printed. Used on /leaflet (print, PDF & image download) and as a preview on the home page.
  */
-export function BenefitsLeaflet({ s, qr, id = LEAFLET_ID }: { s: Settings; qr: string; id?: string }) {
+export function BenefitsLeaflet({ s, qr, id = LEAFLET_ID, preview = false }: { s: Settings; qr: string; id?: string; preview?: boolean }) {
+  // As a thumbnail on another page the title is not that page's heading
+  const Title = preview ? "p" : "h1";
   const domain = siteUrl().replace(/^https?:\/\//, "").replace(/^www\./, "");
   const phone = s.store.phone && !/x/i.test(s.store.phone) ? s.store.phone : "";
   const ink = "#14231D";
@@ -43,9 +45,9 @@ export function BenefitsLeaflet({ s, qr, id = LEAFLET_ID }: { s: Settings; qr: s
         <div className="mt-[16px] flex items-center gap-7">
           <div className="flex-1">
             <p className="text-[12px] font-semibold tracking-wide text-brand">স্বাস্থ্য ও পুষ্টি · Health &amp; nutrition</p>
-            <h1 className="mt-1.5 font-bangla text-[36px] font-bold leading-[1.15]" style={{ color: ink }}>
+            <Title className="mt-1.5 font-bangla text-[36px] font-bold leading-[1.15]" style={{ color: ink }}>
               মাশরুমের ১০টি উপকারিতা
-            </h1>
+            </Title>
             <p className="mt-1 text-[16px] font-medium" style={{ color: soft }}>
               10 health benefits of eating mushrooms
             </p>

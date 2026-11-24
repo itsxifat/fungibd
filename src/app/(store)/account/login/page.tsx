@@ -16,7 +16,7 @@ export default async function LoginPage({ searchParams }: { searchParams: Promis
     <div className="container-x max-w-md py-16">
       <h1 className="font-display text-3xl">লগইন</h1>
       <p className="mt-1 text-muted">Log in to see your orders.</p>
-      <div className="mt-8 rounded-2xl border border-line bg-white p-6">
+      <div className="mt-8 rounded-xl border border-line bg-white p-6">
         {google && (
           <p role="alert" className="mb-4 rounded-xl bg-amber-50 px-3 py-2 text-sm text-amber-900">
             {google === "link"

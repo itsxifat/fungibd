@@ -1,0 +1,176 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-11-24T23:55:00+06:00",
+  "title": "Design System: FungiBd",
+  "extensions": {
+    "colorMeta": {
+      "brand": { "role": "primary", "displayName": "Farm Green", "canonical": "var(--brand) /* owner-editable, default #02604a */", "tonalRamp": ["#001c13", "#003729", "#005541", "#22735c", "#489079", "#77ab99", "#adccc0", "#e8f1ed"] },
+      "brand-deep": { "role": "primary", "displayName": "Forest Deep", "canonical": "color-mix(in oklab, var(--brand) 82%, black)" },
+      "brand-night": { "role": "primary", "displayName": "Night Field", "canonical": "color-mix(in oklab, var(--brand) 45%, black)" },
+      "brand-soft": { "role": "primary", "displayName": "Green Mist", "canonical": "color-mix(in oklab, var(--brand) 14%, white)" },
+      "brand-tint": { "role": "primary", "displayName": "Green Wash", "canonical": "color-mix(in oklab, var(--brand) 6%, var(--paper))" },
+      "cta": { "role": "secondary", "displayName": "Turmeric", "canonical": "#b4570b", "tonalRamp": ["#2c0900", "#531800", "#7d2800", "#a04400", "#bf6426", "#d18b62", "#e6b9a1", "#f9ece4"] },
+      "cta-deep": { "role": "secondary", "displayName": "Turmeric Deep", "canonical": "#974807" },
+      "tan": { "role": "tertiary", "displayName": "Jute Tan", "canonical": "var(--tan) /* owner-editable, default #d3bfa4 */", "tonalRamp": ["#1c150b", "#372c1c", "#55452e", "#726048", "#8f7d65", "#aa9c89", "#cbc3b7", "#f0eeeb"] },
+      "tan-deep": { "role": "tertiary", "displayName": "Jute Deep", "canonical": "color-mix(in oklab, var(--tan) 42%, #3a2812)" },
+      "cream": { "role": "tertiary", "displayName": "Rice Cream", "canonical": "var(--cream) /* owner-editable, default #f4eddb */", "tonalRamp": ["#181610", "#312d24", "#4d4739", "#696353", "#868070", "#a39e92", "#c7c4bc", "#efeeec"] },
+      "cream-deep": { "role": "tertiary", "displayName": "Cream Deep", "canonical": "color-mix(in oklab, var(--cream) 80%, var(--tan))" },
+      "paper": { "role": "neutral", "displayName": "Warm Paper", "canonical": "#f6f5f1", "tonalRamp": ["#161615", "#2e2e2c", "#484845", "#646360", "#81807d", "#9f9e9c", "#c4c4c2", "#eeeeee"] },
+      "card": { "role": "neutral", "displayName": "Card White", "canonical": "#ffffff" },
+      "ink": { "role": "neutral", "displayName": "Field Ink", "canonical": "var(--ink) /* owner-editable, default #16251f */", "tonalRamp": ["#111815", "#26312c", "#3c4c45", "#576860", "#74857d", "#95a29c", "#bec6c3", "#edefee"] },
+      "ink-soft": { "role": "neutral", "displayName": "Ink Soft", "canonical": "color-mix(in oklab, var(--ink) 82%, white)" },
+      "muted": { "role": "neutral", "displayName": "Muted Stone", "canonical": "color-mix(in oklab, var(--ink) 64%, white)" },
+      "line": { "role": "neutral", "displayName": "Hairline", "canonical": "color-mix(in oklab, var(--ink) 11%, transparent)" },
+      "line-strong": { "role": "neutral", "displayName": "Hairline Strong", "canonical": "color-mix(in oklab, var(--ink) 18%, transparent)" }
+    },
+    "typographyMeta": {
+      "display": { "displayName": "Display", "purpose": "Hero banner headline only; 2rem / 2.6rem / 3rem at base / sm / lg, white on Forest Deep, max 16ch." },
+      "headline": { "displayName": "Headline", "purpose": "Page H1s on pre-order, shop (1.875 to 2.25rem) and product (2.25 to 3rem) pages." },
+      "title": { "displayName": "Title", "purpose": "Section heads above a hairline (1.5 to 1.75rem), wide card titles, panel titles." },
+      "title-card": { "displayName": "Card title", "purpose": "Grid product names and category tiles, 17 to 18px; turns Farm Green on hover." },
+      "price": { "displayName": "Price", "purpose": "Every taka amount in Bangla digits, tabular; 1.5rem on cards, 2.25rem on the product page." },
+      "body": { "displayName": "Body", "purpose": "Bangla descriptions, FAQ answers, trust details; 15px, relaxed leading." },
+      "body-lead": { "displayName": "Lead", "purpose": "Page and hero sublines, 16 to 17px, max 38 to 60ch." },
+      "label": { "displayName": "Label", "purpose": "Pack options, chips, tab labels (11px), English sub-names (12px), harvest date lines on cards (13px)." }
+    },
+    "shadows": [
+      { "name": "lift", "value": "0 8px 24px rgba(22,37,31,0.06)", "purpose": "Product card hover (with border to Hairline Strong) and the static leaflet thumbnail." },
+      { "name": "overlay", "value": "0 8px 24px rgba(0,0,0,0.12)", "purpose": "Cart drawer, phone menu sheet, caption card on hero photo slides." },
+      { "name": "focus-input", "value": "0 0 0 4px color-mix(in oklab, var(--brand) 14%, transparent)", "purpose": "Input focus ring, with border to Farm Green." },
+      { "name": "focus-visible", "value": "outline: 2px solid var(--brand); outline-offset: 2px", "purpose": "Global keyboard focus." }
+    ],
+    "motion": [
+      { "name": "ease", "value": "cubic-bezier(0.22, 1, 0.36, 1)", "purpose": "The only easing curve on the storefront." },
+      { "name": "duration-state", "value": "150ms", "purpose": "Colour, border and press (scale 0.98) changes." },
+      { "name": "duration-menu", "value": "200ms", "purpose": "Phone menu sheet slide-in (store-menu-in)." },
+      { "name": "duration-drawer", "value": "300ms", "purpose": "Cart drawer slide, backdrop fade, cart-count pop from scale 0.55." },
+      { "name": "duration-crossfade", "value": "500ms", "purpose": "Hero banner slide crossfade." },
+      { "name": "hero-interval", "value": "6000ms", "purpose": "Autoplay per slide, shown as a linear progress bar; pauses on hover/focus; off under reduced motion." },
+      { "name": "reduced-motion", "value": "durations 0.01ms", "purpose": "All animation and transition collapse under prefers-reduced-motion." }
+    ],
+    "breakpoints": [
+      { "name": "card-buttons", "value": "@container 15rem" },
+      { "name": "sm", "value": "640px" },
+      { "name": "lg", "value": "1024px" },
+      { "name": "container", "value": "80rem max, 16 / 24 / 32px gutters" }
+    ]
+  },
+  "components": [
+    {
+      "name": "Buy Now Button",
+      "kind": "button",
+      "refersTo": "button-buy-now",
+      "description": "Turmeric buy-now / book-now; adds the pack and goes straight to checkout.",
+      "html": "<button class=\"ds-btn ds-btn-cta\">এখনই বুক করুন</button>",
+      "css": ".ds-btn { display:inline-flex; align-items:center; justify-content:center; gap:8px; border:0; border-radius:10px; padding:11px 20px; font-family:'Hind Siliguri',sans-serif; font-size:14.8px; font-weight:600; line-height:1.2; cursor:pointer; transition:background-color 150ms cubic-bezier(0.22,1,0.36,1), color 150ms cubic-bezier(0.22,1,0.36,1), border-color 150ms cubic-bezier(0.22,1,0.36,1), transform 150ms cubic-bezier(0.22,1,0.36,1); } .ds-btn:active { transform:scale(0.98); } .ds-btn:focus-visible { outline:2px solid #02604a; outline-offset:2px; } .ds-btn-cta { background:#b4570b; color:#fff; } .ds-btn-cta:hover { background:#974807; }"
+    },
+    {
+      "name": "Add to Cart Button",
+      "kind": "button",
+      "refersTo": "button-add-to-cart",
+      "description": "Green outline with bag icon; the quiet partner to buy-now on every card.",
+      "html": "<button class=\"ds-btn-cart\"><svg width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z\"/><path d=\"M3 6h18\"/><path d=\"M16 10a4 4 0 0 1-8 0\"/></svg>কার্টে রাখুন</button>",
+      "css": ".ds-btn-cart { display:inline-flex; align-items:center; justify-content:center; gap:8px; min-height:40px; border:1px solid #02604a; border-radius:8px; background:#fff; color:#02604a; padding:7px 14px; font-family:'Hind Siliguri',sans-serif; font-size:13px; font-weight:600; cursor:pointer; transition:background-color 150ms cubic-bezier(0.22,1,0.36,1), transform 150ms cubic-bezier(0.22,1,0.36,1); } .ds-btn-cart:hover { background:#e8ece6; } .ds-btn-cart:active { transform:scale(0.98); } .ds-btn-cart:focus-visible { outline:2px solid #02604a; outline-offset:2px; }"
+    },
+    {
+      "name": "Primary Button",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "Solid Farm Green for search submit, downloads and form submits.",
+      "html": "<button class=\"ds-btn-primary\">PDF ডাউনলোড</button>",
+      "css": ".ds-btn-primary { display:inline-flex; align-items:center; gap:8px; border:0; border-radius:10px; background:#02604a; color:#fff; padding:11px 20px; font-family:'Hind Siliguri',sans-serif; font-size:14.8px; font-weight:600; cursor:pointer; transition:background-color 150ms cubic-bezier(0.22,1,0.36,1), transform 150ms cubic-bezier(0.22,1,0.36,1); } .ds-btn-primary:hover { background:#014837; } .ds-btn-primary:active { transform:scale(0.98); } .ds-btn-primary:focus-visible { outline:2px solid #02604a; outline-offset:2px; }"
+    },
+    {
+      "name": "Header Search",
+      "kind": "input",
+      "refersTo": "input-search",
+      "description": "Paper-filled search field with an inset green submit; turns white on focus.",
+      "html": "<form class=\"ds-search\" role=\"search\"><svg class=\"ds-search-icon\" width=\"18\" height=\"18\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" aria-hidden=\"true\"><circle cx=\"11\" cy=\"11\" r=\"8\"/><path d=\"m21 21-4.3-4.3\"/></svg><input class=\"ds-search-input\" type=\"search\" placeholder=\"মাশরুম, পাউডার বা কিট খুঁজুন\" aria-label=\"খুঁজুন\"><button class=\"ds-search-btn\">খুঁজুন</button></form>",
+      "css": ".ds-search { position:relative; max-width:36rem; } .ds-search-icon { position:absolute; left:14px; top:50%; transform:translateY(-50%); color:#616c67; pointer-events:none; } .ds-search-input { width:100%; height:44px; border:1.5px solid #d0d3d2; border-radius:10px; background:#f6f5f1; padding:0 96px 0 40px; font-family:'Hind Siliguri',sans-serif; font-size:15px; color:#16251f; transition:border-color 150ms cubic-bezier(0.22,1,0.36,1), box-shadow 150ms cubic-bezier(0.22,1,0.36,1), background-color 150ms; } .ds-search-input::placeholder { color:#616c67; } .ds-search-input:focus { outline:none; background:#fff; border-color:#02604a; box-shadow:0 0 0 4px rgba(2,96,74,0.14); } .ds-search-btn { position:absolute; right:6px; top:6px; height:32px; padding:0 16px; border:0; border-radius:8px; background:#02604a; color:#fff; font-family:'Hind Siliguri',sans-serif; font-size:13px; font-weight:600; cursor:pointer; } .ds-search-btn:hover { background:#014837; }"
+    },
+    {
+      "name": "Pack Picker",
+      "kind": "chip",
+      "refersTo": "pack-option",
+      "description": "Radio chips for pack size; Ink fill when selected, struck through when sold out.",
+      "html": "<div class=\"ds-packs\" role=\"radiogroup\" aria-label=\"প্যাকের সাইজ\"><button class=\"ds-pack\" role=\"radio\" aria-checked=\"true\">২৫০ গ্রাম</button><button class=\"ds-pack\" role=\"radio\" aria-checked=\"false\">৫০০ গ্রাম</button><button class=\"ds-pack ds-pack-out\" role=\"radio\" aria-checked=\"false\">১ কেজি</button></div>",
+      "css": ".ds-packs { display:flex; flex-wrap:wrap; gap:6px; } .ds-pack { min-height:32px; padding:0 12px; border:1px solid #d0d3d2; border-radius:8px; background:#fff; color:#3a4741; font-family:'Hind Siliguri',sans-serif; font-size:13px; font-weight:500; cursor:pointer; transition:border-color 150ms cubic-bezier(0.22,1,0.36,1), background-color 150ms, color 150ms; } .ds-pack:hover { border-color:#16251f; } .ds-pack[aria-checked=\"true\"] { background:#16251f; border-color:#16251f; color:#fff; } .ds-pack-out { border-style:dashed; color:#616c67; text-decoration:line-through; } .ds-pack:focus-visible { outline:2px solid #02604a; outline-offset:2px; }"
+    },
+    {
+      "name": "Product Card",
+      "kind": "card",
+      "refersTo": "card-product",
+      "description": "White 12px card with hairline border, tinted art well, Bangla name, price and the two-button row.",
+      "html": "<article class=\"ds-card\"><div class=\"ds-card-img\"><svg width=\"72\" height=\"72\" viewBox=\"0 0 64 64\" aria-hidden=\"true\"><ellipse cx=\"32\" cy=\"26\" rx=\"22\" ry=\"12\" fill=\"#efe7d6\" stroke=\"#c9b99a\"/><rect x=\"27\" y=\"30\" width=\"10\" height=\"20\" rx=\"4\" fill=\"#f4eddb\" stroke=\"#c9b99a\"/></svg></div><div class=\"ds-card-body\"><h3 class=\"ds-card-title\">শুকনো ঝিনুক মাশরুম</h3><p class=\"ds-card-en\">Dried oyster mushroom</p><div class=\"ds-price\"><span class=\"ds-price-now\">৳৩৫০</span><span class=\"ds-price-was\">৳৪০০</span><span class=\"ds-save\">৳৫০ সাশ্রয়</span></div><div class=\"ds-card-actions\"><button class=\"ds-card-cart\">কার্টে রাখুন</button><button class=\"ds-card-buy\">এখনই কিনুন</button></div></div></article>",
+      "css": ".ds-card { width:260px; display:flex; flex-direction:column; overflow:hidden; border:1px solid #e2e4e3; border-radius:12px; background:#fff; transition:border-color 150ms, box-shadow 150ms; } .ds-card:hover { border-color:#d0d3d2; box-shadow:0 8px 24px rgba(22,37,31,0.06); } .ds-card-img { aspect-ratio:1; display:grid; place-items:center; background:#f3ecdd; } .ds-card-body { display:flex; flex-direction:column; gap:8px; padding:16px; } .ds-card-title { margin:0; font-family:'Anek Bangla',sans-serif; font-weight:600; font-size:18px; line-height:1.375; color:#16251f; transition:color 150ms; } .ds-card:hover .ds-card-title { color:#02604a; } .ds-card-en { margin:0; font-size:12px; color:#616c67; } .ds-price { display:flex; flex-wrap:wrap; align-items:baseline; gap:4px 8px; } .ds-price-now { font-family:'Anek Bangla',sans-serif; font-weight:600; font-size:24px; font-variant-numeric:tabular-nums; color:#16251f; } .ds-price-was { font-size:14px; color:#616c67; text-decoration:line-through; } .ds-save { border-radius:6px; background:rgba(180,87,11,0.1); padding:2px 6px; font-size:12px; font-weight:600; color:#974807; } .ds-card-actions { display:flex; gap:8px; padding-top:4px; } .ds-card-cart, .ds-card-buy { flex:1; min-height:40px; border-radius:8px; font-family:'Hind Siliguri',sans-serif; font-size:13px; font-weight:600; cursor:pointer; transition:background-color 150ms cubic-bezier(0.22,1,0.36,1); } .ds-card-cart { border:1px solid #02604a; background:#fff; color:#02604a; } .ds-card-cart:hover { background:#e8ece6; } .ds-card-buy { border:0; background:#b4570b; color:#fff; } .ds-card-buy:hover { background:#974807; }"
+    },
+    {
+      "name": "Category Bar",
+      "kind": "nav",
+      "refersTo": "category-bar",
+      "description": "Desktop Forest Deep band; active link gets a 3px Jute Tan underline.",
+      "html": "<nav class=\"ds-catbar\" aria-label=\"Categories\"><a class=\"ds-catlink\" aria-current=\"page\" href=\"#\">তাজা মাশরুম · প্রি-অর্ডার</a><a class=\"ds-catlink\" href=\"#\">শুকনো ও পাউডার</a><a class=\"ds-catlink\" href=\"#\">ঘরে চাষ করুন</a><a class=\"ds-catlink\" href=\"#\">সব পণ্য</a></nav>",
+      "css": ".ds-catbar { display:flex; align-items:center; gap:28px; height:44px; padding:0 32px; background:#014837; } .ds-catlink { position:relative; display:flex; align-items:center; height:100%; font-family:'Hind Siliguri',sans-serif; font-size:15px; color:rgba(255,255,255,0.75); text-decoration:none; white-space:nowrap; transition:color 150ms cubic-bezier(0.22,1,0.36,1); } .ds-catlink:hover { color:#fff; } .ds-catlink[aria-current=\"page\"] { color:#fff; } .ds-catlink[aria-current=\"page\"]::after { content:''; position:absolute; left:0; right:0; bottom:0; height:3px; border-radius:3px 3px 0 0; background:#d3bfa4; } .ds-catlink:focus-visible { outline:2px solid #fff; outline-offset:2px; }"
+    },
+    {
+      "name": "Phone Tab Bar",
+      "kind": "nav",
+      "refersTo": "tab-bar",
+      "description": "Fixed bottom bar on phones: icon over 11px Bangla label, active in Farm Green, turmeric cart count.",
+      "html": "<nav class=\"ds-tabs\" aria-label=\"Phone navigation\"><a class=\"ds-tab\" aria-current=\"page\" href=\"#\"><svg width=\"20\" height=\"20\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" aria-hidden=\"true\"><path d=\"M3 10 12 3l9 7v10a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1Z\"/></svg>হোম</a><a class=\"ds-tab\" href=\"#\"><svg width=\"20\" height=\"20\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" aria-hidden=\"true\"><rect x=\"3\" y=\"4\" width=\"18\" height=\"18\" rx=\"2\"/><path d=\"M16 2v4M8 2v4M3 10h18\"/></svg>প্রি-অর্ডার</a><a class=\"ds-tab\" href=\"#\"><svg width=\"20\" height=\"20\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" aria-hidden=\"true\"><rect x=\"3\" y=\"3\" width=\"7\" height=\"7\" rx=\"1\"/><rect x=\"14\" y=\"3\" width=\"7\" height=\"7\" rx=\"1\"/><rect x=\"3\" y=\"14\" width=\"7\" height=\"7\" rx=\"1\"/><rect x=\"14\" y=\"14\" width=\"7\" height=\"7\" rx=\"1\"/></svg>শপ</a><button class=\"ds-tab\"><span class=\"ds-tab-bag\"><svg width=\"20\" height=\"20\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" aria-hidden=\"true\"><path d=\"M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z\"/><path d=\"M3 6h18\"/></svg><span class=\"ds-count\">২</span></span>কার্ট</button></nav>",
+      "css": ".ds-tabs { display:flex; max-width:32rem; border-top:1px solid #e2e4e3; background:#fff; } .ds-tab { flex:1; min-height:56px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:2px; border:0; background:none; font-family:'Hind Siliguri',sans-serif; font-size:11px; color:#616c67; text-decoration:none; cursor:pointer; transition:color 150ms cubic-bezier(0.22,1,0.36,1); } .ds-tab:hover { color:#16251f; } .ds-tab[aria-current=\"page\"] { color:#02604a; } .ds-tab:focus-visible { outline:2px solid #02604a; outline-offset:-2px; } .ds-tab-bag { position:relative; } .ds-count { position:absolute; right:-10px; top:-6px; display:grid; place-items:center; min-width:16px; height:16px; padding:0 4px; border-radius:9999px; background:#b4570b; color:#fff; font-size:10px; font-weight:600; }"
+    },
+    {
+      "name": "Harvest Date Line",
+      "kind": "custom",
+      "refersTo": "harvest-date",
+      "description": "The store's clock: calendar-clock icon plus the Bangla harvest date, beside every pre-order product.",
+      "html": "<p class=\"ds-harvest\"><svg width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" aria-hidden=\"true\"><path d=\"M21 7.5V6a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h3.5\"/><path d=\"M16 2v4M8 2v4M3 10h5\"/><circle cx=\"16\" cy=\"16\" r=\"6\"/><path d=\"M16 14v2l1 1\"/></svg>হারভেস্ট · বুধ, ২৫ নভেম্বর</p>",
+      "css": ".ds-harvest { display:flex; align-items:center; gap:6px; margin:0; font-family:'Hind Siliguri',sans-serif; font-size:13px; color:#3a4741; } .ds-harvest svg { flex-shrink:0; color:#616c67; }"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Calm Farm Shop",
+    "overview": "FungiBd looks like the Bangladeshi online shops its customers already use (header search, a green category bar, a banner slider, category tiles, product cards with \"add to cart\" and \"buy now\", a bottom tab bar on phones) and makes that format calm and premium. Calm comes from one warm-grey page ground, white cards edged with hairlines instead of shadows, a single deep green for the structural bands, and one orange (turmeric) colour used only on buy buttons. Premium comes from restraint and typesetting: Anek Bangla headings, real prices set large, generous card padding and nothing ornamental. The first screen sells products and the next harvest date, not a mood.\n\nThe density is that of a shop, not a landing page. Rows of cards, tight 12-16px gutters and visible prices everywhere. Every fresh mushroom is pre-order only, so the harvest date line and the turmeric \"এখনই বুক করুন\" button are the recurring signature. Everything else stays quiet so they can be seen.\n\nThe owner turned down conceptual or themed visual worlds. The system is the shop format done well. The brand colours are owner-editable (Admin → Settings → Brand), so every surface tone is built from four base tokens with `color-mix()`. That keeps the system intact when the owner changes the green.",
+    "keyCharacteristics": [
+      "Warm-grey page (paper) under white cards with 1px hairline borders and 12px corners.",
+      "Deep green bands for structure: announcement line, category bar, hero banner, harvest-alert panel. A darker green for the footer.",
+      "Turmeric only where money moves: buy-now and book-now buttons, the savings pill, the cart count.",
+      "Anek Bangla for headings and prices, Hind Siliguri for everything read. Bangla first and no letter-spacing.",
+      "Flat at rest. One soft shadow appears on card hover and on overlays.",
+      "One ease-out curve. 150ms for colour and press, 300ms for drawers and the cart pop, 500ms for the banner crossfade."
+    ],
+    "rules": [
+      { "name": "The Turmeric Reservation Rule", "body": "Turmeric appears only where the customer spends: buy-now and book-now buttons, the cart count and savings. It is never used for decoration, headings, icons, links or section backgrounds. On any screen it should be the colour that marks the next step.", "section": "colors" },
+      { "name": "The Mix-Don't-Hex Rule", "body": "Every derived colour is a `color-mix(in oklab, …)` of an owner-editable base. A hard-coded hex for a brand tone breaks the moment the owner changes the green in Admin.", "section": "colors" },
+      { "name": "The Green-Bands Rule", "body": "Forest Deep fills full-width structural bands and the hero. It is not a card colour. Night Field is the footer and nothing else.", "section": "colors" },
+      { "name": "The No-Tracking Rule", "body": "Letter-spacing stays at 0 everywhere (`.font-display` enforces it). Bangla conjuncts break under negative tracking, and wide uppercase tracking is the eyebrow look this system bans.", "section": "typography" },
+      { "name": "The Bangla-Digits Rule", "body": "Customer-facing numbers (prices, counts, dates, slide numbers) use Bangla numerals through `bnDigits` / `takaBn` / `fmtDateBn`, with `tabular-nums` where numbers align.", "section": "typography" },
+      { "name": "The Hairline-Not-Shadow Rule", "body": "At rest, a card is white with a 1px Hairline border and no shadow. Shadow is a response to hover or a sign that something floats above the page.", "section": "elevation" },
+      { "name": "The One-Card-Radius Rule", "body": "Every card or panel on the storefront is 12px. A card never sits inside another card. Inner groups are separated by hairline dividers (`divide-line`) or a tinted well, not a second bordered box.", "section": "shapes" }
+    ],
+    "dos": [
+      "Do set the page on Warm Paper and every card or panel on Card White with a 1px Hairline border and 12px corners.",
+      "Do keep Turmeric for buy-now, book-now, the cart count and savings, so the next step is always the single warm colour on the screen.",
+      "Do derive new tones with `color-mix(in oklab, …)` from `--brand`, `--tan`, `--cream` and `--ink`, so Admin → Settings → Brand keeps working.",
+      "Do write every button, label, tab and heading in Bangla. English appears only as a secondary companion line in Muted (product English names, the hero's English title, phone-menu hints).",
+      "Do show the harvest date line next to every pre-order product and price.",
+      "Do design every image slot for a real photo first. Product art lives in `ProductImage`, which shows an uploaded photo (`object-cover` on Rice Cream), a built-in illustration (`art:<kind>` from `public/art`, centred at 78% on its own tint), or the tan mushroom-mark placeholder. Keep slots at fixed aspect ratios (square grid, 4:3 wide, 4:3-ish panel well) so swapping in photos changes nothing else.",
+      "Do use FungiBd's own farm photos when they arrive. The flat SVG illustrations are stand-ins.",
+      "Do keep surfaces working with no hero slides, no bookable products and no reviews. Each has a designed empty state.",
+      "Do use the one ease curve and the 150 / 300 / 500ms durations, and keep everything still under reduced motion."
+    ],
+    "donts": [
+      "Don't put eyebrow or kicker labels (small uppercase or tracked text) above headings anywhere on the storefront.",
+      "Don't put icons on tinted tiles or in circles as card scaffolding. Icons are bare 20px Farm Green or Muted line icons beside the text.",
+      "Don't nest a bordered card inside another card. Use hairline dividers or a tinted well.",
+      "Don't use Turmeric for links, icons, headings, section backgrounds or decoration.",
+      "Don't add shadows to cards at rest, or use any shadow other than Lift and Overlay.",
+      "Don't apply letter-spacing to Bangla text, and don't set headings in a system font. Headings and prices are Anek Bangla.",
+      "Don't hard-code a brand hex in a component. Use the token.",
+      "Don't lighten Muted Stone below ink 64%. It is the AA floor for secondary text on white and paper.",
+      "Don't use stock photography, invented reviews, ratings, customer counts or certification badges. Rating rows render only from approved reviews.",
+      "Don't build themed or conceptual page worlds or editorial mood-first heroes. The first screen shows products, prices and the next harvest."
+    ]
+  }
+}

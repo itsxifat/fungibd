@@ -128,7 +128,7 @@ export function ReviewForm({ orderNo, k, products }: { orderNo: string; k: strin
       <input type="hidden" name="orderNo" value={orderNo} />
       <input type="hidden" name="k" value={k} />
       {products.map((p) => (
-        <fieldset key={p.id} className="rounded-2xl border border-line bg-white p-5">
+        <fieldset key={p.id} className="rounded-xl border border-line bg-white p-5">
           <legend className="px-1 font-bangla font-semibold">
             {p.nameBn} <span className="font-normal text-muted">· {p.nameEn}</span>
           </legend>

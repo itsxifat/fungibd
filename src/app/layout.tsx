@@ -1,6 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import type { CSSProperties } from "react";
-import { Plus_Jakarta_Sans, Noto_Sans_Bengali } from "next/font/google";
+import { Anek_Bangla, Hind_Siliguri } from "next/font/google";
 import { getSettings, isHex } from "@/lib/settings";
 import { defaultShareImage } from "@/lib/seo";
 import { siteUrl } from "@/lib/utils";
@@ -8,9 +8,9 @@ import "./globals.css";
 
 export const dynamic = "force-dynamic";
 
-// Clean sans-serif pair: Plus Jakarta Sans (English) + Noto Sans Bengali (Bangla)
-const jakarta = Plus_Jakarta_Sans({ subsets: ["latin"], variable: "--font-jakarta", display: "swap" });
-const bangla = Noto_Sans_Bengali({ subsets: ["bengali"], variable: "--font-bn", display: "swap" });
+// Anek Bangla for headings and prices, Hind Siliguri for reading and UI — both draw Bangla and Latin.
+const display = Anek_Bangla({ subsets: ["bengali", "latin"], variable: "--font-anek", display: "swap" });
+const body = Hind_Siliguri({ subsets: ["bengali", "latin"], weight: ["400", "500", "600", "700"], variable: "--font-hind", display: "swap" });
 
 export async function generateMetadata(): Promise<Metadata> {
   const s = await getSettings();
@@ -36,7 +36,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
     ...(isHex(b.ink) ? { "--ink": b.ink } : {}),
   } as CSSProperties;
   return (
-    <html lang="bn" style={vars} className={`${jakarta.variable} ${bangla.variable}`}>
+    <html lang="bn" style={vars} className={`${display.variable} ${body.variable}`}>
       <body className="min-h-dvh font-sans">{children}</body>
     </html>
   );

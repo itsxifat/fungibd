@@ -20,7 +20,7 @@ export default async function TicketPage({ params, searchParams }: { params: Pro
       <p className="mt-2 font-bangla text-sm text-brand">{TICKET_STATUS[t.status as keyof typeof TICKET_STATUS]?.bn}</p>
       <ol className="mt-8 space-y-4">
         {t.messages.map((m) => (
-          <li key={m.id} className={cn("rounded-2xl p-5", m.from === "STAFF" ? "bg-brand-tint" : "border border-line bg-white")}>
+          <li key={m.id} className={cn("rounded-xl p-5", m.from === "STAFF" ? "bg-brand-tint" : "border border-line bg-white")}>
             <p className="text-xs text-muted">
               {m.from === "STAFF" ? `FungiBd · ${m.authorName}` : m.authorName} · {fmtDateTime(m.createdAt)}
             </p>
@@ -29,7 +29,7 @@ export default async function TicketPage({ params, searchParams }: { params: Pro
         ))}
       </ol>
       {t.status !== "CLOSED" && (
-        <div className="mt-8 rounded-2xl border border-line bg-white p-5">
+        <div className="mt-8 rounded-xl border border-line bg-white p-5">
           <TicketReplyForm ticketNo={t.ticketNo} k={k} />
         </div>
       )}

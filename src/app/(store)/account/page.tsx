@@ -35,7 +35,7 @@ export default async function AccountPage({ searchParams }: { searchParams: Prom
       </div>
 
       <div className="mt-8 grid gap-8 lg:grid-cols-[1.5fr_1fr]">
-        <section className="rounded-2xl border border-line bg-white">
+        <section className="rounded-xl border border-line bg-white">
           <h2 className="border-b border-line px-5 py-4 font-semibold">আমার অর্ডার · Orders</h2>
           {orders.length ? (
             <ul className="divide-y divide-line">
@@ -69,7 +69,7 @@ export default async function AccountPage({ searchParams }: { searchParams: Prom
         </section>
 
         <div className="space-y-8">
-          <section className="rounded-2xl border border-line bg-white p-5">
+          <section className="rounded-xl border border-line bg-white p-5">
             <h2 className="font-semibold">প্রোফাইল · Profile</h2>
             <div className="mt-4">
               <ProfileForm c={{ name: c.name, email: c.email ?? "", phone: c.phone ?? "", marketingOptIn: c.marketingOptIn }} />
@@ -84,7 +84,7 @@ export default async function AccountPage({ searchParams }: { searchParams: Prom
               )}
             </div>
           </section>
-          <section className="rounded-2xl border border-line bg-white p-5">
+          <section className="rounded-xl border border-line bg-white p-5">
             <h2 className="font-semibold">সেভ করা ঠিকানা · Addresses</h2>
             <ul className="mt-3 space-y-3">
               {addresses.map((a) => (
@@ -103,7 +103,7 @@ export default async function AccountPage({ searchParams }: { searchParams: Prom
               {!addresses.length && <li className="text-sm text-muted">অর্ডারের সময় ঠিকানা সেভ হবে</li>}
             </ul>
           </section>
-          <section className="rounded-2xl border border-line bg-white p-5">
+          <section className="rounded-xl border border-line bg-white p-5">
             <div className="flex items-center justify-between">
               <h2 className="font-semibold">সাপোর্ট · Support</h2>
               <Link href="/support" className="text-sm font-semibold text-brand hover:underline">

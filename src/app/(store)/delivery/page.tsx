@@ -19,7 +19,7 @@ export default async function DeliveryPage() {
     <div className="container-x max-w-3xl py-14">
       <h1 className="font-display text-4xl">ঢাকায় মাশরুম ডেলিভারি</h1>
       <p lang="en" className="mt-2 text-lg text-muted">Mushroom delivery in Dhaka</p>
-      <section className="mt-8 rounded-2xl border border-line bg-white p-6">
+      <section className="mt-8 rounded-xl border border-line bg-white p-6">
         <h2 className="text-xl font-semibold">সক্রিয় ডেলিভারি এলাকা · Delivery areas</h2>
         {zones.length ? (
           <ul className="mt-3 divide-y divide-line">

@@ -7,17 +7,23 @@
   --cream: #f4eddb;
   --ink: #16251f;
 
-  --brand-deep: color-mix(in oklab, var(--brand) 70%, black);
+  --brand-deep: color-mix(in oklab, var(--brand) 82%, black);
   --brand-night: color-mix(in oklab, var(--brand) 45%, black);
   --brand-soft: color-mix(in oklab, var(--brand) 14%, white);
   --brand-tint: color-mix(in oklab, var(--brand) 6%, var(--paper));
-  --paper: color-mix(in oklab, var(--cream) 20%, white);
+  /* Page ground: a soft warm grey so white product cards lift off it */
+  --paper: #f6f5f1;
+  --card: #ffffff;
   --cream-deep: color-mix(in oklab, var(--cream) 80%, var(--tan));
   --tan-deep: color-mix(in oklab, var(--tan) 42%, #3a2812);
   --ink-soft: color-mix(in oklab, var(--ink) 82%, white);
-  --muted: color-mix(in oklab, var(--ink) 56%, white);
+  --muted: color-mix(in oklab, var(--ink) 64%, white);
   --line: color-mix(in oklab, var(--ink) 11%, transparent);
   --line-strong: color-mix(in oklab, var(--ink) 18%, transparent);
+
+  /* Turmeric — reserved for buy-now and savings, nothing else */
+  --cta: #b4570b;
+  --cta-deep: #974807;
 
   --ease: cubic-bezier(0.22, 1, 0.36, 1);
 }
@@ -38,10 +44,13 @@
   --color-muted: var(--muted);
   --color-line: var(--line);
   --color-line-strong: var(--line-strong);
+  --color-card: var(--card);
+  --color-cta: var(--cta);
+  --color-cta-deep: var(--cta-deep);
 
-  --font-display: var(--font-jakarta), var(--font-bn), ui-sans-serif, system-ui, sans-serif;
-  --font-sans: var(--font-jakarta), var(--font-bn), ui-sans-serif, system-ui, sans-serif;
-  --font-bangla: var(--font-bn), var(--font-jakarta), sans-serif;
+  --font-display: var(--font-anek), var(--font-hind), ui-sans-serif, system-ui, sans-serif;
+  --font-sans: var(--font-hind), var(--font-anek), ui-sans-serif, system-ui, sans-serif;
+  --font-bangla: var(--font-hind), var(--font-anek), sans-serif;
 
 }
 
@@ -62,6 +71,13 @@
   }
 }
 
+/* Cart count confirms an add with one small pop */
+@keyframes cart-pop {
+  from {
+    transform: scale(0.55);
+  }
+}
+
 @keyframes store-menu-in {
   from {
     opacity: 0;
@@ -72,6 +88,7 @@
 html {
   -webkit-text-size-adjust: 100%;
   scroll-behavior: smooth;
+  scrollbar-color: color-mix(in oklab, var(--ink) 26%, transparent) var(--paper);
 }
 html:has(#store-mobile-menu:modal) {
   overflow: hidden;
@@ -79,12 +96,12 @@ html:has(#store-mobile-menu:modal) {
 body {
   background: var(--paper);
   color: var(--ink);
-  font-feature-settings: "ss01", "cv11";
+  caret-color: var(--brand);
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
 }
 ::selection {
-  background: var(--tan);
+  background: var(--brand-soft);
   color: var(--ink);
 }
 :focus-visible {
@@ -94,7 +111,7 @@ body {
 
 .font-display {
   font-weight: 600;
-  letter-spacing: -0.025em;
+  letter-spacing: 0; /* Bangla conjuncts break under negative tracking */
 }
 h1,
 h2,
@@ -160,6 +177,13 @@ h3 {
   .btn-cream:hover {
     background: white;
   }
+  .btn-cta {
+    background: var(--cta);
+    color: #fff;
+  }
+  .btn-cta:hover {
+    background: var(--cta-deep);
+  }
   .btn-tan {
     background: var(--tan);
     color: var(--brand-night);
@@ -213,7 +237,8 @@ h3 {
     transition-timing-function: var(--ease);
   }
   .input::placeholder {
-    color: color-mix(in oklab, var(--muted) 70%, white);
+    color: var(--muted);
+    opacity: 1;
   }
   .input:focus {
     outline: none;
@@ -253,15 +278,6 @@ h3 {
     background: white;
     border: 1px solid var(--line);
     box-shadow: 0 1px 2px color-mix(in oklab, var(--ink) 4%, transparent);
-  }
-  /* Small section label above a heading — sentence case, no tracking */
-  .eyebrow {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.5rem;
-    font-size: 0.875rem;
-    font-weight: 500;
-    color: var(--brand);
   }
   .chip {
     display: inline-flex;

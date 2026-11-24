@@ -74,7 +74,7 @@ export default async function ProductPage({ params, searchParams }: { params: Pr
           <p className="mt-5 font-bangla text-lg leading-relaxed text-ink-soft">{p.shortBn}</p>
           <p className="mt-1 text-sm text-muted">{p.shortEn}</p>
 
-          <div className="mt-8 rounded-2xl border border-line bg-white p-6">
+          <div className="mt-8 rounded-xl border border-line bg-white p-6">
             <AddToCart key={selectedPack ?? p.id} product={p} size="full" initialVariantId={selectedPack} />
             {pre && p.preorder.cap != null && (
               <div className="mt-5">
@@ -123,7 +123,7 @@ export default async function ProductPage({ params, searchParams }: { params: Pr
 
       {/* details */}
       <div className="mt-16 grid gap-6 lg:grid-cols-3">
-        <section className="rounded-2xl border border-line bg-white p-6">
+        <section className="rounded-xl border border-line bg-white p-6">
           <h2 className="flex items-center gap-2.5 font-display text-2xl">
             <Leaf className="size-[18px] text-muted" aria-hidden /> বিবরণ
           </h2>
@@ -131,7 +131,7 @@ export default async function ProductPage({ params, searchParams }: { params: Pr
           {row.descriptionEn && <p className="mt-3 text-sm leading-relaxed text-muted">{row.descriptionEn}</p>}
         </section>
         {row.cookingTips && (
-          <section className="rounded-2xl border border-line bg-white p-6">
+          <section className="rounded-xl border border-line bg-white p-6">
             <h2 className="flex items-center gap-2.5 font-display text-2xl">
               <UtensilsCrossed className="size-[18px] text-muted" aria-hidden /> রান্নার টিপস
             </h2>
@@ -139,7 +139,7 @@ export default async function ProductPage({ params, searchParams }: { params: Pr
           </section>
         )}
         {row.storageTips && (
-          <section className="rounded-2xl border border-line bg-white p-6">
+          <section className="rounded-xl border border-line bg-white p-6">
             <h2 className="flex items-center gap-2.5 font-display text-2xl">
               <Snowflake className="size-[18px] text-muted" aria-hidden /> সংরক্ষণ
             </h2>
@@ -156,7 +156,7 @@ export default async function ProductPage({ params, searchParams }: { params: Pr
         {reviews.length ? (
           <div className="mt-6 grid gap-4 md:grid-cols-2">
             {reviews.map((r) => (
-              <figure key={r.id} className="rounded-2xl border border-line bg-white p-6">
+              <figure key={r.id} className="rounded-xl border border-line bg-white p-6">
                 <div className="flex items-center justify-between">
                   <div className="flex">
                     {Array.from({ length: 5 }).map((_, i) => (

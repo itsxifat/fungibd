@@ -13,7 +13,7 @@ import type { Pin } from "./MapPicker";
 
 const MapPicker = dynamic(() => import("./MapPicker"), {
   ssr: false,
-  loading: () => <div className="grid h-[340px] place-items-center rounded-2xl bg-cream text-sm text-muted">ম্যাপ লোড হচ্ছে… Loading map</div>,
+  loading: () => <div className="grid h-[340px] place-items-center rounded-xl bg-cream text-sm text-muted">ম্যাপ লোড হচ্ছে… Loading map</div>,
 });
 
 type Zone = { id: string; nameEn: string; nameBn: string; charge: number };
@@ -148,7 +148,7 @@ export function CheckoutForm(props: {
 
   const err = (field: string) => error?.field === field;
   const Section = ({ n, bn, en, id, children }: { n: string; bn: string; en: string; id?: string; children: React.ReactNode }) => (
-    <section id={id} className="scroll-mt-28 rounded-2xl border border-line bg-white p-5 sm:p-6">
+    <section id={id} className="scroll-mt-28 rounded-xl border border-line bg-white p-5 sm:p-6">
       <h2 className="flex items-center gap-3">
         <span className="grid size-8 place-items-center rounded-lg border border-line-strong font-display text-ink-soft tabular-nums">{n}</span>
         <span>
@@ -164,12 +164,12 @@ export function CheckoutForm(props: {
     <form onSubmit={submit} className="grid gap-8 lg:grid-cols-[1.35fr_1fr]" noValidate>
       <div className="space-y-5">
         {error && (
-          <div role="alert" className="flex gap-3 rounded-2xl border border-red-200 bg-red-50 p-4 text-sm text-red-800">
+          <div role="alert" className="flex gap-3 rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-800">
             <AlertCircle className="h-5 w-5 shrink-0" /> {error.msg}
           </div>
         )}
         {notes.length > 0 && (
-          <div className="rounded-2xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900">
+          <div className="rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900">
             {notes.map((n) => (
               <p key={n}>• {n}</p>
             ))}
@@ -245,7 +245,7 @@ export function CheckoutForm(props: {
               </div>
               <div>
                 <span className="label">ম্যাপে বাসা পিন করুন · Pin your home on the map *</span>
-                <div className={cn(err("map") && "rounded-2xl ring-2 ring-red-400 ring-offset-2")}>
+                <div className={cn(err("map") && "rounded-xl ring-2 ring-red-400 ring-offset-2")}>
                   <MapPicker value={pin} onChange={setPin} center={props.center} radiusKm={props.radiusKm} onAddress={(l) => setMapLabel(l)} />
                 </div>
               </div>
@@ -295,7 +295,7 @@ export function CheckoutForm(props: {
                         key={d.value}
                         type="button"
                         onClick={() => set("deliveryDate", d.value)}
-                        className={cn("min-w-[92px] shrink-0 rounded-2xl border px-3 py-2.5 text-center transition", f.deliveryDate === d.value ? "border-brand bg-brand text-cream" : "border-line-strong bg-white hover:border-brand")}
+                        className={cn("min-w-[92px] shrink-0 rounded-xl border px-3 py-2.5 text-center transition", f.deliveryDate === d.value ? "border-brand bg-brand text-cream" : "border-line-strong bg-white hover:border-brand")}
                       >
                         <span className="block font-bangla text-sm font-semibold">{d.label}</span>
                         {d.tag && <span className={cn("block text-[11px]", f.deliveryDate === d.value ? "text-cream/80" : "text-muted")}>{d.tag}</span>}
@@ -349,7 +349,7 @@ export function CheckoutForm(props: {
                 <Check className="size-5 text-ink" aria-hidden />
               </div>
               {!props.customer && (
-                <div className="rounded-2xl border border-line p-4">
+                <div className="rounded-xl border border-line p-4">
                   <label className="flex cursor-pointer items-start gap-3">
                     <input type="checkbox" className="mt-1 h-4 w-4 accent-[var(--brand)]" checked={f.createAccount} onChange={(e) => set("createAccount", e.target.checked)} />
                     <span>
@@ -374,7 +374,7 @@ export function CheckoutForm(props: {
 
       {/* Summary */}
       <aside className="lg:sticky lg:top-24 lg:self-start">
-        <div className="rounded-2xl border border-line bg-white p-5 sm:p-6">
+        <div className="rounded-xl border border-line bg-white p-5 sm:p-6">
           <h2 className="font-display text-2xl">অর্ডার সারাংশ</h2>
           <p className="text-xs text-muted">Order summary</p>
           <ul className="mt-5 flex max-h-[340px] flex-col gap-4 overflow-y-auto pr-1">

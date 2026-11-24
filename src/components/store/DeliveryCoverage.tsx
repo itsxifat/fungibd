@@ -42,8 +42,7 @@ export function DeliveryCoverage({ zones, freeDeliveryMin, note }: { zones: Cove
   return (
     <div className="grid gap-10 lg:grid-cols-[0.9fr_1.1fr] lg:gap-16">
       <div>
-        <p className="eyebrow">ডেলিভারি</p>
-        <h2 className="mt-3 font-display text-3xl leading-tight sm:text-4xl">{zones.length === 1 ? "এখন যেখানে ডেলিভারি দিই" : "আমরা কোথায় ডেলিভারি দিই"}</h2>
+        <h2 className="font-display text-2xl leading-tight sm:text-[1.75rem]">{zones.length === 1 ? "এখন যেখানে ডেলিভারি দিই" : "আমরা কোথায় ডেলিভারি দিই"}</h2>
         <p className="mt-4 max-w-md font-bangla text-[16px] leading-relaxed text-ink-soft">
           {note ? `${note}। ` : ""}চেকআউটে এলাকা বাছলেই চার্জ দেখতে পাবেন, আর ম্যাপে বাসা পিন করে দিতে পারবেন।
         </p>
@@ -66,12 +65,10 @@ export function DeliveryCoverage({ zones, freeDeliveryMin, note }: { zones: Cove
         </div>
       </div>
 
-      <div className="rounded-[20px] border border-line bg-white p-2 shadow-[0_8px_24px_rgba(0,0,0,0.06)]">
+      <div className="rounded-xl border border-line bg-card p-2">
         {zones.length === 1 ? (
-          <div className="flex items-center gap-4 rounded-xl bg-brand-tint p-6 sm:p-8">
-            <span className="grid size-12 shrink-0 place-items-center rounded-xl bg-brand text-cream">
-              <MapPin className="size-5" aria-hidden />
-            </span>
+          <div className="flex items-center gap-3 p-4 sm:p-6">
+            <MapPin className="size-5 shrink-0 text-brand" aria-hidden />
             <div className="min-w-0 flex-1">
               <p className="font-display text-2xl leading-tight">{zones[0].nameBn}</p>
               <p className="text-sm text-muted">{zones[0].nameEn}{zones[0].region ? ` · ${zones[0].region}` : ""}</p>

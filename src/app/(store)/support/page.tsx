@@ -15,11 +15,11 @@ export default async function SupportPage({ searchParams }: { searchParams: Prom
       <h1 className="font-display text-4xl">যোগাযোগ ও সাপোর্ট</h1>
       <p className="mt-2 text-muted">Questions about an order, delivery or our mushrooms? Send us a message — we reply by email.</p>
       <div className="mt-10 grid gap-10 lg:grid-cols-[1.4fr_1fr]">
-        <section className="rounded-2xl border border-line bg-white p-6">
+        <section className="rounded-xl border border-line bg-white p-6">
           <SupportForm defaults={{ name: c?.name, email: c?.email ?? "", phone: c?.phone ?? "", orderNo: sp.order }} />
         </section>
         <aside className="space-y-4">
-          <div className="rounded-2xl border border-line bg-white p-6 text-sm">
+          <div className="rounded-xl border border-line bg-white p-6 text-sm">
             <p className="flex gap-3">
               <Phone className="size-4 text-muted" aria-hidden /> <a href={`tel:${s.store.phone.replace(/[^\d+]/g, "")}`}>{s.store.phone}</a>
             </p>
