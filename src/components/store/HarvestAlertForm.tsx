@@ -14,10 +14,10 @@ export function HarvestAlertForm({ dark = false, interest = "New harvest alerts"
       </div>
     );
   return (
-    <form action={action} className="flex flex-col gap-2">
+    <form action={action} className="@container flex flex-col gap-2">
       <Honeypot />
       <input type="hidden" name="interest" value={interest} />
-      <div className="flex flex-col gap-2 sm:flex-row">
+      <div className="flex flex-col gap-2 @[26rem]:flex-row">
         <label className="sr-only" htmlFor={fieldId}>
           Email or phone
         </label>

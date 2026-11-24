@@ -40,14 +40,16 @@ export function HeroSlider({ lead, slides }: { lead: HeroLead; slides: HeroSlide
     "aria-hidden": i !== index,
     inert: i !== index,
   });
-  const fade = (i: number) => cn("absolute inset-0 transition-opacity duration-500 ease-[var(--ease)]", i === index ? "z-[1] opacity-100" : "z-0 opacity-0");
+  // The headline slide stays in flow so the banner grows with the owner's text; photo slides cover it.
+  const fade = (i: number) =>
+    cn(i === 0 ? "relative min-h-[inherit] lg:min-h-full" : "absolute inset-0", "transition-opacity duration-500 ease-[var(--ease)]", i === index ? "z-[1] opacity-100" : "z-0 opacity-0");
 
   return (
     <div
       role="region"
       aria-roledescription="carousel"
       aria-label="FungiBd"
-      className="relative h-[380px] w-full touch-pan-y select-none overflow-hidden rounded-xl bg-brand-deep sm:h-[400px] lg:h-auto lg:min-h-[440px]"
+      className="relative min-h-[380px] w-full touch-pan-y select-none overflow-hidden rounded-xl bg-brand-deep sm:min-h-[400px] lg:min-h-[440px]"
       onMouseEnter={() => setPaused(true)}
       onMouseLeave={() => setPaused(false)}
       onFocusCapture={() => setPaused(true)}

@@ -132,13 +132,13 @@ export default async function HomePage() {
                 </div>
               </>
             ) : (
-              <>
-                <p className="font-display text-2xl leading-tight">পরের হারভেস্টের বুকিং শিগগিরই খুলবে</p>
+              <div className="my-auto">
+                <h2 className="font-display text-2xl leading-tight">পরের হারভেস্টের বুকিং শিগগিরই খুলবে</h2>
                 <p className="mt-2 font-bangla text-[15px] leading-relaxed text-ink-soft">বুকিং খুললেই জানিয়ে দেব। ইমেইল বা মোবাইল নম্বর দিন।</p>
-                <div className="mt-auto pt-6">
+                <div className="mt-6">
                   <HarvestAlertForm interest="Pre-order opening alert" />
                 </div>
-              </>
+              </div>
             )}
           </aside>
         </div>
