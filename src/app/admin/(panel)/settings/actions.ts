@@ -66,6 +66,8 @@ export async function saveDeliveryAction(_: ActionState, fd: FormData): Promise<
       .map((s) => s.trim())
       .filter(Boolean),
     coverageNote: str(fd, "coverageNote"),
+    // Google keys are letters, digits, "-" and "_"; anything else is dropped so it can't break the script URL.
+    googleMapsKey: /^[A-Za-z0-9_-]{20,100}$/.test(str(fd, "googleMapsKey").trim()) ? str(fd, "googleMapsKey").trim() : "",
   });
   return done();
 }

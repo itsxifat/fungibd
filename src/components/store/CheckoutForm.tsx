@@ -27,6 +27,7 @@ export function CheckoutForm(props: {
   freeDeliveryMin: number;
   center: Pin;
   radiusKm: number;
+  googleMapsKey?: string;
   customer: { name: string; phone: string; email: string; addresses: Address[] } | null;
 }) {
   const router = useRouter();
@@ -246,7 +247,7 @@ export function CheckoutForm(props: {
               <div>
                 <span className="label">ম্যাপে বাসা পিন করুন · Pin your home on the map *</span>
                 <div className={cn(err("map") && "rounded-xl ring-2 ring-red-400 ring-offset-2")}>
-                  <MapPicker value={pin} onChange={setPin} center={props.center} radiusKm={props.radiusKm} onAddress={(l) => setMapLabel(l)} />
+                  <MapPicker value={pin} onChange={setPin} center={props.center} radiusKm={props.radiusKm} onAddress={(l) => setMapLabel(l)} googleKey={props.googleMapsKey} />
                 </div>
               </div>
               <div>

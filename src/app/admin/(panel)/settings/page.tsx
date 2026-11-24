@@ -131,6 +131,13 @@ export default async function SettingsPage({ searchParams }: { searchParams: Pro
             <In label="Delivery area centre — latitude" name="centerLat" type="number" value={s.delivery.centerLat} />
             <In label="Delivery area centre — longitude" name="centerLng" type="number" value={s.delivery.centerLng} />
             <In label="Delivery radius (km)" name="radiusKm" type="number" value={s.delivery.radiusKm} hint="Map pins outside this circle are rejected at checkout" />
+            <In
+              label="Google Maps API key (optional)"
+              name="googleMapsKey"
+              value={s.delivery.googleMapsKey}
+              hint="Checkout uses Google Maps when this is set. Use a browser key limited to fungibd.com, with Maps JavaScript API, Places API (New) and Geocoding API turned on. Empty = the free OpenStreetMap map. If Google refuses the key, checkout switches to the free map by itself."
+              className="sm:col-span-2"
+            />
             <In label="Delivery coverage line (Bangla)" name="coverageNote" value={s.delivery.coverageNote} hint="Shown on the home page, footer and emails — e.g. “শুধুমাত্র ঢাকা সিটির ভিতরে ডেলিভারি”. Update it when you reach new cities." className="sm:col-span-2" />
             <div className="sm:col-span-2">
               <Submit>Save</Submit>

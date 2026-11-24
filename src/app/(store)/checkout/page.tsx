@@ -35,6 +35,7 @@ export default async function CheckoutPage() {
           freeDeliveryMin={s.delivery.freeDeliveryMin}
           center={{ lat: s.delivery.centerLat, lng: s.delivery.centerLng }}
           radiusKm={s.delivery.radiusKm}
+          googleMapsKey={s.delivery.googleMapsKey}
           customer={
             customer
               ? {

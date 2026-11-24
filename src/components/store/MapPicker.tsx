@@ -6,6 +6,8 @@ import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import { Crosshair, Hand, Loader2, MapPin, Search, TriangleAlert } from "lucide-react";
 import { distanceKm } from "@/lib/geo";
+import { GoogleMapView } from "./GoogleMapView";
+import { googleReverse, googleSearch, loadGoogleMaps, onGoogleAuthFailure, type PlaceResult } from "./google-maps";
 
 const pin = L.divIcon({
   className: "",
@@ -15,6 +17,16 @@ const pin = L.divIcon({
 });
 
 export type Pin = { lat: number; lng: number };
+
+// Free OpenStreetMap search and reverse lookup (through /api/geo), used without a Google key or when Google fails.
+async function osmSearch(q: string): Promise<PlaceResult[]> {
+  const r = (await fetch(`/api/geo/search?q=${encodeURIComponent(q)}`).then((x) => x.json())) as { results?: { lat: number; lng: number; label: string }[] };
+  return (r.results ?? []).map((x) => ({ key: `${x.lat},${x.lng}`, label: x.label, resolve: async () => ({ pin: { lat: x.lat, lng: x.lng }, label: x.label }) }));
+}
+async function osmReverse(p: Pin): Promise<string> {
+  const r = (await fetch(`/api/geo/reverse?lat=${p.lat}&lng=${p.lng}`).then((x) => x.json())) as { label?: string };
+  return r.label ?? "";
+}
 
 function Clicks({ onPick }: { onPick: (p: Pin) => void }) {
   useMapEvents({ click: (e) => onPick({ lat: e.latlng.lat, lng: e.latlng.lng }) });
@@ -39,47 +51,86 @@ export default function MapPicker({
   center,
   radiusKm,
   onAddress,
+  googleKey = "",
 }: {
   value: Pin | null;
   onChange: (p: Pin) => void;
   center: Pin;
   radiusKm: number;
   onAddress?: (label: string) => void;
+  /** Admin → Settings → Delivery. Empty = free OpenStreetMap map. */
+  googleKey?: string;
 }) {
+  const [engine, setEngine] = useState<"loading" | "google" | "osm">(googleKey ? "loading" : "osm");
   const [q, setQ] = useState("");
-  const [results, setResults] = useState<{ lat: number; lng: number; label: string }[]>([]);
+  const [results, setResults] = useState<PlaceResult[]>([]);
   const [busy, setBusy] = useState<"search" | "locate" | null>(null);
   const [msg, setMsg] = useState<string>("");
   const [label, setLabel] = useState("");
   const outside = value ? distanceKm(value.lat, value.lng, center.lat, center.lng) > radiusKm : false;
+  const useGoogle = engine === "google";
+  const lastLookup = useRef<Pin | null>(null);
+  const lookupSeq = useRef(0);
+
+  // Load Google when a key is set; any failure (bad key, blocked, slow) switches to the free map.
+  useEffect(() => {
+    if (!googleKey) return;
+    let live = true;
+    const off = onGoogleAuthFailure(() => live && setEngine("osm"));
+    loadGoogleMaps(googleKey)
+      .then(() => live && setEngine((e) => (e === "loading" ? "google" : e)))
+      .catch(() => live && setEngine("osm"));
+    return () => {
+      live = false;
+      off();
+    };
+  }, [googleKey]);
+
+  const showLabel = (l: string) => {
+    setLabel(l);
+    onAddress?.(l);
+  };
 
   const pick = async (p: Pin, knownLabel?: string) => {
     onChange(p);
     setResults([]);
     if (knownLabel) {
-      setLabel(knownLabel);
-      onAddress?.(knownLabel);
-      return;
+      lastLookup.current = p;
+      return showLabel(knownLabel);
     }
-    try {
-      const r = await fetch(`/api/geo/reverse?lat=${p.lat}&lng=${p.lng}`).then((x) => x.json());
-      if (r.label) {
-        setLabel(r.label);
-        onAddress?.(r.label);
-      }
-    } catch {
-      /* ignore */
-    }
+    // Small nudges (under ~15 m) keep the address we already have; saves lookups.
+    const last = lastLookup.current;
+    if (last && distanceKm(p.lat, p.lng, last.lat, last.lng) < 0.015) return;
+    lastLookup.current = p;
+    const seq = ++lookupSeq.current;
+    let l = useGoogle ? await googleReverse(p).catch(() => "") : "";
+    if (!l) l = await osmReverse(p).catch(() => "");
+    if (l && seq === lookupSeq.current) showLabel(l);
   };
 
   const search = async () => {
-    if (q.trim().length < 3) return;
+    const text = q.trim();
+    if (text.length < 3) return;
     setBusy("search");
     setMsg("");
     try {
-      const r = await fetch(`/api/geo/search?q=${encodeURIComponent(q)}`).then((x) => x.json());
-      setResults(r.results ?? []);
-      if (!r.results?.length) setMsg("কিছু পাওয়া যায়নি — ম্যাপে ক্লিক করে পিন দিন · Not found, tap the map instead");
+      let r = useGoogle ? await googleSearch(text, center).catch(() => [] as PlaceResult[]) : [];
+      if (!r.length) r = await osmSearch(text).catch(() => [] as PlaceResult[]);
+      setResults(r);
+      if (!r.length) setMsg("কিছু পাওয়া যায়নি — ম্যাপে ট্যাপ করে পিন দিন · Not found, tap the map instead");
+    } finally {
+      setBusy(null);
+    }
+  };
+
+  const choose = async (r: PlaceResult) => {
+    setResults([]);
+    setBusy("search");
+    try {
+      const { pin: p, label: l } = await r.resolve();
+      pick(p, l);
+    } catch {
+      setMsg("জায়গাটি খোলা যায়নি — আবার চেষ্টা করুন বা ম্যাপে পিন দিন");
     } finally {
       setBusy(null);
     }
@@ -126,8 +177,8 @@ export default function MapPicker({
           {results.length > 0 && (
             <ul className="absolute inset-x-0 top-full z-[500] mt-1 max-h-64 overflow-auto rounded-xl border border-line bg-white p-1 shadow-[0_8px_24px_rgba(0,0,0,0.08)]">
               {results.map((r) => (
-                <li key={`${r.lat},${r.lng}`}>
-                  <button type="button" onClick={() => pick({ lat: r.lat, lng: r.lng }, r.label)} className="flex w-full gap-2 rounded-lg px-3 py-2 text-left text-sm transition-colors duration-150 hover:bg-brand-tint">
+                <li key={r.key}>
+                  <button type="button" onClick={() => choose(r)} className="flex w-full gap-2 rounded-lg px-3 py-2 text-left text-sm transition-colors duration-150 hover:bg-brand-tint">
                     <MapPin className="mt-0.5 size-4 shrink-0 text-muted" aria-hidden />
                     <span className="line-clamp-2">{r.label}</span>
                   </button>
@@ -146,6 +197,13 @@ export default function MapPicker({
       {msg && <p className="text-xs text-amber-700">{msg}</p>}
 
       <div className="relative overflow-hidden rounded-xl border border-line">
+        {engine === "loading" ? (
+          <div className="grid h-[300px] w-full place-items-center bg-paper sm:h-[340px]">
+            <Loader2 className="size-6 animate-spin text-muted" aria-hidden />
+          </div>
+        ) : useGoogle ? (
+          <GoogleMapView value={value} center={center} radiusKm={radiusKm} onPick={(p) => pick(p)} onFail={() => setEngine("osm")} />
+        ) : (
         <MapContainer center={value ?? center} zoom={value ? 16 : 12} scrollWheelZoom={false} className="h-[300px] w-full sm:h-[340px]" attributionControl>
           <TileLayer attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>' url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
           <Circle center={center} radius={radiusKm * 1000} pathOptions={{ color: "#02604A", weight: 1.5, fillOpacity: 0.04, dashArray: "6 6" }} />
@@ -165,8 +223,11 @@ export default function MapPicker({
           <Clicks onPick={(p) => pick(p)} />
           <Fly to={value} />
         </MapContainer>
-        {!value && (
-          <div className="pointer-events-none absolute inset-x-0 bottom-3 z-[400] mx-auto flex w-fit items-center gap-1.5 rounded-lg bg-ink/85 px-3.5 py-2 font-bangla text-xs text-white"><Hand className="size-3.5" aria-hidden /> ম্যাপে আপনার বাসার জায়গায় ট্যাপ করুন</div>
+        )}
+        {!value && engine !== "loading" && (
+          <div className="pointer-events-none absolute inset-x-0 bottom-3 z-[400] mx-auto flex w-fit items-center gap-1.5 rounded-lg bg-ink/85 px-3.5 py-2 font-bangla text-xs text-white">
+            <Hand className="size-3.5" aria-hidden /> {useGoogle ? "ম্যাপ সরিয়ে বা ট্যাপ করে পিনটি বাসার উপর রাখুন" : "ম্যাপে আপনার বাসার জায়গায় ট্যাপ করুন"}
+          </div>
         )}
       </div>
       {value && !outside && label && (

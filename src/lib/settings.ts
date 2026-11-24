@@ -41,6 +41,8 @@ export const DEFAULT_SETTINGS = {
     slots: ["সকাল ১০টা – দুপুর ১টা (10AM–1PM)", "দুপুর ২টা – বিকাল ৫টা (2PM–5PM)", "সন্ধ্যা ৬টা – রাত ৯টা (6PM–9PM)"],
     // Shown in the footer and emails — update it when you start delivering to new cities.
     coverageNote: "শুধুমাত্র ঢাকা সিটির ভিতরে ডেলিভারি",
+    // Browser key for the checkout map (Maps JavaScript, Places (New), Geocoding). Empty = free OpenStreetMap map.
+    googleMapsKey: "",
   },
   home: {
     announcement: "শুধুমাত্র ঢাকার ভিতরে ডেলিভারি · ক্যাশ অন ডেলিভারি",
