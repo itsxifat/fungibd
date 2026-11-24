@@ -37,6 +37,8 @@ function heroSlides(s: Settings, featured: ProductDTO[]): HeroSlideView[] {
     const harvest = v?.preorderDate ? `হারভেস্ট ${fmtDateBn(new Date(v.preorderDate), { day: "numeric", month: "long" })}` : "";
     out.push({ image: p.image, title: p.nameBn, caption: [price, harvest].filter(Boolean).join(" · "), href: `/product/${p.slug}` });
   }
+  // Nothing to show yet (no slides, nothing bookable) — keep the hero balanced with the farm illustration.
+  if (!out.length) out.push({ image: "art:oyster", title: "", caption: "", href: "/preorder" });
   return out;
 }
 
