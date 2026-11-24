@@ -9,8 +9,8 @@ export async function middleware(req: NextRequest) {
   const token = req.cookies.get("fb_admin")?.value;
   if (token) {
     try {
-      const { payload } = await jwtVerify(token, new TextEncoder().encode(process.env.AUTH_SECRET || "dev-secret"));
-      if (payload.kind === "admin") return NextResponse.next();
+      const { payload } = await jwtVerify(token, new TextEncoder().encode(process.env.AUTH_SECRET || "dev-secret"), { algorithms: ["HS256"] });
+      if (payload.kind === "admin" && typeof payload.version === "number") return NextResponse.next();
     } catch {
       /* fall through */
     }

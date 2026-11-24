@@ -14,9 +14,9 @@ export type FormState = { ok?: boolean; error?: string; message?: string; ref?: 
 export async function placeOrderAction(input: Omit<CheckoutInput, "source" | "customerId" | "isAdmin" | "by">) {
   if (!(await rateLimit("order", 8, 10 * 60_000))) return { ok: false as const, error: "অনেকবার চেষ্টা করা হয়েছে, কিছুক্ষণ পর আবার চেষ্টা করুন · Too many attempts" };
   const customerId = await getCustomerId();
-  const res = await placeOrder({ ...input, source: "WEB", customerId });
+  const res = await placeOrder({ ...input, source: "WEB", customerId, isAdmin: false, by: "customer" });
   if (!res.ok) return res;
-  if (input.password && input.password.length >= 6) await startCustomerSession(res.customerId);
+  if (res.accountCreated) await startCustomerSession(res.customerId);
   const nos = res.orders.map((o) => o.orderNo).join(",");
   return { ok: true as const, redirect: `/order/success?o=${nos}&k=${sign(`success:${nos}`)}` };
 }

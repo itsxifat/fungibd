@@ -36,7 +36,7 @@ export type CheckoutInput = {
   internalNote?: string;
 };
 export type PlacedOrder = { id: string; orderNo: string; type: string; total: number; deliveryDate: Date | null };
-export type PlaceResult = { ok: true; orders: PlacedOrder[]; customerId: string } | { ok: false; error: string; field?: string; changed?: boolean };
+export type PlaceResult = { ok: true; orders: PlacedOrder[]; customerId: string; accountCreated: boolean } | { ok: false; error: string; field?: string; changed?: boolean };
 
 /** Earliest + latest delivery dates customers can pick for in-stock items. */
 export function deliveryWindow(d: { sameDayCutoffHour: number; daysAhead: number }, now = new Date()) {
@@ -183,17 +183,20 @@ export async function placeOrder(input: CheckoutInput): Promise<PlaceResult> {
       // customer
       let customer = input.customerId ? await tx.customer.findUnique({ where: { id: input.customerId } }) : null;
       if (!customer) customer = await tx.customer.findUnique({ where: { phone } });
+      const accountCreated = Boolean(passwordHash && !customer?.hasAccount && (!email || !(await tx.customer.findFirst({
+        where: { email, hasAccount: true }, select: { id: true },
+      }))));
       if (!customer) {
         customer = await tx.customer.create({
-          data: { name, phone, email: email || null, source: input.source === "WEB" ? "WEB" : input.source, passwordHash, hasAccount: Boolean(passwordHash) },
+          data: { name, phone, email: email || null, source: input.source, passwordHash: accountCreated ? passwordHash : null, hasAccount: accountCreated },
         });
-      } else {
+      } else if (!customer.hasAccount) {
         customer = await tx.customer.update({
           where: { id: customer.id },
           data: {
             email: email || customer.email,
             name: customer.name || name,
-            ...(passwordHash && !customer.hasAccount ? { passwordHash, hasAccount: true } : {}),
+            ...(accountCreated ? { passwordHash, hasAccount: true } : {}),
           },
         });
       }
@@ -297,13 +300,13 @@ export async function placeOrder(input: CheckoutInput): Promise<PlaceResult> {
           data: { customerId: customer.id, line: addr, landmark: input.landmark.trim(), zoneId: zone.id, lat: input.lat, lng: input.lng, isDefault: count === 0 },
         });
       }
-      return { placed, customerId: customer.id };
+      return { placed, customerId: customer.id, accountCreated };
     });
 
     await refreshCustomerStats(result.customerId);
     for (const o of result.placed) background(notifyOrderPlaced(o.id));
     if (input.source === "WEB") background(notifyAdminNewOrders(result.placed.map((o) => o.id)));
-    return { ok: true, orders: result.placed, customerId: result.customerId };
+    return { ok: true, orders: result.placed, customerId: result.customerId, accountCreated: result.accountCreated };
   } catch (e) {
     const msg = (e as Error).message;
     if (msg.startsWith("STOCK:")) return { ok: false, changed: true, error: `${msg.slice(6)} — এইমাত্র স্টক শেষ হয়ে গেছে · just sold out` };

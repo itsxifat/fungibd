@@ -112,10 +112,12 @@ export function ProfileForm({ c }: { c: { name: string; email: string; phone: st
         </label>
         <input id="name" name="name" defaultValue={c.name} className="input" required />
       </div>
-      <div>
-        <label className="label">মোবাইল · Mobile</label>
-        <input value={c.phone} disabled className="input bg-cream/50 text-muted" />
-      </div>
+      {c.phone && (
+        <div>
+          <label className="label" htmlFor="profile-phone">মোবাইল · Mobile</label>
+          <input id="profile-phone" value={c.phone} disabled className="input bg-cream/50 text-muted" />
+        </div>
+      )}
       <div>
         <label className="label" htmlFor="email">
           ইমেইল · Email

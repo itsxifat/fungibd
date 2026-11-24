@@ -6,10 +6,20 @@ import { db } from "@/lib/db";
 import { getProducts, isPreorderOnly } from "@/lib/store-data";
 import { ProductCard } from "@/components/store/ProductCard";
 import { cn } from "@/lib/utils";
+import { storefrontMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = { title: "শপ · Mushroom products" };
+type ShopSearch = { category?: string; filter?: string; q?: string };
+const shopMetadata = storefrontMetadata(
+  "/shop", "Mushroom Products · মাশরুমের তৈরি পণ্য",
+  "Dried mushrooms, mushroom powder and grow-at-home kits made from FungiBd's own harvest. In stock items ship now, cash on delivery in supported areas of Dhaka.",
+);
 
-export default async function ShopPage({ searchParams }: { searchParams: Promise<{ category?: string; filter?: string; q?: string }> }) {
+export async function generateMetadata({ searchParams }: { searchParams: Promise<ShopSearch> }): Promise<Metadata> {
+  const { category, filter, q } = await searchParams;
+  return category || filter || q ? { ...shopMetadata, robots: { index: false, follow: true } } : shopMetadata;
+}
+
+export default async function ShopPage({ searchParams }: { searchParams: Promise<ShopSearch> }) {
   const sp = await searchParams;
   // Fresh mushrooms are sold by pre-order only — old "/shop?filter=preorder" links go to the pre-order page.
   if (sp.filter === "preorder") redirect("/preorder");
@@ -18,7 +28,7 @@ export default async function ShopPage({ searchParams }: { searchParams: Promise
   const shopProducts = all.filter((p) => !isPreorderOnly(p));
   const hasPreorder = all.some(isPreorderOnly);
   const shopCats = cats.filter((c) => shopProducts.some((p) => p.categorySlug === c.slug));
-  const q = (sp.q ?? "").trim().toLowerCase();
+  const q = typeof sp.q === "string" ? sp.q.trim().toLowerCase() : "";
   const products = shopProducts.filter((p) => {
     if (sp.category && p.categorySlug !== sp.category) return false;
     if (sp.filter === "instock" && !p.variants.some((v) => v.mode === "IN_STOCK")) return false;
@@ -40,7 +50,10 @@ export default async function ShopPage({ searchParams }: { searchParams: Promise
         <div>
           <p className="eyebrow">শপ</p>
           <h1 className="mt-2 font-display text-3xl sm:text-4xl">মাশরুমের তৈরি পণ্য</h1>
-          <p className="mt-2 max-w-xl font-bangla text-ink-soft">আমাদের খামারের মাশরুম দিয়ে তৈরি — শুকনো মাশরুম, পাউডার আর ঘরে চাষের কিট। স্টকে যা আছে, আজই অর্ডার করা যায়।</p>
+          <p className="mt-2 max-w-xl font-bangla text-ink-soft">
+            আমাদের খামারের মাশরুম দিয়ে তৈরি — শুকনো মাশরুম, পাউডার আর ঘরে চাষের কিট। স্টকে যা আছে, আজই অর্ডার করা যায়।{" "}
+            <Link href="/delivery" className="font-medium text-brand underline underline-offset-2">ডেলিভারি এলাকা দেখুন</Link>
+          </p>
         </div>
         <form action="/shop" className="flex w-full max-w-sm items-center gap-2 rounded-xl border border-line-strong bg-white p-1.5 pl-4">
           <Search className="h-4 w-4 text-muted" aria-hidden />

@@ -56,9 +56,14 @@ export function DeliveryCoverage({ zones, freeDeliveryMin, note }: { zones: Cove
             </div>
           ))}
         </dl>
-        <Link href="/support" className="mt-8 inline-flex items-center gap-2 font-bangla text-sm font-semibold text-brand hover:underline">
-          <MessageSquarePlus className="size-4" aria-hidden /> আপনার এলাকা নেই? জানিয়ে রাখুন
-        </Link>
+        <div className="mt-8 flex flex-col items-start gap-3">
+          <Link href="/delivery" className="font-bangla text-sm font-semibold text-brand hover:underline">
+            সব এলাকা, চার্জ ও ডেলিভারির নিয়ম
+          </Link>
+          <Link href="/support" className="inline-flex items-center gap-2 font-bangla text-sm text-ink-soft hover:text-ink hover:underline">
+            <MessageSquarePlus className="size-4 text-muted" aria-hidden /> আপনার এলাকা নেই? জানিয়ে রাখুন
+          </Link>
+        </div>
       </div>
 
       <div className="rounded-[20px] border border-line bg-white p-2 shadow-[0_8px_24px_rgba(0,0,0,0.06)]">

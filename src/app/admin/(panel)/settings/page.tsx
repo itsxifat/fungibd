@@ -349,7 +349,7 @@ export default async function SettingsPage({ searchParams }: { searchParams: Pro
                   ))}
                 </select>
               </label>
-              <In label="Password (min 8)" name="password" type="password" value="" />
+              <In label="Password (min 12)" name="password" type="password" value="" />
               <Submit>Add member</Submit>
             </ActionForm>
           </div>

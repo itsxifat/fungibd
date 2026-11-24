@@ -10,16 +10,21 @@ import { fmtDateBn } from "@/lib/dates";
 import { AddToCart } from "@/components/store/AddToCart";
 import { ProductCard } from "@/components/store/ProductCard";
 import { Gallery } from "@/components/store/Gallery";
+import { StructuredData } from "@/components/store/StructuredData";
+import { breadcrumbData, productData, productPath, publicImage, storefrontMetadata } from "@/lib/seo";
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params;
   const p = await getProduct(slug);
   if (!p) return {};
-  return { title: `${p.dto.nameBn} · ${p.dto.nameEn}`, description: `${p.dto.shortBn} ${p.dto.shortEn}` };
+  const { dto, row } = p;
+  const name = dto.nameEn || dto.nameBn;
+  const description = [dto.shortEn || row.descriptionEn || dto.shortBn, "See pack sizes, prices and current availability for delivery in Dhaka."].filter(Boolean).join(" ");
+  return storefrontMetadata(productPath(dto.slug), `${name} in Dhaka${dto.nameBn && dto.nameBn !== name ? ` · ${dto.nameBn}` : ""}`, description, dto.images.map(publicImage).find(Boolean));
 }
 
-export default async function ProductPage({ params }: { params: Promise<{ slug: string }> }) {
-  const { slug } = await params;
+export default async function ProductPage({ params, searchParams }: { params: Promise<{ slug: string }>; searchParams: Promise<{ pack?: string }> }) {
+  const [{ slug }, { pack }] = await Promise.all([params, searchParams]);
   const found = await getProduct(slug);
   if (!found) notFound();
   const { dto: p, row } = found;
@@ -31,9 +36,13 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
   const highlights = parseJson<string[]>(row.highlights, []);
   const pre = p.variants.some((v) => v.mode === "PREORDER");
   const preOnly = isPreorderOnly(p);
+  const selectedPack = p.variants.find((variant) => variant.id === pack)?.id;
+  const productMarkup = productData(p, p.shortEn || row.descriptionEn || p.shortBn || row.descriptionBn, s.store.name);
 
   return (
     <div className="container-x pb-10 pt-6">
+      {productMarkup && <StructuredData data={productMarkup} />}
+      <StructuredData data={breadcrumbData([{ name: "Home", path: "/" }, preOnly ? { name: "Pre-order", path: "/preorder" } : { name: "Shop", path: "/shop" }, { name: p.nameEn || p.nameBn, path: productPath(p.slug) }])} />
       <nav aria-label="Breadcrumb" className="flex items-center gap-1.5 text-sm text-muted">
         <Link href="/" className="hover:text-brand">
           হোম
@@ -66,7 +75,7 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
           <p className="mt-1 text-sm text-muted">{p.shortEn}</p>
 
           <div className="mt-8 rounded-2xl border border-line bg-white p-6">
-            <AddToCart product={p} size="full" />
+            <AddToCart key={selectedPack ?? p.id} product={p} size="full" initialVariantId={selectedPack} />
             {pre && p.preorder.cap != null && (
               <div className="mt-5">
                 <div className="flex justify-between text-xs text-muted">
@@ -86,7 +95,10 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
 
           <ul className="mt-6 flex flex-wrap gap-x-6 gap-y-2 font-bangla text-sm text-ink-soft">
             <li className="flex items-center gap-2">
-              <Truck className="size-4 text-muted" aria-hidden /> {s.delivery.coverageNote || "হোম ডেলিভারি"}
+              <Truck className="size-4 text-muted" aria-hidden />{" "}
+              <Link href="/delivery" className="hover:text-ink hover:underline">
+                {s.delivery.coverageNote || "হোম ডেলিভারি"}
+              </Link>
             </li>
             <li className="flex items-center gap-2">
               <Banknote className="size-4 text-muted" aria-hidden /> ক্যাশ অন ডেলিভারি
@@ -139,7 +151,7 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
       {/* reviews */}
       <section id="reviews" className="mt-16 scroll-mt-24">
         <h2 className="font-display text-3xl">
-          রিভিউ <span className="text-muted tabular-nums">· {bnDigits(reviews.length)}</span>
+          রিভিউ <span className="text-muted tabular-nums">· {bnDigits(p.rating.count)}</span>
         </h2>
         {reviews.length ? (
           <div className="mt-6 grid gap-4 md:grid-cols-2">

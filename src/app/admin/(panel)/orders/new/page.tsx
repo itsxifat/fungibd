@@ -28,7 +28,7 @@ export default async function NewOrderPage({ searchParams }: { searchParams: Pro
         defaultDate={dateKey(deliveryWindow(s.delivery).earliest)}
         customer={
           customer
-            ? { name: customer.name, phone: customer.phone, email: customer.email ?? "", addressLine: customer.addresses[0]?.line ?? "", landmark: customer.addresses[0]?.landmark ?? "", zoneId: customer.addresses[0]?.zoneId ?? "" }
+            ? { id: customer.id, name: customer.name, phone: customer.phone ?? "", email: customer.email ?? "", addressLine: customer.addresses[0]?.line ?? "", landmark: customer.addresses[0]?.landmark ?? "", zoneId: customer.addresses[0]?.zoneId ?? "" }
             : null
         }
       />

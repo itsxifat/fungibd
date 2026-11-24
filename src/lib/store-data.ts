@@ -1,4 +1,5 @@
 import "server-only";
+import { cache } from "react";
 import type { Prisma } from "@prisma/client";
 import { db } from "./db";
 import { availability, productImages } from "./catalog";
@@ -114,11 +115,11 @@ export async function getProducts(where: Prisma.ProductWhereInput = {}) {
   return rows.map((r) => toDTO(r));
 }
 
-export async function getProduct(slug: string) {
+export const getProduct = cache(async (slug: string) => {
   const p = await db.product.findUnique({ where: { slug }, include });
   if (!p || !p.isActive) return null;
   return { dto: toDTO(p), row: p };
-}
+});
 
 /** Fresh data for cart items (price & pre-order status can change). */
 export async function getCartVariants(ids: string[]) {

@@ -2,6 +2,7 @@ import Link from "next/link";
 import { LogOut, MapPin, Trash2 } from "lucide-react";
 import { db } from "@/lib/db";
 import { requireCustomer } from "@/lib/auth";
+import { CUSTOMER_GOOGLE_PATH, googleConfig } from "@/lib/google-auth";
 import { ORDER_STATUS, TICKET_STATUS, type OrderStatus } from "@/lib/constants";
 import { fmtDate } from "@/lib/dates";
 import { takaBn } from "@/lib/utils";
@@ -11,8 +12,9 @@ import { deleteAddressAction, logoutAction } from "./actions";
 
 export const metadata = { title: "আমার অ্যাকাউন্ট · My account", robots: { index: false } };
 
-export default async function AccountPage() {
+export default async function AccountPage({ searchParams }: { searchParams: Promise<{ google?: string }> }) {
   const c = await requireCustomer();
+  const { google } = await searchParams;
   const [orders, addresses, tickets] = await Promise.all([
     db.order.findMany({ where: { customerId: c.id }, orderBy: { createdAt: "desc" }, take: 30, include: { items: true } }),
     db.address.findMany({ where: { customerId: c.id }, orderBy: [{ isDefault: "desc" }, { createdAt: "desc" }] }),
@@ -70,7 +72,16 @@ export default async function AccountPage() {
           <section className="rounded-2xl border border-line bg-white p-5">
             <h2 className="font-semibold">প্রোফাইল · Profile</h2>
             <div className="mt-4">
-              <ProfileForm c={{ name: c.name, email: c.email ?? "", phone: c.phone, marketingOptIn: c.marketingOptIn }} />
+              <ProfileForm c={{ name: c.name, email: c.email ?? "", phone: c.phone ?? "", marketingOptIn: c.marketingOptIn }} />
+              {google === "linked" && <p role="status" className="mt-4 text-sm text-brand">Google যুক্ত হয়েছে · Google sign-in connected.</p>}
+              {(google === "error" || google === "unavailable") && (
+                <p role="alert" className="mt-4 text-sm text-red-700">
+                  {google === "error" ? "Google যুক্ত করা যায়নি · To connect Google, use the same email address as your FungiBd profile." : "Google sign-in is currently unavailable."}
+                </p>
+              )}
+              {!c.googleSubject && c.email && googleConfig() && (
+                <a href={`${CUSTOMER_GOOGLE_PATH}?link=1`} className="btn btn-outline btn-sm mt-4">Google যুক্ত করুন · Connect Google</a>
+              )}
             </div>
           </section>
           <section className="rounded-2xl border border-line bg-white p-5">

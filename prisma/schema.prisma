@@ -15,21 +15,35 @@ datasource db {
 // ───────────────────────────── People ─────────────────────────────
 
 model AdminUser {
-  id           String    @id @default(cuid())
-  name         String
-  email        String    @unique
-  passwordHash String
-  role         String    @default("STAFF") // OWNER | MANAGER | STAFF
-  isActive     Boolean   @default(true)
-  lastLoginAt  DateTime?
-  createdAt    DateTime  @default(now())
+  id                     String    @id @default(cuid())
+  name                   String
+  email                  String    @unique
+  passwordHash           String
+  role                   String    @default("STAFF") // OWNER | MANAGER | STAFF
+  isActive               Boolean   @default(true)
+  lastLoginAt            DateTime?
+  createdAt              DateTime  @default(now())
+  emailVerifiedAt        DateTime?
+  googleSubject          String?   @unique
+  sessionVersion         Int       @default(0)
+  verifyTokenHash        String?   @unique
+  verifyTokenExpiresAt   DateTime?
+  resetTokenHash         String?   @unique
+  resetTokenExpiresAt    DateTime?
+}
+
+model OwnerSetup {
+  id          String    @id
+  tokenHash   String?
+  claimedAt   DateTime?
 }
 
 model Customer {
   id              String     @id @default(cuid())
   name            String
-  phone           String     @unique
+  phone           String?    @unique
   email           String?
+  googleSubject   String?    @unique
   passwordHash    String?
   hasAccount      Boolean    @default(false)
   tags            String     @default("") // comma separated

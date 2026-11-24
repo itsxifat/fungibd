@@ -39,7 +39,7 @@ export default async function CheckoutPage() {
             customer
               ? {
                   name: customer.name,
-                  phone: customer.phone,
+                  phone: customer.phone ?? "",
                   email: customer.email ?? "",
                   addresses: addresses.map((a) => ({ id: a.id, label: a.label, line: a.line, landmark: a.landmark, zoneId: a.zoneId, lat: a.lat, lng: a.lng, isDefault: a.isDefault })),
                 }

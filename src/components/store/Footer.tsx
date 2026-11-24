@@ -45,6 +45,7 @@ export async function Footer() {
           <ul className="mt-4 space-y-2.5 font-bangla text-sm">
             <li><Link className={link} href="/track">অর্ডার ট্র্যাক</Link></li>
             <li><Link className={link} href="/support">যোগাযোগ ও সাপোর্ট</Link></li>
+            <li><Link className={link} href="/delivery">ডেলিভারি এলাকা ও চার্জ</Link></li>
             <li><Link className={link} href="/policies">ডেলিভারি নীতি</Link></li>
             <li><Link className={link} href="/account">আমার অ্যাকাউন্ট</Link></li>
           </ul>
@@ -60,8 +61,12 @@ export async function Footer() {
         </div>
       </div>
       <div className="border-t border-line">
-        <div className="container-x flex flex-col items-center justify-between gap-2 py-6 text-xs text-muted sm:flex-row">
+        <div className="container-x flex flex-wrap items-center justify-between gap-x-6 gap-y-3 py-6 text-xs text-muted">
           <p>© {year} {s.store.name}</p>
+          <nav aria-label="Legal" className="flex flex-wrap gap-x-4 gap-y-2">
+            <Link className={link} href="/privacy">Privacy Policy</Link>
+            <Link className={link} href="/terms">Terms of Service</Link>
+          </nav>
           <p className="font-bangla">{s.delivery.coverageNote ? `${s.delivery.coverageNote} · ` : ""}ক্যাশ অন ডেলিভারি</p>
         </div>
       </div>

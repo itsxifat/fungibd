@@ -1,10 +1,9 @@
 /**
  * Seeds FungiBd.
- *   npm run db:seed            → essentials only (admin login, products, delivery areas, supplies)
+ *   npm run db:seed            → essentials only (products, delivery areas, supplies)
  *   npm run db:seed -- --demo  → essentials + ~75 days of sample orders, customers, leads etc. (for trying the dashboard)
  */
 import { PrismaClient } from "@prisma/client";
-import bcrypt from "bcryptjs";
 import { addDays, startOfDay, dateKey } from "../src/lib/dates";
 
 const db = new PrismaClient();
@@ -35,14 +34,6 @@ function weighted<T>(items: [T, number][]) {
 const today = startOfDay();
 
 async function essentials() {
-  // ── Admin ──
-  const email = (process.env.ADMIN_EMAIL || "admin@fungibd.com").toLowerCase();
-  const exists = await db.adminUser.findUnique({ where: { email } });
-  if (!exists) {
-    await db.adminUser.create({ data: { name: "FungiBd Owner", email, role: "OWNER", passwordHash: await bcrypt.hash(process.env.ADMIN_PASSWORD || "ChangeMe@123", 10) } });
-    console.log(`✓ Owner login: ${email}`);
-  }
-
   if (await db.product.count()) {
     console.log("• Catalog already exists — skipping essentials");
     return;

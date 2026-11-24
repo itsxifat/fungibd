@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { db } from "@/lib/db";
 import { checkPassword, endCustomerSession, getCustomer, hashPassword, startCustomerSession } from "@/lib/auth";
+import { safeCustomerNext } from "@/lib/customer-auth";
 import { randomToken, rateLimit } from "@/lib/security";
 import { normalizePhone, str } from "@/lib/utils";
 import { background, sendPasswordReset, sendWelcome } from "@/lib/email/notify";
@@ -37,11 +38,11 @@ export async function loginAction(_: FormState, fd: FormData): Promise<FormState
   if (!(await rateLimit("login", 10, 10 * 60_000))) return { error: "Too many attempts, try later" };
   const id = str(fd, "id").toLowerCase();
   const password = str(fd, "password");
-  const phone = normalizePhone(id);
+  const phone = id.includes("@") ? null : normalizePhone(id);
   const c = phone ? await db.customer.findUnique({ where: { phone } }) : await db.customer.findFirst({ where: { email: id, hasAccount: true } });
   if (!c || !c.hasAccount || !c.passwordHash || !(await checkPassword(password, c.passwordHash))) return { error: "মোবাইল/ইমেইল বা পাসওয়ার্ড ভুল · Wrong login details" };
   await startCustomerSession(c.id);
-  redirect(str(fd, "next").startsWith("/") ? str(fd, "next") : "/account");
+  redirect(safeCustomerNext(str(fd, "next")));
 }
 
 export async function logoutAction() {
@@ -52,20 +53,20 @@ export async function logoutAction() {
 export async function forgotAction(_: FormState, fd: FormData): Promise<FormState> {
   if (!(await rateLimit("forgot", 5, 10 * 60_000))) return { error: "Too many attempts, try later" };
   const email = str(fd, "email").toLowerCase();
-  const c = await db.customer.findFirst({ where: { email, hasAccount: true } });
+  const c = await db.customer.findFirst({ where: { email, hasAccount: true, passwordHash: { not: null } } });
   if (c?.email) {
     const token = randomToken();
     await db.customer.update({ where: { id: c.id }, data: { resetToken: token, resetTokenExp: new Date(Date.now() + 3600_000) } });
     background(sendPasswordReset({ name: c.name, email: c.email }, token));
   }
-  return { ok: true, message: "এই ইমেইলে অ্যাকাউন্ট থাকলে রিসেট লিংক পাঠানো হয়েছে · If the email exists, a reset link was sent." };
+  return { ok: true, message: "পাসওয়ার্ড সেট করা থাকলে রিসেট লিংক পাঠানো হবে। · A reset link will be sent if you have a password. For a Google-only account, sign in with Google." };
 }
 
 export async function resetAction(_: FormState, fd: FormData): Promise<FormState> {
   const token = str(fd, "token");
   const password = str(fd, "password");
   if (password.length < 6) return { error: "পাসওয়ার্ড কমপক্ষে ৬ অক্ষরের" };
-  const c = await db.customer.findFirst({ where: { resetToken: token, resetTokenExp: { gt: new Date() } } });
+  const c = await db.customer.findFirst({ where: { resetToken: token, resetTokenExp: { gt: new Date() }, hasAccount: true, passwordHash: { not: null } } });
   if (!c) return { error: "লিংকের মেয়াদ শেষ — আবার চেষ্টা করুন · Link expired" };
   await db.customer.update({ where: { id: c.id }, data: { passwordHash: await hashPassword(password), resetToken: null, resetTokenExp: null } });
   await startCustomerSession(c.id);
@@ -78,12 +79,19 @@ export async function profileAction(_: FormState, fd: FormData): Promise<FormSta
   const name = str(fd, "name");
   const email = str(fd, "email").toLowerCase();
   if (name.length < 2 || !isEmail(email)) return { error: "নাম ও সঠিক ইমেইল দিন" };
-  await db.customer.update({ where: { id: c.id }, data: { name, email, marketingOptIn: fd.get("marketing") === "on" } });
   const pw = str(fd, "password");
-  if (pw) {
-    if (pw.length < 6) return { error: "পাসওয়ার্ড কমপক্ষে ৬ অক্ষরের" };
-    await db.customer.update({ where: { id: c.id }, data: { passwordHash: await hashPassword(pw) } });
+  if (pw && pw.length < 6) return { error: "পাসওয়ার্ড কমপক্ষে ৬ অক্ষরের" };
+  if (email !== c.email && await db.customer.findFirst({ where: { email, hasAccount: true, id: { not: c.id } }, select: { id: true } })) {
+    return { error: "এই ইমেইলে আগেই অ্যাকাউন্ট আছে · Email already registered" };
   }
+  await db.customer.update({
+    where: { id: c.id },
+    data: {
+      name, email, marketingOptIn: fd.get("marketing") === "on",
+      ...(pw ? { passwordHash: await hashPassword(pw) } : {}),
+      ...(pw || email !== c.email ? { resetToken: null, resetTokenExp: null } : {}),
+    },
+  });
   revalidatePath("/account");
   return { ok: true, message: "সেভ হয়েছে · Saved" };
 }

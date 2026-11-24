@@ -15,6 +15,13 @@ import { SectionHeading } from "@/components/store/SectionHeading";
 import { HeroSlider, type HeroSlideView } from "@/components/store/HeroSlider";
 import { PreorderSteps } from "@/components/store/PreorderSteps";
 import { DeliveryCoverage } from "@/components/store/DeliveryCoverage";
+import { StructuredData } from "@/components/store/StructuredData";
+import { absoluteUrl, storefrontMetadata } from "@/lib/seo";
+
+export const metadata = storefrontMetadata(
+  "/", "Fresh Mushrooms in Dhaka · ঢাকায় তাজা মাশরুম",
+  "নিজস্ব খামারের তাজা মাশরুম, প্রি-অর্ডারে। Pre-order farm-grown fresh mushrooms from FungiBd's next harvest, plus dried mushrooms and mushroom powder. Cash on delivery in Dhaka.",
+);
 
 const safeHref = (h: string) => (h.startsWith("/") || /^https?:\/\//.test(h) ? h : "");
 
@@ -60,6 +67,18 @@ export default async function HomePage() {
 
   return (
     <>
+      <StructuredData data={{
+        "@context": "https://schema.org",
+        "@graph": [
+          { "@type": "WebSite", "@id": absoluteUrl("/#website"), name: s.store.name, url: absoluteUrl("/"), inLanguage: ["bn-BD", "en"], publisher: { "@id": absoluteUrl("/#store") } },
+          {
+            "@type": "OnlineStore", "@id": absoluteUrl("/#store"), name: s.store.name, url: absoluteUrl("/"),
+            logo: absoluteUrl("/brand/icon-512.png"), description: s.store.taglineEn, email: s.store.email || undefined,
+            telephone: /\d{10,}/.test(s.store.phone.replace(/[^\d]/g, "")) ? s.store.phone : undefined,
+            sameAs: [s.store.facebook, s.store.instagram, s.store.youtube].filter((url) => /^https?:\/\//i.test(url)),
+          },
+        ],
+      }} />
       {/* Hero — text and slides are edited in Admin → Settings → Home page */}
       <section className="container-x grid items-center gap-8 pb-12 pt-8 sm:gap-10 sm:pt-12 lg:grid-cols-[1fr_1.05fr] lg:gap-16 lg:pb-20 lg:pt-14">
         <div className="max-w-xl">
@@ -69,7 +88,7 @@ export default async function HomePage() {
             </p>
           )}
           <h1 className="mt-4 font-display text-4xl leading-[1.2] sm:text-5xl lg:text-6xl">{s.home.heroTitleBn}</h1>
-          {s.home.heroTitleEn && <p className="mt-3 text-lg text-muted">{s.home.heroTitleEn}</p>}
+          {s.home.heroTitleEn && <p lang="en" className="mt-3 text-lg text-muted">{s.home.heroTitleEn}</p>}
           {s.home.heroSubBn && <p className="mt-5 max-w-[36rem] font-bangla text-lg leading-relaxed text-ink-soft">{s.home.heroSubBn}</p>}
           {ctas.length > 0 && (
             <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:flex-wrap">

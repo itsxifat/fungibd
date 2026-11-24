@@ -19,10 +19,10 @@ export function HarvestDate({ date, className }: { date: string | null; classNam
   );
 }
 
-export function AddToCart({ product, size = "card", dark = false }: { product: ProductDTO; size?: "card" | "full"; dark?: boolean }) {
+export function AddToCart({ product, size = "card", dark = false, initialVariantId }: { product: ProductDTO; size?: "card" | "full"; dark?: boolean; initialVariantId?: string }) {
   const add = useCart((s) => s.add);
   const firstBuyable = product.variants.find((v) => v.mode !== "SOLD_OUT") ?? product.variants[0];
-  const [vid, setVid] = useState(firstBuyable?.id);
+  const [vid, setVid] = useState(initialVariantId ?? firstBuyable?.id);
   const [qty, setQty] = useState(1);
   const v = product.variants.find((x) => x.id === vid) ?? firstBuyable;
   if (!v) return null;

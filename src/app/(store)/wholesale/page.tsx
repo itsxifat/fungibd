@@ -1,7 +1,8 @@
 import { Check } from "lucide-react";
 import { WholesaleForm } from "@/components/store/StoreForms";
+import { storefrontMetadata } from "@/lib/seo";
 
-export const metadata = { title: "পাইকারি অর্ডার · Wholesale" };
+export const metadata = storefrontMetadata("/wholesale", "Wholesale Mushrooms in Dhaka · পাইকারি মাশরুম", "Request bulk or recurring mushroom supply from FungiBd for restaurants, hotels, caterers and shops in Dhaka.");
 
 export default function WholesalePage() {
   return (

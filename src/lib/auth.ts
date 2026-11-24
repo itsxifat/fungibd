@@ -9,7 +9,13 @@ import type { AdminRole } from "./constants";
 export const ADMIN_COOKIE = "fb_admin";
 export const CUSTOMER_COOKIE = "fb_cust";
 
-const secret = () => new TextEncoder().encode(process.env.AUTH_SECRET || "dev-secret");
+const secret = () => {
+  const value = process.env.AUTH_SECRET;
+  if (process.env.NODE_ENV === "production" && (!value || value.length < 32)) {
+    throw new Error("Set AUTH_SECRET to at least 32 characters before using authentication in production.");
+  }
+  return new TextEncoder().encode(value || "dev-secret");
+};
 
 export async function signToken(payload: Record<string, unknown>, expiresIn = "14d") {
   return new SignJWT(payload).setProtectedHeader({ alg: "HS256" }).setIssuedAt().setExpirationTime(expiresIn).sign(secret());
@@ -17,7 +23,7 @@ export async function signToken(payload: Record<string, unknown>, expiresIn = "1
 export async function verifyToken<T>(token: string | undefined): Promise<T | null> {
   if (!token) return null;
   try {
-    const { payload } = await jwtVerify(token, secret());
+    const { payload } = await jwtVerify(token, secret(), { algorithms: ["HS256"] });
     return payload as T;
   } catch {
     return null;
@@ -36,21 +42,21 @@ const cookieOpts = (maxAgeDays: number) => ({
 });
 
 // ───────────── Admin ─────────────
-export type AdminSession = { id: string; name: string; email: string; role: AdminRole };
+export type AdminSession = { id: string; name: string; email: string; role: AdminRole; emailVerified: boolean; googleLinked: boolean };
 
-export async function startAdminSession(user: { id: string; role: string }) {
-  const token = await signToken({ sub: user.id, role: user.role, kind: "admin" }, "7d");
+export async function startAdminSession(user: { id: string; sessionVersion: number }) {
+  const token = await signToken({ sub: user.id, version: user.sessionVersion, kind: "admin" }, "7d");
   (await cookies()).set(ADMIN_COOKIE, token, cookieOpts(7));
 }
 export async function endAdminSession() {
   (await cookies()).delete(ADMIN_COOKIE);
 }
 export async function getAdmin(): Promise<AdminSession | null> {
-  const t = await verifyToken<{ sub: string; kind: string }>((await cookies()).get(ADMIN_COOKIE)?.value);
-  if (!t || t.kind !== "admin") return null;
+  const t = await verifyToken<{ sub: string; kind: string; version: number }>((await cookies()).get(ADMIN_COOKIE)?.value);
+  if (!t || t.kind !== "admin" || typeof t.sub !== "string" || typeof t.version !== "number") return null;
   const u = await db.adminUser.findUnique({ where: { id: t.sub } });
-  if (!u || !u.isActive) return null;
-  return { id: u.id, name: u.name, email: u.email, role: u.role as AdminRole };
+  if (!u || !u.isActive || u.sessionVersion !== t.version) return null;
+  return { id: u.id, name: u.name, email: u.email, role: u.role as AdminRole, emailVerified: Boolean(u.emailVerifiedAt), googleLinked: Boolean(u.googleSubject) };
 }
 /** Use at the top of every admin page and server action. */
 export async function requireAdmin(roles?: AdminRole[]): Promise<AdminSession> {
