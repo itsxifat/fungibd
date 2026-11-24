@@ -1,6 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import type { CSSProperties } from "react";
-import { Anek_Bangla, Hind_Siliguri } from "next/font/google";
+import { Noto_Sans_Bengali, Tiro_Bangla } from "next/font/google";
 import { getSettings, isHex } from "@/lib/settings";
 import { defaultShareImage } from "@/lib/seo";
 import { siteUrl } from "@/lib/utils";
@@ -8,9 +8,9 @@ import "./globals.css";
 
 export const dynamic = "force-dynamic";
 
-// Anek Bangla for headings and prices, Hind Siliguri for reading and UI — both draw Bangla and Latin.
-const display = Anek_Bangla({ subsets: ["bengali", "latin"], variable: "--font-anek", display: "swap" });
-const body = Hind_Siliguri({ subsets: ["bengali", "latin"], weight: ["400", "500", "600", "700"], variable: "--font-hind", display: "swap" });
+// Tiro Bangla for headings and prices, Noto Sans Bengali for reading and UI — both draw Bangla and Latin.
+const display = Tiro_Bangla({ subsets: ["bengali", "latin"], weight: "400", variable: "--font-tiro", display: "swap" });
+const body = Noto_Sans_Bengali({ subsets: ["bengali", "latin"], variable: "--font-noto", display: "swap" });
 
 export async function generateMetadata(): Promise<Metadata> {
   const s = await getSettings();

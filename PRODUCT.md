@@ -58,6 +58,7 @@ Not claimed, and not to be implied: rare or exclusive varieties, organic or chem
 - Logo: the FungiBd wordmark and mushroom mark in `public/brand/` (green and cream wordmarks, mark, badge, app icons, email logo, social share image). The README records the brand colours that go with them; the owner can change both in Admin → Settings → Brand.
 - Voice, as observed in the existing copy and not yet confirmed: plain, warm, practical Bangla with short reassurances such as "হাতে পেয়ে টাকা দিন" (pay when it's in your hands).
 - **Storefront style (owner's standing preference, 2026-11-24):** simple, easy to use, premium, with good taste. Familiar Bangladeshi online-shop conventions, with ghorerbazar.com as the reference for ease and polish: search in the header, category menu, banner slider, category tiles, product cards with "add to cart" and "buy now", category sections. No conceptual or themed visual worlds; the owner turned those down.
+- **Owner decisions (2026-11-25):** type is Tiro Bangla for headings and prices with Noto Sans Bengali for text (Anek Bangla was turned down). The home banner is the owner's headline on the left and a clickable picture slider on the right, both edited in Admin; no booking box beside it.
 
 ## Evidence on Hand
 

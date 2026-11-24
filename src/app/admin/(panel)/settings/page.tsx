@@ -147,7 +147,7 @@ export default async function SettingsPage({ searchParams }: { searchParams: Pro
           <Card title="Top of the home page (hero)" description="The text on the left of the home page. Keep it short — one headline, one line, one or two buttons.">
             <div className="grid gap-4 sm:grid-cols-2">
               <In label="Announcement bar" name="announcement" value={s.home.announcement} hint="Thin bar above the menu on every page. Empty = hidden." className="sm:col-span-2" />
-              <In label="Small label above the headline" name="heroEyebrow" value={s.home.heroEyebrow} hint="Empty = shows the next harvest date automatically" className="sm:col-span-2" />
+              <In label="Small line under the buttons" name="heroEyebrow" value={s.home.heroEyebrow} hint="Empty = shows the next harvest date automatically (hidden when there is none)" className="sm:col-span-2" />
               <In label="Headline (Bangla) *" name="heroTitleBn" value={s.home.heroTitleBn} className="sm:col-span-2" />
               <label className="block sm:col-span-2">
                 <span className="label">Short text under the headline</span>
@@ -160,7 +160,7 @@ export default async function SettingsPage({ searchParams }: { searchParams: Pro
               <In label="Second button — link" name="heroCta2Href" value={s.home.heroCta2Href} hint="e.g. /shop" />
             </div>
           </Card>
-          <Card title="Hero slider" description="Pictures on the right of the home page. Customers can click them; they change every few seconds.">
+          <Card title="Hero slider" description="Pictures on the right of the headline. Customers can click them; they change every few seconds. With no pictures, your products are shown instead.">
             <HeroSlidesEditor
               name="heroSlides"
               defaultValue={s.home.heroSlides.length ? s.home.heroSlides : s.home.heroImage ? [{ image: s.home.heroImage, title: "", caption: "", href: "" }] : []}

@@ -26,7 +26,7 @@ export function HeroSlidesEditor({ name, defaultValue }: { name: string; default
   return (
     <div>
       <input type="hidden" name={name} value={JSON.stringify(slides.filter((s) => s.image))} />
-      {slides.length === 0 && <p className="rounded-xl bg-stone-50 px-3 py-2.5 text-sm text-stone-600">No slides yet — the slider shows your pre-order products automatically.</p>}
+      {slides.length === 0 && <p className="rounded-xl bg-stone-50 px-3 py-2.5 text-sm text-stone-600">No pictures yet — the slider shows your products automatically.</p>}
       <ol className="space-y-3">
         {slides.map((s, i) => (
           <li key={i} className="grid gap-3 rounded-xl border border-stone-200 p-3 sm:grid-cols-[150px_1fr_auto]">

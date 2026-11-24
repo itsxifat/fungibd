@@ -48,9 +48,9 @@
   --color-cta: var(--cta);
   --color-cta-deep: var(--cta-deep);
 
-  --font-display: var(--font-anek), var(--font-hind), ui-sans-serif, system-ui, sans-serif;
-  --font-sans: var(--font-hind), var(--font-anek), ui-sans-serif, system-ui, sans-serif;
-  --font-bangla: var(--font-hind), var(--font-anek), sans-serif;
+  --font-display: var(--font-tiro), var(--font-noto), ui-serif, Georgia, serif;
+  --font-sans: var(--font-noto), ui-sans-serif, system-ui, sans-serif;
+  --font-bangla: var(--font-noto), sans-serif;
 
 }
 
@@ -110,7 +110,9 @@ body {
 }
 
 .font-display {
-  font-weight: 600;
+  /* Tiro Bangla has one weight; never let the browser fake a bold */
+  font-weight: 400;
+  font-synthesis-weight: none;
   letter-spacing: 0; /* Bangla conjuncts break under negative tracking */
 }
 h1,

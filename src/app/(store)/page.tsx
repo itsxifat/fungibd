@@ -8,12 +8,11 @@ import { fmtDateBn } from "@/lib/dates";
 import { bnDigits, siteUrl, takaBn } from "@/lib/utils";
 import { ProductCard } from "@/components/store/ProductCard";
 import { ProductImage } from "@/components/brand/ProductImage";
-import { AddToCart } from "@/components/store/AddToCart";
 import { MotionStory } from "@/components/store/MotionStory";
 import { BenefitsLeaflet, leafletQr } from "@/components/store/Leaflet";
 import { ScaledLeaflet } from "@/components/store/ScaledLeaflet";
 import { HarvestAlertForm } from "@/components/store/HarvestAlertForm";
-import { HeroSlider, type HeroLead, type HeroSlideView } from "@/components/store/HeroSlider";
+import { HeroSlider, type HeroSlideView } from "@/components/store/HeroSlider";
 import { DeliveryCoverage } from "@/components/store/DeliveryCoverage";
 import { StructuredData } from "@/components/store/StructuredData";
 import { absoluteUrl, storefrontMetadata } from "@/lib/seo";
@@ -25,11 +24,22 @@ export const metadata = storefrontMetadata(
 
 const safeHref = (h: string) => (h.startsWith("/") || /^https?:\/\//.test(h) ? h : "");
 
-/** The owner's photo slides (Admin → Settings → Home page), or the older single hero photo. */
-function ownerSlides(s: Settings): HeroSlideView[] {
+/**
+ * Pictures for the slider beside the headline: the owner's slides (Admin → Settings → Home page → Hero slider),
+ * else the older single hero photo plus the products, else the farm illustration so the banner never looks empty.
+ */
+function heroSlides(s: Settings, products: ProductDTO[]): HeroSlideView[] {
   const custom = (Array.isArray(s.home.heroSlides) ? s.home.heroSlides : []).filter((x) => x && typeof x.image === "string" && x.image);
   if (custom.length) return custom.map((x) => ({ image: x.image, title: x.title ?? "", caption: x.caption ?? "", href: safeHref(x.href ?? "") }));
-  return s.home.heroImage ? [{ image: s.home.heroImage, title: "", caption: "", href: "" }] : [];
+  const out: HeroSlideView[] = [];
+  if (s.home.heroImage) out.push({ image: s.home.heroImage, title: "", caption: "", href: "" });
+  for (const p of products.slice(0, 5)) {
+    const v = p.variants.find((x) => x.mode !== "SOLD_OUT") ?? p.variants[0];
+    const harvest = v?.preorderDate ? `হারভেস্ট ${fmtDateBn(new Date(v.preorderDate), { day: "numeric", month: "long" })}` : "";
+    out.push({ image: p.image, title: p.nameBn, caption: [v ? `${takaBn(v.price)} · ${v.labelBn}` : "", harvest].filter(Boolean).join(" · "), href: `/product/${p.slug}` });
+  }
+  if (!out.length) out.push({ image: "art:oyster", title: "", caption: "", href: "/preorder" });
+  return out;
 }
 
 function SectionHead({ title, sub, href, linkLabel = "সব দেখুন" }: { title: string; sub?: string; href?: string; linkLabel?: string }) {
@@ -60,18 +70,12 @@ export default async function HomePage() {
   const shop = products.filter((p) => !isPreorderOnly(p) && p.variants.some((v) => v.mode !== "SOLD_OUT"));
   const next = nextHarvestDate(products);
   const nextLabel = next ? fmtDateBn(next, { weekday: "long", day: "numeric", month: "long" }) : "";
-  const featured = preorder.find((p) => p.variants.some((v) => v.mode === "PREORDER"));
-
-  const lead: HeroLead = {
-    harvestLine: s.home.heroEyebrow || (nextLabel ? `পরের হারভেস্ট · ${nextLabel}` : ""),
-    title: s.home.heroTitleBn,
-    titleEn: s.home.heroTitleEn,
-    sub: s.home.heroSubBn,
-    ctas: [
-      { label: s.home.heroCtaLabel, href: safeHref(s.home.heroCtaHref), primary: true },
-      { label: s.home.heroCta2Label, href: safeHref(s.home.heroCta2Href), primary: false },
-    ].filter((c) => c.label && c.href),
-  };
+  // Headline block (Admin → Settings → Home page → Top of the home page)
+  const harvestLine = s.home.heroEyebrow || (nextLabel ? `পরের হারভেস্ট · ${nextLabel}` : "");
+  const ctas = [
+    { label: s.home.heroCtaLabel, href: safeHref(s.home.heroCtaHref), primary: true },
+    { label: s.home.heroCta2Label, href: safeHref(s.home.heroCta2Href), primary: false },
+  ].filter((c) => c.label && c.href);
 
   // Shop sections and category tiles come from live products only.
   const shopSections = categories
@@ -110,37 +114,34 @@ export default async function HomePage() {
         ],
       }} />
 
-      {/* Banner row: the owner's headline and photos, beside the next harvest */}
+      {/* Banner: the owner's headline on the left, the owner's picture slider on the right (both in Admin → Settings → Home page) */}
       <section id="banner" className="container-x pt-4 sm:pt-6">
-        <div className="grid gap-4 lg:grid-cols-[2fr_1fr]">
-          <HeroSlider lead={lead} slides={ownerSlides(s)} />
-
-          <aside aria-label="পরের হারভেস্ট" className="flex flex-col rounded-xl border border-line bg-card p-5">
-            {featured ? (
-              <>
-                <h2 className="font-display text-xl leading-tight">পরের হারভেস্ট</h2>
-                <p className="mt-1 flex items-center gap-2 font-bangla text-[15px] text-ink-soft">
-                  <CalendarClock className="size-[18px] shrink-0 text-muted" aria-hidden />
-                  {featured.variants.find((v) => v.preorderDate)?.preorderDate ? fmtDateBn(new Date(featured.variants.find((v) => v.preorderDate)!.preorderDate!), { weekday: "long", day: "numeric", month: "long" }) : "শিগগিরই"}
-                </p>
-                <Link href={`/product/${featured.slug}`} className="group mt-4 block">
-                  <ProductImage src={featured.image} alt={featured.nameEn} className="h-36 w-full rounded-lg lg:h-40" imgClassName="h-[94%] w-[94%]" />
-                  <span className="mt-3 block font-display text-lg leading-snug transition-colors duration-150 group-hover:text-brand">{featured.nameBn}</span>
-                </Link>
-                <div className="mt-auto pt-4">
-                  <AddToCart product={featured} buyNow harvestLine={false} />
-                </div>
-              </>
-            ) : (
-              <div className="my-auto">
-                <h2 className="font-display text-2xl leading-tight">পরের হারভেস্টের বুকিং শিগগিরই খুলবে</h2>
-                <p className="mt-2 font-bangla text-[15px] leading-relaxed text-ink-soft">বুকিং খুললেই জানিয়ে দেব। ইমেইল বা মোবাইল নম্বর দিন।</p>
-                <div className="mt-6">
-                  <HarvestAlertForm interest="Pre-order opening alert" />
-                </div>
+        <div className="grid gap-4 lg:grid-cols-[1.05fr_1fr]">
+          <div className="flex flex-col justify-center rounded-xl bg-brand-deep px-6 py-9 text-white sm:px-10 sm:py-11 lg:min-h-[440px] lg:px-12">
+            <h1 className="max-w-[16ch] font-display text-[2.1rem] leading-[1.3] sm:text-[2.7rem] lg:text-[3.1rem]">{s.home.heroTitleBn}</h1>
+            {s.home.heroTitleEn && (
+              <p lang="en" className="mt-2 text-base text-white/65">
+                {s.home.heroTitleEn}
+              </p>
+            )}
+            {s.home.heroSubBn && <p className="mt-4 max-w-[42ch] font-bangla text-[16px] leading-relaxed text-white/80 sm:text-[17px]">{s.home.heroSubBn}</p>}
+            {ctas.length > 0 && (
+              <div className="mt-7 flex flex-wrap gap-3">
+                {ctas.map((c) => (
+                  <Link key={c.href + c.label} href={c.href} className={c.primary ? "btn btn-cta btn-lg" : "btn btn-lg border border-white/35 text-white hover:border-white hover:bg-white/10"}>
+                    {c.label} {c.primary && <ArrowRight className="size-4" aria-hidden />}
+                  </Link>
+                ))}
               </div>
             )}
-          </aside>
+            {harvestLine && (
+              <p className="mt-5 flex items-center gap-2 font-bangla text-[15px] text-white/75">
+                <CalendarClock className="size-[18px] shrink-0" aria-hidden /> {harvestLine}
+              </p>
+            )}
+          </div>
+
+          <HeroSlider slides={heroSlides(s, preorder.length ? preorder : shop)} />
         </div>
 
         <ul aria-label="কেন FungiBd" className="mt-4 grid grid-cols-2 gap-x-4 gap-y-4 rounded-xl border border-line bg-card px-4 py-4 sm:px-6 lg:grid-cols-4">
