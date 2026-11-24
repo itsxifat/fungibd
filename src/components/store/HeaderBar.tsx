@@ -7,11 +7,9 @@ import { Logo } from "@/components/brand/Logo";
 import { useCart, useHydrated, cartTotals } from "./cart-store";
 import { cn } from "@/lib/utils";
 
-const PREORDER_HREF = "/shop?filter=preorder";
-
 export const NAV = [
+  { href: "/preorder", bn: "প্রি-অর্ডার", en: "Pre-order" },
   { href: "/shop", bn: "শপ", en: "Shop" },
-  { href: PREORDER_HREF, bn: "প্রি-অর্ডার", en: "Pre-order" },
   { href: "/benefits", bn: "উপকারিতা", en: "Benefits" },
   { href: "/wholesale", bn: "পাইকারি", en: "Wholesale" },
   { href: "/support", bn: "যোগাযোগ", en: "Contact" },
@@ -31,7 +29,7 @@ export function HeaderBar({ customerName }: { customerName: string | null }) {
   const count = hydrated ? cartTotals(items).count : 0;
   const accountHref = customerName ? "/account" : "/account/login";
   const accountLabel = customerName ? "My account" : "Login";
-  const activeHref = pathname === "/shop" && searchParams.get("filter") === "preorder" ? PREORDER_HREF : pathname;
+  const activeHref = pathname;
   const accountLinks = [
     { href: "/track", bn: "অর্ডার ট্র্যাক", en: "Track order", Icon: Truck },
     { href: accountHref, bn: customerName ? "অ্যাকাউন্ট" : "লগইন", en: accountLabel, Icon: User },
@@ -75,7 +73,7 @@ export function HeaderBar({ customerName }: { customerName: string | null }) {
           {NAV.map((n) => {
             const active = pathname === n.href;
             return (
-              <Link key={n.href} href={n.href} title={n.en} className={cn("font-bangla text-[15px] font-medium text-ink-soft transition hover:text-brand", active && "text-brand")}>
+              <Link key={n.href} href={n.href} title={n.en} className={cn("font-bangla text-[15px] font-medium text-ink-soft transition-colors duration-150 hover:text-ink", active && "text-ink")}>
                 {n.bn}
               </Link>
             );
@@ -127,7 +125,7 @@ export function HeaderBar({ customerName }: { customerName: string | null }) {
         onClick={(event) => {
           if (event.target === event.currentTarget) closeMenu();
         }}
-        className="fixed inset-y-0 right-0 left-auto m-0 h-dvh max-h-none w-[calc(100%_-_2rem)] max-w-sm overflow-hidden rounded-l-3xl bg-paper p-0 text-ink shadow-2xl backdrop:bg-ink/45 backdrop:backdrop-blur-[2px] motion-safe:animate-[store-menu-in_200ms_ease-out] lg:hidden"
+        className="fixed inset-y-0 right-0 left-auto m-0 h-dvh max-h-none w-[calc(100%_-_2rem)] max-w-sm overflow-hidden rounded-l-[20px] bg-paper p-0 text-ink shadow-[0_8px_24px_rgba(0,0,0,0.12)] backdrop:bg-ink/45 backdrop:backdrop-blur-[2px] motion-safe:animate-[store-menu-in_200ms_ease-out] lg:hidden"
       >
         <div className="flex h-full flex-col">
           <div className="flex shrink-0 items-center justify-between border-b border-line py-3 pr-4 pl-7">
@@ -160,7 +158,7 @@ export function HeaderBar({ customerName }: { customerName: string | null }) {
                   aria-current={pathname === href ? "page" : undefined}
                   className="flex min-h-12 items-center gap-3 rounded-xl px-3 py-2 transition-colors hover:bg-brand-tint aria-[current=page]:bg-brand-tint aria-[current=page]:text-brand-deep"
                 >
-                  <Icon className="size-[18px] shrink-0 text-brand" aria-hidden />
+                  <Icon className="size-[18px] shrink-0 text-muted" aria-hidden />
                   <span className="font-bangla text-base font-semibold">{bn}</span>
                   <span lang="en" className="ml-auto text-right text-sm text-ink-soft">{en}</span>
                 </Link>

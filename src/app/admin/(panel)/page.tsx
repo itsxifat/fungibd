@@ -40,7 +40,7 @@ export default async function Dashboard({ searchParams }: { searchParams: Promis
   return (
     <>
       <PageHeader
-        title={`Hello, ${admin.name.split(" ")[0]} 👋`}
+        title={`Hello, ${admin.name.split(" ")[0]}`}
         description={fmtDate(new Date(), { weekday: "long", day: "numeric", month: "long", year: "numeric" })}
         actions={
           <>

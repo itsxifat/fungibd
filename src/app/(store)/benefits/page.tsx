@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { Download, Eye } from "lucide-react";
 import { getSettings } from "@/lib/settings";
-import { BENEFITS, COOK_IDEAS, NUTRITION, STORAGE_TIPS } from "@/lib/content";
+import { COOK_IDEAS, NUTRITION, STORAGE_TIPS } from "@/lib/content";
 import { MotionStory } from "@/components/store/MotionStory";
 import { BenefitGrid } from "@/components/store/BenefitGrid";
 
@@ -21,7 +21,7 @@ export default async function BenefitsPage() {
       <h1 className="font-display text-4xl sm:text-5xl">মাশরুমের উপকারিতা</h1>
       <p className="mt-2 text-muted">Benefits of eating mushrooms</p>
       <div className="mt-10">
-        <MotionStory benefits={BENEFITS} />
+        <MotionStory />
       </div>
 
       {video && (
@@ -76,7 +76,7 @@ export default async function BenefitsPage() {
           <h2 className="font-semibold">রান্নার আইডিয়া · Cooking ideas</h2>
           <div className="mt-4 flex flex-wrap gap-2">
             {COOK_IDEAS.map((c) => (
-              <span key={c.en} className="rounded-full bg-cream px-3 py-1 font-bangla text-sm">
+              <span key={c.en} className="rounded-md bg-cream px-2.5 py-1 font-bangla text-sm">
                 {c.bn}
               </span>
             ))}

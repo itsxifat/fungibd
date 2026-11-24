@@ -7,7 +7,7 @@ import { AlertCircle, Banknote, CalendarClock, Check, Loader2, Lock, MapPin, Sho
 import { useCart, useHydrated, cartTotals } from "./cart-store";
 import { CartLine, refreshCart } from "./CartDrawer";
 import { placeOrderAction, checkCouponAction } from "@/app/(store)/actions";
-import { cn, taka, round2 } from "@/lib/utils";
+import { cn, round2, takaBn } from "@/lib/utils";
 import { fmtDateBn } from "@/lib/dates";
 import type { Pin } from "./MapPicker";
 
@@ -132,23 +132,28 @@ export function CheckoutForm(props: {
   if (!items.length)
     return (
       <div className="mx-auto max-w-md py-20 text-center">
-        <ShoppingBag className="mx-auto h-12 w-12 text-brand" />
+        <ShoppingBag className="mx-auto size-8 text-muted" strokeWidth={1.5} aria-hidden />
         <h1 className="mt-4 font-display text-3xl">আপনার কার্ট খালি</h1>
-        <p className="text-muted">Your cart is empty.</p>
-        <Link href="/shop" className="btn btn-primary mt-6">
-          মাশরুম দেখুন · Shop now
-        </Link>
+        <p className="font-bangla text-muted">পরের হারভেস্ট থেকে বুক করুন, অথবা শপ থেকে কিছু বেছে নিন।</p>
+        <div className="mt-6 flex flex-wrap justify-center gap-2">
+          <Link href="/preorder" className="btn btn-primary">
+            প্রি-অর্ডার দেখুন
+          </Link>
+          <Link href="/shop" className="btn btn-outline">
+            শপ
+          </Link>
+        </div>
       </div>
     );
 
   const err = (field: string) => error?.field === field;
   const Section = ({ n, bn, en, id, children }: { n: string; bn: string; en: string; id?: string; children: React.ReactNode }) => (
-    <section id={id} className="scroll-mt-28 rounded-[1.75rem] border border-line bg-white p-5 sm:p-7">
+    <section id={id} className="scroll-mt-28 rounded-2xl border border-line bg-white p-5 sm:p-6">
       <h2 className="flex items-center gap-3">
-        <span className="grid h-8 w-8 place-items-center rounded-full bg-brand font-display text-cream">{n}</span>
+        <span className="grid size-8 place-items-center rounded-lg border border-line-strong font-display text-ink-soft tabular-nums">{n}</span>
         <span>
-          <span className="block font-bangla text-xl font-bold leading-tight">{bn}</span>
-          <span className="block text-xs uppercase tracking-wider text-muted">{en}</span>
+          <span className="block font-bangla text-xl font-semibold leading-tight">{bn}</span>
+          <span className="block text-xs text-muted">{en}</span>
         </span>
       </h2>
       <div className="mt-5">{children}</div>
@@ -218,7 +223,7 @@ export function CheckoutForm(props: {
                         setF((s) => ({ ...s, addressLine: a.line, landmark: a.landmark, zoneId: a.zoneId ?? s.zoneId }));
                         if (a.lat != null && a.lng != null) setPin({ lat: a.lat, lng: a.lng });
                       }}
-                      className={cn("chip border px-3 py-1.5", f.addressLine === a.line ? "border-brand bg-brand-tint text-brand" : "border-line-strong bg-white")}
+                      className={cn("chip rounded-lg border px-3 py-1.5", f.addressLine === a.line ? "border-ink bg-ink text-white" : "border-line-strong bg-white")}
                     >
                       <MapPin className="h-3.5 w-3.5" /> {a.label}: {a.line.slice(0, 28)}…
                     </button>
@@ -307,7 +312,7 @@ export function CheckoutForm(props: {
                       key={sl}
                       type="button"
                       onClick={() => set("deliverySlot", sl)}
-                      className={cn("rounded-2xl border px-3 py-3 text-left font-bangla text-sm transition", f.deliverySlot === sl ? "border-brand bg-brand-tint font-semibold text-brand-deep" : "border-line-strong bg-white hover:border-brand")}
+                      className={cn("rounded-[10px] border px-3 py-3 text-left font-bangla text-sm transition-colors duration-150", f.deliverySlot === sl ? "border-ink bg-ink font-medium text-white" : "border-line-strong bg-white hover:border-ink")}
                     >
                       {sl}
                     </button>
@@ -315,8 +320,8 @@ export function CheckoutForm(props: {
                 </div>
               </div>
               {t.hasPre && (
-                <p className="flex gap-2 rounded-2xl bg-tan/30 p-3 text-sm text-tan-deep">
-                  <CalendarClock className="h-5 w-5 shrink-0" /> প্রি-অর্ডারের পণ্য হারভেস্টের দিনে (কার্টে দেখানো তারিখে) এই সময়ে ডেলিভারি হবে। Pre-order items arrive on their harvest date.
+                <p className="flex gap-2 rounded-lg bg-cream/60 p-3 font-bangla text-sm text-ink-soft">
+                  <CalendarClock className="size-[18px] shrink-0 text-muted" aria-hidden /> প্রি-অর্ডারের পণ্য হারভেস্টের পর (কার্টে দেখানো তারিখে) এই সময়ে ডেলিভারি হবে।
                 </p>
               )}
               <div>
@@ -335,15 +340,13 @@ export function CheckoutForm(props: {
           en: "Payment",
           children: (
             <div className="space-y-4">
-              <div className="flex items-center gap-4 rounded-2xl border-2 border-brand bg-brand-tint p-4">
-                <span className="grid h-11 w-11 place-items-center rounded-full bg-brand text-cream">
-                  <Banknote className="h-5 w-5" />
-                </span>
+              <div className="flex items-center gap-3 rounded-xl border border-ink p-4">
+                <Banknote className="size-5 shrink-0 text-ink-soft" aria-hidden />
                 <span className="flex-1">
-                  <span className="block font-bangla font-bold">ক্যাশ অন ডেলিভারি</span>
-                  <span className="block text-xs text-muted">Pay cash when your mushrooms arrive — check them first.</span>
+                  <span className="block font-bangla font-semibold">ক্যাশ অন ডেলিভারি</span>
+                  <span className="block font-bangla text-xs text-muted">পণ্য হাতে পেয়ে, দেখে তারপর টাকা দিন</span>
                 </span>
-                <Check className="h-5 w-5 text-brand" />
+                <Check className="size-5 text-ink" aria-hidden />
               </div>
               {!props.customer && (
                 <div className="rounded-2xl border border-line p-4">
@@ -371,7 +374,7 @@ export function CheckoutForm(props: {
 
       {/* Summary */}
       <aside className="lg:sticky lg:top-24 lg:self-start">
-        <div className="rounded-[1.75rem] border border-line bg-white p-5 sm:p-7">
+        <div className="rounded-2xl border border-line bg-white p-5 sm:p-6">
           <h2 className="font-display text-2xl">অর্ডার সারাংশ</h2>
           <p className="text-xs text-muted">Order summary</p>
           <ul className="mt-5 flex max-h-[340px] flex-col gap-4 overflow-y-auto pr-1">
@@ -386,7 +389,7 @@ export function CheckoutForm(props: {
                 <span className="flex items-center gap-2 font-semibold text-brand-deep">
                   <Tag className="h-4 w-4" /> {coupon.code} {coupon.note && <span className="font-normal text-muted">· {coupon.note}</span>}
                 </span>
-                <button type="button" onClick={() => setCoupon(null)} aria-label="Remove coupon" className="rounded-full p-1 hover:bg-white">
+                <button type="button" onClick={() => setCoupon(null)} aria-label="Remove coupon" className="rounded-md p-1 transition-colors duration-150 hover:bg-white">
                   <X className="h-4 w-4" />
                 </button>
               </div>
@@ -409,30 +412,30 @@ export function CheckoutForm(props: {
           <dl className="mt-5 space-y-2 text-sm">
             <div className="flex justify-between">
               <dt className="text-ink-soft">সাবটোটাল · Subtotal</dt>
-              <dd className="tabular-nums">{taka(t.subtotal)}</dd>
+              <dd className="tabular-nums">{takaBn(t.subtotal)}</dd>
             </div>
             {discount > 0 && (
               <div className="flex justify-between text-brand">
                 <dt>ডিসকাউন্ট · Discount</dt>
-                <dd className="tabular-nums">−{taka(discount)}</dd>
+                <dd className="tabular-nums">−{takaBn(discount)}</dd>
               </div>
             )}
             {deliveries.map((d) => (
               <div key={d.label} className="flex justify-between">
                 <dt className="text-ink-soft">ডেলিভারি · {d.label}</dt>
-                <dd className="tabular-nums">{!zone ? "—" : d.charge === 0 ? <span className="font-semibold text-brand">ফ্রি</span> : taka(d.charge)}</dd>
+                <dd className="tabular-nums">{!zone ? "—" : d.charge === 0 ? <span className="font-semibold text-brand">ফ্রি</span> : takaBn(d.charge)}</dd>
               </div>
             ))}
             <div className="flex items-baseline justify-between border-t border-line pt-3">
               <dt className="font-semibold">মোট · Total</dt>
-              <dd className="font-display text-3xl font-semibold text-brand-deep tabular-nums">{taka(total)}</dd>
+              <dd className="font-display text-3xl font-semibold text-brand-deep tabular-nums">{takaBn(total)}</dd>
             </div>
           </dl>
           {!zone && <p className="mt-1 text-xs text-muted">এলাকা বেছে নিলে ডেলিভারি চার্জ যোগ হবে</p>}
 
           <button type="submit" disabled={pending || !t.count} className="btn btn-primary btn-lg mt-6 w-full">
             {pending ? <Loader2 className="h-5 w-5 animate-spin" /> : <Lock className="h-4 w-4" />}
-            {pending ? "অর্ডার হচ্ছে…" : `অর্ডার কনফার্ম করুন · ${taka(total)}`}
+            {pending ? "অর্ডার হচ্ছে…" : `অর্ডার কনফার্ম করুন · ${takaBn(total)}`}
           </button>
           <p className="mt-3 text-center text-xs text-muted">অর্ডার করে আপনি আমাদের <Link href="/policies" className="underline">ডেলিভারি নীতি</Link> মেনে নিচ্ছেন।</p>
         </div>

@@ -1,6 +1,9 @@
 import { cache } from "react";
 import { db } from "./db";
 
+/** One picture in the home-page hero slider (Admin → Settings → Home page). */
+export type HeroSlide = { image: string; title: string; caption: string; href: string };
+
 export const DEFAULT_SETTINGS = {
   store: {
     name: "FungiBd",
@@ -36,13 +39,21 @@ export const DEFAULT_SETTINGS = {
     sameDayCutoffHour: 12,
     daysAhead: 6,
     slots: ["সকাল ১০টা – দুপুর ১টা (10AM–1PM)", "দুপুর ২টা – বিকাল ৫টা (2PM–5PM)", "সন্ধ্যা ৬টা – রাত ৯টা (6PM–9PM)"],
+    // Shown in the footer and emails — update it when you start delivering to new cities.
+    coverageNote: "শুধুমাত্র ঢাকা সিটির ভিতরে ডেলিভারি",
   },
   home: {
     announcement: "শুধুমাত্র ঢাকার ভিতরে ডেলিভারি · ক্যাশ অন ডেলিভারি",
-    heroTitleBn: "খামার থেকে সরাসরি তাজা মাশরুম",
-    heroTitleEn: "Fresh mushrooms from our own farm, delivered in Dhaka",
-    heroSubBn: "আমাদের নিজস্ব খামারে চাষ করা মাশরুম অনলাইনে অর্ডার করুন — ঢাকার ভিতরে আপনার দরজায় পৌঁছে দেব।",
-    heroImage: "",
+    heroEyebrow: "", // empty = shows the next harvest date automatically
+    heroTitleBn: "তাজা মাশরুম, হারভেস্টের আগেই বুক করুন",
+    heroTitleEn: "",
+    heroSubBn: "আমাদের খামারের সব মাশরুম প্রি-অর্ডারে বিক্রি হয়। অগ্রিম টাকা লাগে না — টাকা দেবেন হাতে পেয়ে।",
+    heroCtaLabel: "প্রি-অর্ডার করুন",
+    heroCtaHref: "/preorder",
+    heroCta2Label: "শপ দেখুন",
+    heroCta2Href: "/shop",
+    heroSlides: [] as HeroSlide[], // empty = shows pre-order products automatically
+    heroImage: "", // older single hero photo — used as a slide when no slides are set
     benefitsVideoUrl: "",
   },
   email: {

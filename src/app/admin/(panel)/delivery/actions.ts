@@ -36,6 +36,7 @@ export async function zoneAction(_: ActionState, fd: FormData): Promise<ActionSt
   const data = {
     nameEn,
     nameBn: str(fd, "nameBn") || nameEn,
+    region: str(fd, "region").slice(0, 60),
     charge: round2(numField(fd, "charge", 0)),
     riderCost: round2(numField(fd, "riderCost", 0)),
     sortOrder: numField(fd, "sortOrder", 0),

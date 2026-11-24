@@ -1,20 +1,26 @@
 import Link from "next/link";
 import type { Metadata } from "next";
-import { Search } from "lucide-react";
+import { redirect } from "next/navigation";
+import { ArrowRight, CalendarClock, Search } from "lucide-react";
 import { db } from "@/lib/db";
-import { getProducts } from "@/lib/store-data";
+import { getProducts, isPreorderOnly } from "@/lib/store-data";
 import { ProductCard } from "@/components/store/ProductCard";
 import { cn } from "@/lib/utils";
 
-export const metadata: Metadata = { title: "শপ · Shop fresh mushrooms" };
+export const metadata: Metadata = { title: "শপ · Mushroom products" };
 
 export default async function ShopPage({ searchParams }: { searchParams: Promise<{ category?: string; filter?: string; q?: string }> }) {
   const sp = await searchParams;
+  // Fresh mushrooms are sold by pre-order only — old "/shop?filter=preorder" links go to the pre-order page.
+  if (sp.filter === "preorder") redirect("/preorder");
+
   const [cats, all] = await Promise.all([db.category.findMany({ orderBy: { sortOrder: "asc" } }), getProducts()]);
+  const shopProducts = all.filter((p) => !isPreorderOnly(p));
+  const hasPreorder = all.some(isPreorderOnly);
+  const shopCats = cats.filter((c) => shopProducts.some((p) => p.categorySlug === c.slug));
   const q = (sp.q ?? "").trim().toLowerCase();
-  const products = all.filter((p) => {
+  const products = shopProducts.filter((p) => {
     if (sp.category && p.categorySlug !== sp.category) return false;
-    if (sp.filter === "preorder" && !p.variants.some((v) => v.mode === "PREORDER")) return false;
     if (sp.filter === "instock" && !p.variants.some((v) => v.mode === "IN_STOCK")) return false;
     if (q && !`${p.nameEn} ${p.nameBn} ${p.shortEn} ${p.shortBn}`.toLowerCase().includes(q)) return false;
     return true;
@@ -26,46 +32,55 @@ export default async function ShopPage({ searchParams }: { searchParams: Promise
     const s = p.toString();
     return `/shop${s ? `?${s}` : ""}`;
   };
-  const chip = (active: boolean) => cn("chip border px-4 py-2 text-sm transition", active ? "border-brand bg-brand text-cream" : "border-line-strong bg-white text-ink-soft hover:border-brand hover:text-brand");
+  const chip = (active: boolean) => cn("chip rounded-lg border px-3.5 py-2 text-sm transition-colors duration-150", active ? "border-ink bg-ink text-white" : "border-line-strong bg-white text-ink-soft hover:border-ink");
 
   return (
     <div className="container-x pb-10 pt-10">
       <div className="flex flex-col gap-6 border-b border-line pb-8 md:flex-row md:items-end md:justify-between">
         <div>
-          <h1 className="font-display text-4xl">{sp.filter === "preorder" ? "প্রি-অর্ডার" : "সব মাশরুম"}</h1>
-          <p className="mt-2 max-w-xl font-bangla text-ink-soft">
-            {sp.filter === "preorder" ? "এখনই বুক করুন, হারভেস্টের পর নির্ধারিত দিনে ডেলিভারি। টাকা দেবেন ডেলিভারির সময়।" : "আমাদের নিজস্ব খামারের মাশরুম — অনলাইনে অর্ডার করুন।"}
-          </p>
+          <p className="eyebrow">শপ</p>
+          <h1 className="mt-2 font-display text-3xl sm:text-4xl">মাশরুমের তৈরি পণ্য</h1>
+          <p className="mt-2 max-w-xl font-bangla text-ink-soft">আমাদের খামারের মাশরুম দিয়ে তৈরি — শুকনো মাশরুম, পাউডার আর ঘরে চাষের কিট। স্টকে যা আছে, আজই অর্ডার করা যায়।</p>
         </div>
-        <form action="/shop" className="flex w-full max-w-sm items-center gap-2 rounded-full border border-line-strong bg-white p-1.5 pl-4">
-          <Search className="h-4 w-4 text-muted" />
+        <form action="/shop" className="flex w-full max-w-sm items-center gap-2 rounded-xl border border-line-strong bg-white p-1.5 pl-4">
+          <Search className="h-4 w-4 text-muted" aria-hidden />
           {sp.category && <input type="hidden" name="category" value={sp.category} />}
           {sp.filter && <input type="hidden" name="filter" value={sp.filter} />}
           <label htmlFor="shop-q" className="sr-only">
             Search
           </label>
-          <input id="shop-q" name="q" defaultValue={sp.q} placeholder="খুঁজুন · Search mushrooms" className="h-10 flex-1 bg-transparent text-sm outline-none" />
+          <input id="shop-q" name="q" defaultValue={sp.q} placeholder="খুঁজুন · Search" className="h-10 flex-1 bg-transparent text-sm outline-none" />
           <button className="btn btn-primary btn-sm">খুঁজুন</button>
         </form>
       </div>
 
-      <div className="no-scrollbar -mx-4 mt-8 flex gap-2 overflow-x-auto px-4">
-        <Link href={href({ category: undefined })} className={chip(!sp.category)}>
-          সব · All
+      {hasPreorder && (
+        <Link href="/preorder" className="group mt-6 flex items-center gap-3 rounded-xl border border-line bg-cream/50 px-5 py-4 transition-colors duration-150 hover:border-line-strong">
+          <CalendarClock className="size-5 shrink-0 text-muted" aria-hidden />
+          <span className="min-w-0 flex-1">
+            <span className="block font-bangla font-semibold">তাজা মাশরুম খুঁজছেন?</span>
+            <span className="block font-bangla text-sm text-ink-soft">তাজা মাশরুম শুধু প্রি-অর্ডারে পাওয়া যায় — পরের হারভেস্ট থেকে বুক করুন।</span>
+          </span>
+          <ArrowRight className="size-5 shrink-0 text-ink-soft" aria-hidden />
         </Link>
-        {cats.map((c) => (
-          <Link key={c.id} href={href({ category: c.slug })} className={chip(sp.category === c.slug)}>
-            {c.nameBn} · {c.nameEn}
+      )}
+
+      {shopCats.length > 1 && (
+        <div className="no-scrollbar -mx-4 mt-8 flex gap-2 overflow-x-auto px-4">
+          <Link href={href({ category: undefined })} className={chip(!sp.category)}>
+            সব · All
           </Link>
-        ))}
-        <span className="mx-1 w-px shrink-0 bg-line" />
-        <Link href={href({ filter: sp.filter === "instock" ? undefined : "instock" })} className={chip(sp.filter === "instock")}>
-          আজ স্টকে আছে
-        </Link>
-        <Link href={href({ filter: sp.filter === "preorder" ? undefined : "preorder" })} className={chip(sp.filter === "preorder")}>
-          প্রি-অর্ডার
-        </Link>
-      </div>
+          {shopCats.map((c) => (
+            <Link key={c.id} href={href({ category: c.slug })} className={chip(sp.category === c.slug)}>
+              {c.nameBn} · {c.nameEn}
+            </Link>
+          ))}
+          <span className="mx-1 w-px shrink-0 bg-line" />
+          <Link href={href({ filter: sp.filter === "instock" ? undefined : "instock" })} className={chip(sp.filter === "instock")}>
+            স্টকে আছে
+          </Link>
+        </div>
+      )}
 
       {products.length ? (
         <div className="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
@@ -76,7 +91,7 @@ export default async function ShopPage({ searchParams }: { searchParams: Promise
       ) : (
         <div className="mt-16 text-center">
           <p className="font-display text-2xl">কিছু পাওয়া যায়নি</p>
-          <p className="text-muted">No mushrooms match these filters.</p>
+          <p className="text-muted">No products match these filters.</p>
           <Link href="/shop" className="btn btn-outline mt-6">
             সব দেখুন
           </Link>

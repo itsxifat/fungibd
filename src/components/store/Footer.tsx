@@ -34,8 +34,8 @@ export async function Footer() {
         <div>
           <h3 className="text-sm font-semibold">শপ</h3>
           <ul className="mt-4 space-y-2.5 font-bangla text-sm">
-            <li><Link className={link} href="/shop">সব মাশরুম</Link></li>
-            <li><Link className={link} href="/shop?filter=preorder">প্রি-অর্ডার</Link></li>
+            <li><Link className={link} href="/preorder">তাজা মাশরুম · প্রি-অর্ডার</Link></li>
+            <li><Link className={link} href="/shop">মাশরুমের তৈরি পণ্য</Link></li>
             <li><Link className={link} href="/benefits">মাশরুমের উপকারিতা</Link></li>
             <li><Link className={link} href="/wholesale">পাইকারি অর্ডার</Link></li>
           </ul>
@@ -62,7 +62,7 @@ export async function Footer() {
       <div className="border-t border-line">
         <div className="container-x flex flex-col items-center justify-between gap-2 py-6 text-xs text-muted sm:flex-row">
           <p>© {year} {s.store.name}</p>
-          <p className="font-bangla">শুধুমাত্র ঢাকার ভিতরে ডেলিভারি · ক্যাশ অন ডেলিভারি</p>
+          <p className="font-bangla">{s.delivery.coverageNote ? `${s.delivery.coverageNote} · ` : ""}ক্যাশ অন ডেলিভারি</p>
         </div>
       </div>
     </footer>

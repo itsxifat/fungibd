@@ -92,6 +92,10 @@ async function essentials() {
       stockQty: 18,
       lowStockAt: 4,
       costPerUnit: 135,
+      // Every fresh harvest is sold by pre-order only — the shop is for mushroom-made products.
+      preorderEnabled: true,
+      preorderMode: "ALWAYS",
+      preorderInDays: 2,
       shortBn: "নরম, মাংসল আর হালকা মিষ্টি স্বাদ — প্রতিদিনের রান্নার সেরা মাশরুম।",
       shortEn: "Tender, meaty and mildly sweet — the everyday mushroom.",
       descriptionBn:
@@ -118,8 +122,8 @@ async function essentials() {
       lowStockAt: 2,
       costPerUnit: 165,
       preorderEnabled: true,
-      preorderMode: "OUT_OF_STOCK",
-      preorderInDays: 2,
+      preorderMode: "ALWAYS",
+      preorderInDays: 3,
       shortBn: "দুধ-সাদা, ঘন আর কচকচে — রান্নায় ভেঙে যায় না।",
       shortEn: "Milk-white, dense and crunchy — holds its shape in curries.",
       descriptionBn: "গরম আবহাওয়ার উপযোগী দুধ মাশরুম — মোটা ডাঁটা, ঘন শাঁস আর হালকা বাদামের মতো স্বাদ। মাছ-মাংসের ঝোল, কাবাব আর গ্রিলে দারুণ।",
@@ -143,8 +147,8 @@ async function essentials() {
       lowStockAt: 1.5,
       costPerUnit: 260,
       preorderEnabled: true,
-      preorderMode: "OUT_OF_STOCK",
-      preorderInDays: 3,
+      preorderMode: "ALWAYS",
+      preorderInDays: 4,
       shortBn: "পরিচিত সাদা বাটন মাশরুম — পিৎজা, পাস্তা আর স্যুপের জন্য।",
       shortEn: "The classic white button — for pizza, pasta and soups.",
       descriptionBn: "পরিচিত সাদা বাটন মাশরুম — ছোট, শক্ত আর পরিষ্কার।",
@@ -393,7 +397,7 @@ async function essentials() {
     ["Khilkhet & Nikunja", "খিলক্ষেত ও নিকুঞ্জ", 90, 60],
     ["Uttara", "উত্তরা", 100, 70],
   ];
-  await db.deliveryZone.createMany({ data: zones.map(([nameEn, nameBn, charge, riderCost], i) => ({ nameEn, nameBn, charge, riderCost, sortOrder: i })) });
+  await db.deliveryZone.createMany({ data: zones.map(([nameEn, nameBn, charge, riderCost], i) => ({ nameEn, nameBn, region: "ঢাকা", charge, riderCost, sortOrder: i })) });
 
   await db.rider.createMany({
     data: [

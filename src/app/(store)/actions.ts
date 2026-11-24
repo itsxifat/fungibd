@@ -3,16 +3,12 @@ import { db } from "@/lib/db";
 import { placeOrder, validateCoupon, type CheckoutInput } from "@/lib/orders";
 import { getCustomerId, startCustomerSession } from "@/lib/auth";
 import { rateLimit, sign, verifySig } from "@/lib/security";
-import { normalizePhone, str } from "@/lib/utils";
-import { adminRecipients, background, notifyTicketCreated } from "@/lib/email/notify";
+import { isEmail, normalizePhone, str } from "@/lib/utils";
+import { adminRecipients, background, buildAdminLead, notifyTicketCreated } from "@/lib/email/notify";
 import { sendMail } from "@/lib/email/mailer";
-import { layout, esc } from "@/lib/email/templates";
 import { getSettings } from "@/lib/settings";
-import { siteUrl } from "@/lib/utils";
 
 export type FormState = { ok?: boolean; error?: string; message?: string; ref?: string };
-
-const isEmail = (e: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e);
 
 // ───────────── Checkout ─────────────
 export async function placeOrderAction(input: Omit<CheckoutInput, "source" | "customerId" | "isAdmin" | "by">) {
@@ -34,7 +30,7 @@ export async function checkCouponAction(code: string, subtotal: number, phone: s
 
 // ───────────── Lead capture ─────────────
 export async function subscribeHarvestAction(_: FormState, fd: FormData): Promise<FormState> {
-  if (str(fd, "website")) return { ok: true, message: "ধন্যবাদ!" }; // honeypot
+  if (str(fd, "website")) return { ok: true, message: "ধন্যবাদ" }; // honeypot
   if (!(await rateLimit("lead", 6, 10 * 60_000))) return { error: "Too many attempts, try later" };
   const contact = str(fd, "contact");
   const phone = normalizePhone(contact);
@@ -47,7 +43,7 @@ export async function subscribeHarvestAction(_: FormState, fd: FormData): Promis
     await db.lead.create({
       data: { name: str(fd, "name") || (email ? email.split("@")[0] : phone!), email, phone: phone ?? "", source: "HARVEST_ALERT", type: "RETAIL", interest, message: "Signed up for harvest alerts on website" },
     });
-  return { ok: true, message: "সাবস্ক্রাইব হয়েছে! নতুন হারভেস্টে আমরা জানাব 🍄 · You're on the list!" };
+  return { ok: true, message: "সাবস্ক্রাইব হয়েছে — নতুন হারভেস্ট আর প্রি-অর্ডার খুললে জানিয়ে দেব · You're on the list" };
 }
 
 export async function wholesaleAction(_: FormState, fd: FormData): Promise<FormState> {
@@ -75,21 +71,10 @@ export async function wholesaleAction(_: FormState, fd: FormData): Promise<FormS
     },
   });
   const s = await getSettings();
-  if (s.email.adminNewLead) for (const to of adminRecipients(s)) background(
-    sendMail({
-      to,
-      subject: `🤝 New wholesale inquiry: ${name}${lead.company ? ` (${lead.company})` : ""}`,
-      type: "ADMIN_LEAD",
-      refId: lead.id,
-      replyTo: email || undefined,
-      html: layout(s, {
-        preheader: lead.interest,
-        heading: "New wholesale inquiry",
-        body: `<p><strong>${esc(name)}</strong> · ${esc(lead.company)}<br/>${esc(phone)} · ${esc(email)}</p><p>${esc(lead.interest)}</p><p>${esc(lead.message)}</p>`,
-        cta: { label: "Open lead", url: `${siteUrl()}/admin/leads/${lead.id}` },
-      }),
-    }),
-  );
+  if (s.email.adminNewLead) {
+    const m = buildAdminLead(s, { id: lead.id, name, company: lead.company, phone, email, interest: lead.interest, message: lead.message });
+    for (const to of adminRecipients(s)) background(sendMail({ to, subject: m.subject, type: "ADMIN_LEAD", refId: lead.id, replyTo: email || undefined, html: m.html }));
+  }
   return { ok: true, message: "ধন্যবাদ! ২৪ ঘণ্টার মধ্যে আমাদের টিম আপনাকে কল করবে। · Thanks — we'll call you within 24 hours." };
 }
 
@@ -149,7 +134,7 @@ export async function reviewAction(_: FormState, fd: FormData): Promise<FormStat
   const order = await db.order.findUnique({ where: { orderNo }, include: { items: true, customer: true } });
   if (!order || order.status !== "DELIVERED") return { error: "Order not found" };
   const already = await db.review.count({ where: { orderNo } });
-  if (already) return { ok: true, message: "আপনার রিভিউ আগেই পেয়েছি, ধন্যবাদ! · Already reviewed — thank you!" };
+  if (already) return { ok: true, message: "আপনার রিভিউ আগেই পেয়েছি, ধন্যবাদ · Already reviewed — thank you" };
   const productIds = [...new Set(order.items.map((i) => i.productId).filter(Boolean))] as string[];
   let created = 0;
   for (const pid of productIds) {
@@ -160,7 +145,7 @@ export async function reviewAction(_: FormState, fd: FormData): Promise<FormStat
     created++;
   }
   if (!created) return { error: "রেটিং দিন · Please choose a rating" };
-  return { ok: true, message: "রিভিউর জন্য অনেক ধন্যবাদ! 🍄 · Thank you for your review!" };
+  return { ok: true, message: "রিভিউর জন্য অনেক ধন্যবাদ · Thank you for your review" };
 }
 
 export async function unsubscribeAction(_: FormState, fd: FormData): Promise<FormState> {

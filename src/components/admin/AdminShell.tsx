@@ -241,7 +241,7 @@ export function AdminShell({ user, counts, children }: { user: { name: string; e
                       ))}
                     </ul>
                   ) : (
-                    <p className="px-4 py-6 text-center text-sm text-stone-500">All caught up 🎉</p>
+                    <p className="px-4 py-6 text-center text-sm text-stone-500">All caught up</p>
                   )}
                 </div>
               )}

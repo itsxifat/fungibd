@@ -47,7 +47,7 @@ export default async function MarketingPage() {
             </label>
             <label className="block">
               <span className="label">Subject</span>
-              <input name="subject" className="input input-sm" placeholder="e.g. নতুন হারভেস্ট এসেছে! 🍄" required />
+              <input name="subject" className="input input-sm" placeholder="e.g. পরের হারভেস্টের প্রি-অর্ডার খুলেছে" required />
             </label>
             <label className="block">
               <span className="label">Message</span>

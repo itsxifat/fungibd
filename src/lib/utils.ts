@@ -29,6 +29,9 @@ export function pct(n: number, digits = 1) {
 const BN_DIGITS = ["০", "১", "২", "৩", "৪", "৫", "৬", "৭", "৮", "৯"];
 export const bnDigits = (v: string | number) => String(v).replace(/\d/g, (d) => BN_DIGITS[Number(d)]);
 
+/** Customer-facing money in Bangla digits: ৳১,২৫০ — the storefront uses one digit system everywhere. */
+export const takaBn = (n: number | null | undefined) => bnDigits(taka(n));
+
 export function slugify(s: string) {
   return s
     .toLowerCase()
@@ -57,6 +60,18 @@ export function normalizePhone(raw: string): string | null {
   const p = digits.startsWith("0") ? digits : `0${digits}`;
   return /^01[3-9]\d{8}$/.test(p) ? p : null;
 }
+
+export const isEmail = (e: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e);
+
+/** "a@x.com, b@y.com\nc@z.com" → ["a@x.com", "b@y.com", "c@z.com"] (lower-cased, de-duplicated). */
+export const splitEmails = (s: string) => [
+  ...new Set(
+    s
+      .split(/[\s,;]+/)
+      .map((x) => x.trim().toLowerCase())
+      .filter(Boolean),
+  ),
+];
 
 export function initials(name: string) {
   return name

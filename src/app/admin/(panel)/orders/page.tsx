@@ -1,6 +1,6 @@
 import Link from "next/link";
 import type { Prisma } from "@prisma/client";
-import { Plus, Search } from "lucide-react";
+import { Bike, Plus, Search } from "lucide-react";
 import { db } from "@/lib/db";
 import { requireAdmin } from "@/lib/auth";
 import { NEXT_STATUS, ORDER_SOURCES, ORDER_STATUS, ORDER_TYPE, type OrderStatus } from "@/lib/constants";
@@ -103,7 +103,7 @@ export default async function OrdersPage({ searchParams }: { searchParams: Promi
                       <td className="text-xs">
                         {o.deliveryDate ? fmtDate(o.deliveryDate, { day: "numeric", month: "short", weekday: "short" }) : "—"}
                         <span className="block text-stone-500">{o.zoneName.split(" · ").pop()}</span>
-                        {o.rider && <span className="block text-stone-500">🛵 {o.rider.name}</span>}
+                        {o.rider && <span className="flex items-center gap-1 text-stone-500"><Bike className="h-3.5 w-3.5" aria-hidden /> {o.rider.name}</span>}
                       </td>
                       <td>
                         <div className="flex flex-wrap gap-1">

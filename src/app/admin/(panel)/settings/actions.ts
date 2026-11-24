@@ -2,12 +2,12 @@
 import { revalidatePath } from "next/cache";
 import { db } from "@/lib/db";
 import { hashPassword, requireAdmin } from "@/lib/auth";
-import { isHex, saveSettings } from "@/lib/settings";
+import { isHex, saveSettings, type HeroSlide } from "@/lib/settings";
 import { sendMail, verifySmtp } from "@/lib/email/mailer";
 import { clearSmtpConfig, saveSmtpConfig } from "@/lib/email/config";
 import { layout } from "@/lib/email/templates";
 import { getSettings } from "@/lib/settings";
-import { boolField, numField, str } from "@/lib/utils";
+import { boolField, isEmail, numField, parseJson, splitEmails, str } from "@/lib/utils";
 import type { ActionState } from "@/components/admin/client";
 
 const done = (): ActionState => {
@@ -64,18 +64,42 @@ export async function saveDeliveryAction(_: ActionState, fd: FormData): Promise<
       .split("\n")
       .map((s) => s.trim())
       .filter(Boolean),
+    coverageNote: str(fd, "coverageNote"),
   });
   return done();
 }
 
+/** Internal path ("/shop") or full http(s) link; anything else is dropped. */
+const cleanHref = (h: string) => (/^\/(?!\/)/.test(h) || /^https?:\/\//i.test(h) ? h.slice(0, 300) : "");
+const cleanImage = (u: string) => (/^\/(?!\/)/.test(u) || /^https:\/\//i.test(u) || /^art:[a-z]+$/.test(u) ? u.slice(0, 500) : "");
+
 export async function saveHomeAction(_: ActionState, fd: FormData): Promise<ActionState> {
   await requireAdmin(["OWNER"]);
+  const raw = parseJson<unknown>(str(fd, "heroSlides"), []);
+  const heroSlides: HeroSlide[] = (Array.isArray(raw) ? raw : [])
+    .map((x) => (x && typeof x === "object" ? (x as Record<string, unknown>) : {}))
+    .map((x) => ({
+      image: cleanImage(String(x.image ?? "").trim()),
+      title: String(x.title ?? "").trim().slice(0, 120),
+      caption: String(x.caption ?? "").trim().slice(0, 160),
+      href: cleanHref(String(x.href ?? "").trim()),
+    }))
+    .filter((x) => x.image)
+    .slice(0, 8);
+  for (const k of ["heroCtaHref", "heroCta2Href"]) if (str(fd, k) && !cleanHref(str(fd, k))) return { error: "Button links must start with / (e.g. /preorder) or https://" };
+  if (!str(fd, "heroTitleBn")) return { error: "Headline is required" };
   await saveSettings("home", {
     announcement: str(fd, "announcement"),
+    heroEyebrow: str(fd, "heroEyebrow"),
     heroTitleBn: str(fd, "heroTitleBn"),
     heroTitleEn: str(fd, "heroTitleEn"),
     heroSubBn: str(fd, "heroSubBn"),
-    heroImage: str(fd, "heroImage"),
+    heroCtaLabel: str(fd, "heroCtaLabel"),
+    heroCtaHref: cleanHref(str(fd, "heroCtaHref")),
+    heroCta2Label: str(fd, "heroCta2Label"),
+    heroCta2Href: cleanHref(str(fd, "heroCta2Href")),
+    heroSlides,
+    heroImage: "", // the old single hero photo is now managed as a slide
     benefitsVideoUrl: str(fd, "benefitsVideoUrl"),
   });
   return done();
@@ -83,11 +107,8 @@ export async function saveHomeAction(_: ActionState, fd: FormData): Promise<Acti
 
 export async function saveEmailAction(_: ActionState, fd: FormData): Promise<ActionState> {
   await requireAdmin(["OWNER"]);
-  const list = str(fd, "notifyAdminEmail")
-    .split(/[s,;]+/)
-    .map((x) => x.trim().toLowerCase())
-    .filter(Boolean);
-  const bad = list.filter((x) => !/^[^s@]+@[^s@]+.[^s@]+$/.test(x));
+  const list = splitEmails(str(fd, "notifyAdminEmail"));
+  const bad = list.filter((x) => !isEmail(x));
   if (bad.length) return { error: `Not a valid email: ${bad.join(", ")}` };
   await saveSettings("email", {
     notifyAdminEmail: list.join(", "),
@@ -109,7 +130,7 @@ export async function saveSmtpAction(_: ActionState, fd: FormData): Promise<Acti
   const host = str(fd, "host");
   const fromEmail = str(fd, "fromEmail").toLowerCase();
   if (!host) return { error: "Enter the SMTP server (host)" };
-  if (!/^[^s@]+@[^s@]+.[^s@]+$/.test(fromEmail)) return { error: "Enter a valid “send from” email address" };
+  if (!isEmail(fromEmail)) return { error: "Enter a valid “send from” email address" };
   const security = str(fd, "security");
   const pass = str(fd, "pass");
   await saveSmtpConfig({
@@ -148,7 +169,19 @@ export async function testEmailAction(_: ActionState, fd: FormData): Promise<Act
   if (!v.ok) return { error: `SMTP connection failed: ${v.error}` };
   const to = str(fd, "to") || a.email;
   const s = await getSettings();
-  const ok = await sendMail({ to, subject: "FungiBd test email ✅", type: "TEST", html: layout(s, { preheader: "Your email setup works", heading: "ইমেইল সেটআপ সফল!", subheading: "Your FungiBd email setup works", body: "<p>Order confirmations and updates will be sent like this.</p>" }) });
+  const ok = await sendMail({
+    to,
+    subject: `${s.store.name} test email`,
+    type: "TEST",
+    html: layout(s, {
+      preheader: "Your email setup works",
+      eyebrow: "Email setup",
+      icon: "circle-check",
+      heading: "ইমেইল সেটআপ সফল",
+      subheading: `Your ${s.store.name} email setup works.`,
+      body: "<p style=\"margin:0\">Order confirmations and updates will look like this.</p>",
+    }),
+  });
   return ok ? { ok: true, message: `Test email sent to ${to}` } : { error: "Connected, but sending failed — see Email log below." };
 }
 

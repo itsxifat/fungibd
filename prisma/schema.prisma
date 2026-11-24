@@ -254,6 +254,7 @@ model DeliveryZone {
   id        String  @id @default(cuid())
   nameEn    String
   nameBn    String
+  region    String  @default("") // city / district used to group areas on the website, e.g. "ঢাকা"
   charge    Float // what the customer pays
   riderCost Float   @default(0) // what delivery costs us (estimate, editable per order)
   isActive  Boolean @default(true)

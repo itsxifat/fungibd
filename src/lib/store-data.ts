@@ -77,6 +77,38 @@ export function toDTO(p: ProductRow, now = new Date()): ProductDTO {
   };
 }
 
+/**
+ * FungiBd sells every fresh harvest by pre-order only; the shop is for mushroom-made products (dried, powder, kits).
+ * A product is a pre-order product when Admin → Products has "Always — sell this product by pre-order only".
+ */
+export const isPreorderOnly = (p: ProductDTO) => p.preorder.enabled && p.preorder.mode === "ALWAYS";
+
+/** Pre-orders customers can book now come first (soonest harvest first); closed or full ones go last. */
+export function sortPreorders(products: ProductDTO[]) {
+  const key = (p: ProductDTO) => {
+    const open = p.variants.filter((v) => v.mode === "PREORDER");
+    const d = open.find((v) => v.preorderDate)?.preorderDate;
+    return [open.length ? 0 : 1, d ? new Date(d).getTime() : Number.MAX_SAFE_INTEGER] as const;
+  };
+  return [...products].sort((a, b) => {
+    const [ao, ad] = key(a);
+    const [bo, bd] = key(b);
+    return ao - bo || ad - bd;
+  });
+}
+
+/** Earliest upcoming harvest/delivery date among pre-order products (null when none is scheduled). */
+export function nextHarvestDate(products: ProductDTO[], now = new Date()) {
+  const dates = products
+    .filter(isPreorderOnly)
+    .flatMap((p) => p.variants.map((v) => v.preorderDate))
+    .filter((d): d is string => Boolean(d))
+    .map((d) => new Date(d))
+    .filter((d) => d.getTime() >= now.getTime() - 24 * 3600_000)
+    .sort((a, b) => a.getTime() - b.getTime());
+  return dates[0] ?? null;
+}
+
 export async function getProducts(where: Prisma.ProductWhereInput = {}) {
   const rows = await db.product.findMany({ where: { isActive: true, ...where }, include, orderBy: [{ sortOrder: "asc" }, { createdAt: "asc" }] });
   return rows.map((r) => toDTO(r));

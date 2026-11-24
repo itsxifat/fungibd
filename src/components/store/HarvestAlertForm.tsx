@@ -20,7 +20,7 @@ export function HarvestAlertForm({ dark = false, interest = "New harvest alerts"
         <label className="sr-only" htmlFor="harvest-contact">
           Email or phone
         </label>
-        <input id="harvest-contact" name="contact" required placeholder="ইমেইল বা মোবাইল নম্বর · Email or phone" className="input h-12 flex-1 rounded-full px-5" />
+        <input id="harvest-contact" name="contact" required placeholder="ইমেইল বা মোবাইল নম্বর · Email or phone" className="input h-12 flex-1 px-4" />
         <SubmitButton className={dark ? "btn-cream h-12" : "h-12"}>
           <BellRing className="h-4 w-4" /> জানিয়ে দিন
         </SubmitButton>

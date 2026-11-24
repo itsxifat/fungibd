@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { Circle, MapContainer, Marker, TileLayer, useMap, useMapEvents } from "react-leaflet";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
-import { Crosshair, Loader2, MapPin, Search } from "lucide-react";
+import { Crosshair, Hand, Loader2, MapPin, Search, TriangleAlert } from "lucide-react";
 import { distanceKm } from "@/lib/geo";
 
 const pin = L.divIcon({
@@ -124,11 +124,11 @@ export default function MapPicker({
             className="input pl-10"
           />
           {results.length > 0 && (
-            <ul className="absolute inset-x-0 top-full z-[500] mt-1 max-h-64 overflow-auto rounded-2xl border border-line bg-white p-1 shadow-xl">
+            <ul className="absolute inset-x-0 top-full z-[500] mt-1 max-h-64 overflow-auto rounded-xl border border-line bg-white p-1 shadow-[0_8px_24px_rgba(0,0,0,0.08)]">
               {results.map((r) => (
                 <li key={`${r.lat},${r.lng}`}>
-                  <button type="button" onClick={() => pick({ lat: r.lat, lng: r.lng }, r.label)} className="flex w-full gap-2 rounded-xl px-3 py-2 text-left text-sm hover:bg-brand-tint">
-                    <MapPin className="mt-0.5 h-4 w-4 shrink-0 text-brand" />
+                  <button type="button" onClick={() => pick({ lat: r.lat, lng: r.lng }, r.label)} className="flex w-full gap-2 rounded-lg px-3 py-2 text-left text-sm transition-colors duration-150 hover:bg-brand-tint">
+                    <MapPin className="mt-0.5 size-4 shrink-0 text-muted" aria-hidden />
                     <span className="line-clamp-2">{r.label}</span>
                   </button>
                 </li>
@@ -166,17 +166,17 @@ export default function MapPicker({
           <Fly to={value} />
         </MapContainer>
         {!value && (
-          <div className="pointer-events-none absolute inset-x-0 bottom-3 z-[400] mx-auto w-fit rounded-full bg-ink/80 px-4 py-2 text-xs text-white">👆 ম্যাপে আপনার বাসার জায়গায় ট্যাপ করুন · Tap your home on the map</div>
+          <div className="pointer-events-none absolute inset-x-0 bottom-3 z-[400] mx-auto flex w-fit items-center gap-1.5 rounded-lg bg-ink/85 px-3.5 py-2 font-bangla text-xs text-white"><Hand className="size-3.5" aria-hidden /> ম্যাপে আপনার বাসার জায়গায় ট্যাপ করুন</div>
         )}
       </div>
       {value && !outside && label && (
         <p className="flex gap-2 rounded-xl bg-brand-tint px-3 py-2 text-xs text-brand-deep">
-          <MapPin className="h-4 w-4 shrink-0" /> <span>{label}</span>
+          <MapPin className="size-4 shrink-0" aria-hidden /> <span>{label}</span>
         </p>
       )}
       {outside && (
-        <p className="rounded-xl bg-red-50 px-3 py-2 text-sm text-red-700" role="alert">
-          ⚠️ এই লোকেশনটি আমাদের ডেলিভারি এলাকার বাইরে (ঢাকা সিটি)। Pin is outside our Dhaka delivery area.
+        <p className="flex gap-2 rounded-xl bg-red-50 px-3 py-2 font-bangla text-sm text-red-700" role="alert">
+          <TriangleAlert className="mt-0.5 size-4 shrink-0" aria-hidden /> এই লোকেশনটি আমাদের ডেলিভারি এলাকার বাইরে। অন্য জায়গায় পিন দিন, অথবা এলাকা বেছে ঠিকানা লিখুন।
         </p>
       )}
     </div>

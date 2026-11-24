@@ -174,7 +174,7 @@ export default async function DeliveryPage({ searchParams }: { searchParams: Pro
       </Card>
 
       {canEdit && (
-        <div className="mt-6 grid gap-6 xl:grid-cols-2">
+        <div className="mt-6 grid gap-6">
           <Card title="Riders & couriers">
             <div className="space-y-2">
               {riders.map((x) => (
@@ -209,14 +209,30 @@ export default async function DeliveryPage({ searchParams }: { searchParams: Pro
             </div>
           </Card>
           <Card title="Delivery areas & charges">
-            <p className="mb-3 text-xs text-stone-500">Charge = what the customer pays. Our cost = estimated rider cost used for profit (replaced by the rider&apos;s rate when assigned).</p>
+            <p className="mb-3 text-xs text-stone-500">
+              Charge = what the customer pays. Our cost = estimated rider cost used for profit (replaced by the rider&apos;s rate when assigned). Region (optional) groups areas by city or district on the website, e.g. ঢাকা, চট্টগ্রাম.
+            </p>
+            <datalist id="zone-regions">
+              {[...new Set(zones.map((z) => z.region).filter(Boolean))].map((r) => (
+                <option key={r} value={r} />
+              ))}
+            </datalist>
+            <div className="mb-1 hidden gap-2 px-0.5 text-[11px] font-medium uppercase tracking-wide text-stone-400 sm:grid sm:grid-cols-[1.2fr_1.2fr_1fr_70px_70px_56px_auto_auto]">
+              <span>Area (English)</span>
+              <span>Area (Bangla)</span>
+              <span>Region</span>
+              <span>Charge ৳</span>
+              <span>Our cost</span>
+              <span>Order</span>
+            </div>
             <div className="max-h-[520px] space-y-2 overflow-y-auto pr-1">
               {zones.map((z) => (
                 <div key={z.id} className="flex items-center gap-1">
-                <ActionForm action={zoneAction} className="grid flex-1 grid-cols-2 items-center gap-2 sm:grid-cols-[1.2fr_1.2fr_70px_70px_56px_auto_auto]">
+                <ActionForm action={zoneAction} className="grid flex-1 grid-cols-2 items-center gap-2 sm:grid-cols-[1.2fr_1.2fr_1fr_70px_70px_56px_auto_auto]">
                   <input type="hidden" name="id" value={z.id} />
                   <input name="nameEn" defaultValue={z.nameEn} className="input input-sm" aria-label="Area (English)" />
                   <input name="nameBn" defaultValue={z.nameBn} className="input input-sm" aria-label="Area (Bangla)" />
+                  <input name="region" defaultValue={z.region} list="zone-regions" className="input input-sm" aria-label="Region" placeholder="ঢাকা" />
                   <input name="charge" type="number" defaultValue={z.charge} className="input input-sm" aria-label="Customer charge" title="Customer charge ৳" />
                   <input name="riderCost" type="number" defaultValue={z.riderCost} className="input input-sm" aria-label="Our cost" title="Our cost ৳" />
                   <input name="sortOrder" type="number" defaultValue={z.sortOrder} className="input input-sm" aria-label="Order" />
@@ -229,9 +245,10 @@ export default async function DeliveryPage({ searchParams }: { searchParams: Pro
                 </div>
               ))}
             </div>
-            <ActionForm action={zoneAction} resetOnSuccess className="mt-3 grid grid-cols-2 items-center gap-2 border-t border-stone-100 pt-3 sm:grid-cols-[1.2fr_1.2fr_70px_70px_auto]">
-              <input name="nameEn" placeholder="New area" className="input input-sm" />
-              <input name="nameBn" placeholder="এলাকা" className="input input-sm" />
+            <ActionForm action={zoneAction} resetOnSuccess className="mt-3 grid grid-cols-2 items-center gap-2 border-t border-stone-100 pt-3 sm:grid-cols-[1.2fr_1.2fr_1fr_70px_70px_auto]">
+              <input name="nameEn" placeholder="New area" className="input input-sm" aria-label="New area (English)" />
+              <input name="nameBn" placeholder="এলাকা" className="input input-sm" aria-label="New area (Bangla)" />
+              <input name="region" list="zone-regions" placeholder="Region (optional)" className="input input-sm" aria-label="Region" />
               <input name="charge" type="number" placeholder="৳" className="input input-sm" />
               <input name="riderCost" type="number" placeholder="cost" className="input input-sm" />
               <Submit>Add</Submit>

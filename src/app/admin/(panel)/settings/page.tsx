@@ -5,6 +5,8 @@ import { requireAdmin } from "@/lib/auth";
 import { getSettings } from "@/lib/settings";
 import { getSmtpPublic } from "@/lib/email/config";
 import { SmtpForm } from "./SmtpForm";
+import { HeroSlidesEditor } from "./HeroSlidesEditor";
+import { EMAIL_PREVIEWS } from "@/lib/email/previews";
 import { ADMIN_ROLES } from "@/lib/constants";
 import { fmtDateTime } from "@/lib/dates";
 import { cn } from "@/lib/utils";
@@ -129,6 +131,7 @@ export default async function SettingsPage({ searchParams }: { searchParams: Pro
             <In label="Delivery area centre — latitude" name="centerLat" type="number" value={s.delivery.centerLat} />
             <In label="Delivery area centre — longitude" name="centerLng" type="number" value={s.delivery.centerLng} />
             <In label="Delivery radius (km)" name="radiusKm" type="number" value={s.delivery.radiusKm} hint="Map pins outside this circle are rejected at checkout" />
+            <In label="Delivery coverage line (Bangla)" name="coverageNote" value={s.delivery.coverageNote} hint="Shown on the home page, footer and emails — e.g. “শুধুমাত্র ঢাকা সিটির ভিতরে ডেলিভারি”. Update it when you reach new cities." className="sm:col-span-2" />
             <div className="sm:col-span-2">
               <Submit>Save</Submit>
             </div>
@@ -140,23 +143,34 @@ export default async function SettingsPage({ searchParams }: { searchParams: Pro
       )}
 
       {tab === "home" && (
-        <Card title="Home page" className="max-w-3xl">
-          <ActionForm action={saveHomeAction} className="space-y-4">
-            <In label="Announcement bar" name="announcement" value={s.home.announcement} hint="Leave empty to hide" />
-            <In label="Headline (Bangla)" name="heroTitleBn" value={s.home.heroTitleBn} />
-            <In label="Headline (English)" name="heroTitleEn" value={s.home.heroTitleEn} />
-            <label className="block">
-              <span className="label">Intro text (Bangla)</span>
-              <textarea name="heroSubBn" defaultValue={s.home.heroSubBn} className="input input-sm min-h-20" />
-            </label>
-            <div>
-              <span className="label">Hero photo (e.g. your farm or fresh mushrooms)</span>
-              <UploadField name="heroImage" defaultValue={s.home.heroImage} folder="site" />
+        <ActionForm action={saveHomeAction} className="max-w-4xl space-y-6">
+          <Card title="Top of the home page (hero)" description="The text on the left of the home page. Keep it short — one headline, one line, one or two buttons.">
+            <div className="grid gap-4 sm:grid-cols-2">
+              <In label="Announcement bar" name="announcement" value={s.home.announcement} hint="Thin bar above the menu on every page. Empty = hidden." className="sm:col-span-2" />
+              <In label="Small label above the headline" name="heroEyebrow" value={s.home.heroEyebrow} hint="Empty = shows the next harvest date automatically" className="sm:col-span-2" />
+              <In label="Headline (Bangla) *" name="heroTitleBn" value={s.home.heroTitleBn} className="sm:col-span-2" />
+              <label className="block sm:col-span-2">
+                <span className="label">Short text under the headline</span>
+                <textarea name="heroSubBn" defaultValue={s.home.heroSubBn} className="input input-sm min-h-20" />
+              </label>
+              <In label="English line (optional)" name="heroTitleEn" value={s.home.heroTitleEn} hint="Small grey line under the headline. Empty = hidden." className="sm:col-span-2" />
+              <In label="Main button — text" name="heroCtaLabel" value={s.home.heroCtaLabel} />
+              <In label="Main button — link" name="heroCtaHref" value={s.home.heroCtaHref} hint="e.g. /preorder" />
+              <In label="Second button — text" name="heroCta2Label" value={s.home.heroCta2Label} hint="Empty = hidden" />
+              <In label="Second button — link" name="heroCta2Href" value={s.home.heroCta2Href} hint="e.g. /shop" />
             </div>
-            <In label="Benefits video URL (optional)" name="benefitsVideoUrl" value={s.home.benefitsVideoUrl} hint="A YouTube link or an .mp4 link. Shown on the Benefits page in addition to the motion video." />
-            <Submit>Save</Submit>
-          </ActionForm>
-        </Card>
+          </Card>
+          <Card title="Hero slider" description="Pictures on the right of the home page. Customers can click them; they change every few seconds.">
+            <HeroSlidesEditor
+              name="heroSlides"
+              defaultValue={s.home.heroSlides.length ? s.home.heroSlides : s.home.heroImage ? [{ image: s.home.heroImage, title: "", caption: "", href: "" }] : []}
+            />
+          </Card>
+          <Card title="Benefits page">
+            <In label="Extra video URL (optional)" name="benefitsVideoUrl" value={s.home.benefitsVideoUrl} hint="A YouTube link or an .mp4 link. Shown on the Benefits page below the motion video." />
+          </Card>
+          <Submit>Save home page</Submit>
+        </ActionForm>
       )}
 
       {tab === "email" && (
@@ -175,6 +189,15 @@ export default async function SettingsPage({ searchParams }: { searchParams: Pro
                   <In label="Send to" name="to" value={me.email} />
                   <Submit variant="outline">Send test</Submit>
                 </ActionForm>
+              </Card>
+              <Card title="Preview emails" description="See exactly what customers receive — opens in a new tab, nothing is sent.">
+                <div className="flex flex-wrap gap-2">
+                  {Object.entries(EMAIL_PREVIEWS).map(([k, l]) => (
+                    <a key={k} href={`/api/admin/email-preview?type=${k}`} target="_blank" rel="noreferrer" className="rounded-lg border border-stone-200 px-2.5 py-1.5 text-xs text-stone-700 hover:border-brand hover:text-brand">
+                      {l}
+                    </a>
+                  ))}
+                </div>
               </Card>
               <Card title="Tips for reaching the inbox">
                 <ul className="list-disc space-y-1.5 pl-5 text-sm text-stone-600">

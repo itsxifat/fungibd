@@ -18,6 +18,8 @@
   --muted: color-mix(in oklab, var(--ink) 56%, white);
   --line: color-mix(in oklab, var(--ink) 11%, transparent);
   --line-strong: color-mix(in oklab, var(--ink) 18%, transparent);
+
+  --ease: cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 @theme inline {
@@ -41,25 +43,22 @@
   --font-sans: var(--font-jakarta), var(--font-bn), ui-sans-serif, system-ui, sans-serif;
   --font-bangla: var(--font-bn), var(--font-jakarta), sans-serif;
 
-  --animate-marquee: marquee 38s linear infinite;
-  --animate-float: float 6s ease-in-out infinite;
-  --animate-fade-up: fade-up 0.6s cubic-bezier(0.2, 0.7, 0.2, 1) both;
 }
 
-@keyframes marquee {
+
+/* Benefits film (MotionStory) — the sun's rays turn slowly in the sunlight scene */
+@keyframes ms-spin {
   to {
-    transform: translateX(-50%);
+    transform: rotate(360deg);
   }
 }
-@keyframes float {
-  50% {
-    transform: translateY(-10px);
-  }
-}
-@keyframes fade-up {
+
+@keyframes hero-progress {
   from {
-    opacity: 0;
-    transform: translateY(14px);
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
   }
 }
 
@@ -127,13 +126,15 @@ h3 {
     align-items: center;
     justify-content: center;
     gap: 0.5rem;
-    border-radius: 999px;
-    padding: 0.7rem 1.35rem;
+    border-radius: 10px;
+    padding: 0.7rem 1.25rem;
     font-size: 0.925rem;
     font-weight: 600;
     line-height: 1.2;
     white-space: nowrap;
-    transition: background-color 0.2s, color 0.2s, border-color 0.2s, box-shadow 0.2s, transform 0.12s;
+    transition-property: background-color, color, border-color, box-shadow, transform;
+    transition-duration: 150ms;
+    transition-timing-function: var(--ease);
     cursor: pointer;
     user-select: none;
   }
@@ -192,21 +193,24 @@ h3 {
   .btn-sm {
     padding: 0.45rem 0.9rem;
     font-size: 0.82rem;
+    border-radius: 8px;
   }
   .btn-lg {
-    padding: 0.95rem 1.7rem;
+    padding: 0.8rem 1.4rem;
     font-size: 1rem;
   }
 
   .input {
     width: 100%;
-    border-radius: 0.85rem;
+    border-radius: 10px;
     border: 1.5px solid var(--line-strong);
     background: white;
     padding: 0.68rem 0.9rem;
     font-size: 0.95rem;
     color: var(--ink);
-    transition: border-color 0.15s, box-shadow 0.15s;
+    transition-property: border-color, box-shadow;
+    transition-duration: 150ms;
+    transition-timing-function: var(--ease);
   }
   .input::placeholder {
     color: color-mix(in oklab, var(--muted) 70%, white);
@@ -229,7 +233,7 @@ h3 {
   .input-sm {
     padding: 0.45rem 0.7rem;
     font-size: 0.85rem;
-    border-radius: 0.65rem;
+    border-radius: 8px;
   }
   .label {
     display: block;
@@ -245,46 +249,31 @@ h3 {
   }
 
   .card {
-    border-radius: 1.25rem;
+    border-radius: 16px;
     background: white;
     border: 1px solid var(--line);
     box-shadow: 0 1px 2px color-mix(in oklab, var(--ink) 4%, transparent);
   }
+  /* Small section label above a heading — sentence case, no tracking */
   .eyebrow {
     display: inline-flex;
     align-items: center;
     gap: 0.5rem;
-    font-size: 0.75rem;
-    font-weight: 700;
-    letter-spacing: 0.14em;
-    text-transform: uppercase;
+    font-size: 0.875rem;
+    font-weight: 500;
     color: var(--brand);
   }
   .chip {
     display: inline-flex;
     align-items: center;
     gap: 0.35rem;
-    border-radius: 999px;
-    padding: 0.28rem 0.7rem;
+    border-radius: 6px;
+    padding: 0.25rem 0.6rem;
     font-size: 0.75rem;
-    font-weight: 600;
+    font-weight: 500;
     white-space: nowrap;
   }
 
-  .grain {
-    position: relative;
-    isolation: isolate;
-  }
-  .grain::after {
-    content: "";
-    position: absolute;
-    inset: 0;
-    z-index: -1;
-    pointer-events: none;
-    opacity: 0.35;
-    mix-blend-mode: multiply;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0.4 0 0 0 0 0.33 0 0 0 0 0.22 0 0 0 0.09 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
-  }
 
   /* Admin tables */
   .table {

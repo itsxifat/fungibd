@@ -4,7 +4,7 @@ import { db } from "@/lib/db";
 import { requireCustomer } from "@/lib/auth";
 import { ORDER_STATUS, TICKET_STATUS, type OrderStatus } from "@/lib/constants";
 import { fmtDate } from "@/lib/dates";
-import { taka } from "@/lib/utils";
+import { takaBn } from "@/lib/utils";
 import { sign } from "@/lib/security";
 import { ProfileForm } from "./AuthForms";
 import { deleteAddressAction, logoutAction } from "./actions";
@@ -42,14 +42,14 @@ export default async function AccountPage() {
                   <Link href={`/track?order=${o.orderNo}&phone=${o.phone}`} className="flex flex-wrap items-center justify-between gap-3 px-5 py-4 hover:bg-cream/40">
                     <div>
                       <p className="font-semibold">
-                        {o.orderNo} {o.type === "PREORDER" && <span className="chip ml-1 bg-tan/40 text-tan-deep">প্রি-অর্ডার</span>}
+                        {o.orderNo} {o.type === "PREORDER" && <span className="chip ml-1 border border-line-strong text-ink-soft">প্রি-অর্ডার</span>}
                       </p>
                       <p className="text-xs text-muted">
                         {fmtDate(o.createdAt)} · {o.items.map((i) => i.nameBn).join(", ")}
                       </p>
                     </div>
                     <div className="text-right">
-                      <p className="font-semibold tabular-nums">{taka(o.total)}</p>
+                      <p className="font-semibold tabular-nums">{takaBn(o.total)}</p>
                       <p className="font-bangla text-xs text-brand">{ORDER_STATUS[o.status as OrderStatus]?.bn}</p>
                     </div>
                   </Link>
@@ -79,11 +79,11 @@ export default async function AccountPage() {
               {addresses.map((a) => (
                 <li key={a.id} className="flex items-start justify-between gap-3 text-sm">
                   <span className="flex gap-2">
-                    <MapPin className="mt-0.5 h-4 w-4 shrink-0 text-brand" /> {a.line}
+                    <MapPin className="mt-0.5 size-4 shrink-0 text-muted" aria-hidden /> {a.line}
                   </span>
                   <form action={deleteAddressAction}>
                     <input type="hidden" name="id" value={a.id} />
-                    <button className="rounded-full p-1 text-muted hover:text-red-600" aria-label="Delete address">
+                    <button className="rounded-md p-1 text-muted transition-colors duration-150 hover:text-red-600" aria-label="Delete address">
                       <Trash2 className="h-4 w-4" />
                     </button>
                   </form>

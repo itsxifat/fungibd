@@ -1,4 +1,4 @@
-import { Mail, MapPin, Phone, Plus } from "lucide-react";
+import { Mail, MapPin, MessageCircle, Phone, Plus } from "lucide-react";
 import { getSettings } from "@/lib/settings";
 import { getCustomer } from "@/lib/auth";
 import { FAQS } from "@/lib/content";
@@ -20,21 +20,21 @@ export default async function SupportPage({ searchParams }: { searchParams: Prom
         <aside className="space-y-4">
           <div className="rounded-2xl border border-line bg-white p-6 text-sm">
             <p className="flex gap-3">
-              <Phone className="h-4 w-4 text-brand" /> <a href={`tel:${s.store.phone.replace(/[^\d+]/g, "")}`}>{s.store.phone}</a>
+              <Phone className="size-4 text-muted" aria-hidden /> <a href={`tel:${s.store.phone.replace(/[^\d+]/g, "")}`}>{s.store.phone}</a>
             </p>
             {wa && (
               <p className="mt-3 flex gap-3">
-                <span className="w-4 text-center text-brand">✆</span>
+                <MessageCircle className="size-4 text-muted" aria-hidden />
                 <a href={`https://wa.me/${wa}`} target="_blank" rel="noreferrer">
                   WhatsApp {s.store.whatsapp}
                 </a>
               </p>
             )}
             <p className="mt-3 flex gap-3">
-              <Mail className="h-4 w-4 text-brand" /> <a href={`mailto:${s.store.email}`}>{s.store.email}</a>
+              <Mail className="size-4 text-muted" aria-hidden /> <a href={`mailto:${s.store.email}`}>{s.store.email}</a>
             </p>
             <p className="mt-3 flex gap-3">
-              <MapPin className="h-4 w-4 text-brand" /> {s.store.address}
+              <MapPin className="size-4 text-muted" aria-hidden /> {s.store.address}
             </p>
             {s.store.hours && <p className="mt-3 font-bangla text-muted">{s.store.hours}</p>}
           </div>

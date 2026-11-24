@@ -1,5 +1,5 @@
 import { CalendarClock, MapPin } from "lucide-react";
-import { taka } from "@/lib/utils";
+import { takaBn } from "@/lib/utils";
 import { fmtDateBn } from "@/lib/dates";
 import { ORDER_STATUS, type OrderStatus } from "@/lib/constants";
 import { OrderTimeline } from "./OrderTimeline";
@@ -29,11 +29,11 @@ export function OrderSummaryCard({ o, showTimeline = true }: { o: O; showTimelin
       <div className="flex flex-wrap items-center justify-between gap-3 border-b border-line px-5 py-4 sm:px-6">
         <div>
           <p className="text-xs text-muted">অর্ডার নম্বর · Order no.</p>
-          <p className="text-xl font-semibold tracking-wide">{o.orderNo}</p>
+          <p className="text-xl font-semibold tabular-nums">{o.orderNo}</p>
         </div>
         <div className="flex flex-wrap gap-2">
-          {o.type === "PREORDER" && <span className="chip bg-tan/40 text-tan-deep">প্রি-অর্ডার</span>}
-          <span className="chip bg-brand-tint text-brand">{ORDER_STATUS[o.status as OrderStatus]?.bn ?? o.status}</span>
+          {o.type === "PREORDER" && <span className="chip border border-line-strong text-ink-soft">প্রি-অর্ডার</span>}
+          <span className="chip bg-brand-tint text-brand-deep">{ORDER_STATUS[o.status as OrderStatus]?.bn ?? o.status}</span>
         </div>
       </div>
       {showTimeline && (
@@ -48,31 +48,31 @@ export function OrderSummaryCard({ o, showTimeline = true }: { o: O; showTimelin
               <span>
                 <span className="font-bangla font-medium">{i.nameBn}</span> <span className="text-muted">· {i.variantLabel.split(" · ")[0]} × {i.qty}</span>
               </span>
-              <span className="tabular-nums">{taka(i.lineTotal)}</span>
+              <span className="tabular-nums">{takaBn(i.lineTotal)}</span>
             </li>
           ))}
           <li className="flex justify-between border-t border-line pt-2 text-muted">
             <span>সাবটোটাল</span>
-            <span className="tabular-nums">{taka(o.subtotal)}</span>
+            <span className="tabular-nums">{takaBn(o.subtotal)}</span>
           </li>
           {o.discount > 0 && (
             <li className="flex justify-between text-brand">
               <span>ডিসকাউন্ট</span>
-              <span className="tabular-nums">−{taka(o.discount)}</span>
+              <span className="tabular-nums">−{takaBn(o.discount)}</span>
             </li>
           )}
           <li className="flex justify-between text-muted">
             <span>ডেলিভারি</span>
-            <span className="tabular-nums">{o.deliveryCharge ? taka(o.deliveryCharge) : "ফ্রি"}</span>
+            <span className="tabular-nums">{o.deliveryCharge ? takaBn(o.deliveryCharge) : "ফ্রি"}</span>
           </li>
           <li className="flex justify-between text-base font-semibold">
             <span>মোট (ক্যাশ অন ডেলিভারি)</span>
-            <span className="tabular-nums">{taka(o.total)}</span>
+            <span className="tabular-nums">{takaBn(o.total)}</span>
           </li>
         </ul>
         <div className="space-y-3 text-sm">
           <p className="flex gap-2">
-            <MapPin className="mt-0.5 h-4 w-4 shrink-0 text-brand" />
+            <MapPin className="mt-0.5 size-4 shrink-0 text-muted" aria-hidden />
             <span>
               {o.name} · {o.phone}
               <br />
@@ -86,7 +86,7 @@ export function OrderSummaryCard({ o, showTimeline = true }: { o: O; showTimelin
           </p>
           {o.deliveryDate && (
             <p className="flex gap-2">
-              <CalendarClock className="mt-0.5 h-4 w-4 shrink-0 text-brand" />
+              <CalendarClock className="mt-0.5 size-4 shrink-0 text-muted" aria-hidden />
               <span className="font-bangla">
                 {fmtDateBn(o.deliveryDate)}
                 {o.deliverySlot && <span className="block text-muted">{o.deliverySlot}</span>}

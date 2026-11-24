@@ -19,7 +19,7 @@ export default async function SuccessPage({ searchParams }: { searchParams: Prom
   return (
     <div className="container-x max-w-3xl py-14">
       <div className="text-center">
-        <CheckCircle2 className="mx-auto h-14 w-14 text-brand" strokeWidth={1.5} />
+        <CheckCircle2 className="mx-auto size-12 text-brand" strokeWidth={1.5} aria-hidden />
         <h1 className="mt-4 font-display text-3xl sm:text-4xl">ধন্যবাদ! আপনার অর্ডারটি গ্রহণ করা হয়েছে</h1>
         <p className="mt-2 text-muted">Thank you — your order has been placed.</p>
         <p className="mx-auto mt-4 max-w-lg font-bangla text-ink-soft">

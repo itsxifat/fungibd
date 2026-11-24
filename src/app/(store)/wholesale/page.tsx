@@ -16,7 +16,7 @@ export default function WholesalePage() {
           <ul className="mt-6 space-y-3 font-bangla text-[15px]">
             {["আপনার প্রয়োজন অনুযায়ী পরিমাণ", "নির্দিষ্ট দিনে নিয়মিত ডেলিভারি (ঢাকার ভিতরে)", "সরাসরি আমাদের খামার থেকে"].map((t) => (
               <li key={t} className="flex items-center gap-3">
-                <Check className="h-4 w-4 text-brand" /> {t}
+                <Check className="size-4 text-muted" aria-hidden /> {t}
               </li>
             ))}
           </ul>
