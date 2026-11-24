@@ -13,6 +13,7 @@
     "db:seed": "tsx prisma/seed.ts",
     "db:studio": "prisma studio",
     "backup": "tsx scripts/backup.ts",
+    "admin:prepare-setup": "tsx scripts/prepare-admin-setup.ts",
     "postinstall": "prisma generate",
     "db:demo": "tsx prisma/seed.ts --demo",
     "db:fresh": "prisma migrate reset --force --skip-seed && tsx prisma/seed.ts",

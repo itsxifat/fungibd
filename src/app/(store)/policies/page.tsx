@@ -1,7 +1,10 @@
+import Link from "next/link";
+import { policyLink } from "@/components/store/PolicyPage";
 import { getSettings } from "@/lib/settings";
 import { num } from "@/lib/utils";
+import { storefrontMetadata } from "@/lib/seo";
 
-export const metadata = { title: "ডেলিভারি ও অর্ডার নীতি · Policies" };
+export const metadata = storefrontMetadata("/policies", "Delivery & Order Policies · অর্ডার নীতি", "Read FungiBd’s policies for Dhaka mushroom delivery, cash on delivery, pre-orders, changes and cancellations.");
 
 export default async function PoliciesPage() {
   const s = await getSettings();
@@ -15,12 +18,11 @@ export default async function PoliciesPage() {
     { h: "পেমেন্ট · Payment", p: "ক্যাশ অন ডেলিভারি — পণ্য হাতে পেয়ে টাকা পরিশোধ করুন।" },
     { h: "অর্ডার বাতিল · Cancellation", p: "ডেলিভারির জন্য রওনা হওয়ার আগে আমাদের ফোন বা সাপোর্ট পেজের মাধ্যমে জানালে অর্ডার বাতিল বা পরিবর্তন করা যাবে।" },
     { h: "সমস্যা হলে · Issues with your order", p: "পণ্য নিয়ে কোনো সমস্যা হলে ডেলিভারির দিনেই সাপোর্ট পেজে ছবিসহ জানান। আমরা দ্রুত যোগাযোগ করব।" },
-    { h: "গোপনীয়তা · Privacy", p: "আপনার নাম, ফোন, ইমেইল ও ঠিকানা শুধুমাত্র অর্ডার ডেলিভারি ও যোগাযোগের জন্য ব্যবহার করা হয়। অফার ইমেইল যেকোনো সময় বন্ধ করা যায়।" },
   ];
   return (
     <div className="container-x max-w-3xl py-14">
       <h1 className="font-display text-4xl">ডেলিভারি ও অর্ডার নীতি</h1>
-      <p className="mt-2 text-muted">Delivery, order and privacy policy</p>
+      <p className="mt-2 text-muted">Delivery and order policies</p>
       <div className="mt-10 space-y-8">
         {sections.map((x) => (
           <section key={x.h}>
@@ -29,9 +31,11 @@ export default async function PoliciesPage() {
           </section>
         ))}
       </div>
-      <p className="mt-12 text-sm text-muted">
-        প্রশ্ন থাকলে: {s.store.phone} · {s.store.email}
+      <p className="mt-8 flex flex-wrap gap-4 text-sm">
+        <Link className={policyLink} href="/privacy">গোপনীয়তা নীতি · Privacy Policy</Link>
+        <Link className={policyLink} href="/terms">ব্যবহারের শর্তাবলি · Terms of Service</Link>
       </p>
+      <p className="mt-6 text-sm text-muted">প্রশ্ন থাকলে {s.store.phone} · {s.store.email}</p>
     </div>
   );
 }

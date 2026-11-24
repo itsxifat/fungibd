@@ -8,7 +8,7 @@ import { ORDER_SOURCES } from "@/lib/constants";
 
 type P = { id: string; name: string; variants: { id: string; label: string; price: number; mode: string }[] };
 
-export function ManualOrderForm({ products, zones, slots, defaultDate, customer }: { products: P[]; zones: { id: string; name: string }[]; slots: string[]; defaultDate: string; customer: { name: string; phone: string; email: string; addressLine: string; landmark: string; zoneId: string } | null }) {
+export function ManualOrderForm({ products, zones, slots, defaultDate, customer }: { products: P[]; zones: { id: string; name: string }[]; slots: string[]; defaultDate: string; customer: { id: string; name: string; phone: string; email: string; addressLine: string; landmark: string; zoneId: string } | null }) {
   const router = useRouter();
   const [pending, start] = useTransition();
   const [error, setError] = useState("");
@@ -36,7 +36,7 @@ export function ManualOrderForm({ products, zones, slots, defaultDate, customer 
     e.preventDefault();
     setError("");
     start(async () => {
-      const r = await createManualOrderAction({ ...f, lines: lines.filter((l) => l.variantId) });
+      const r = await createManualOrderAction({ ...f, customerId: customer?.id, lines: lines.filter((l) => l.variantId) });
       if (r.ok) router.push(`/admin/orders/${r.id}`);
       else setError(r.error);
     });

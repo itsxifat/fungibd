@@ -8,10 +8,12 @@ import { ORDER_STATUS, ORDER_TYPE } from "@/lib/constants";
 import { num, pct, taka, takaR } from "@/lib/utils";
 import { Badge, Card, PageHeader, RangeTabs, Stat, StatusBadge, TableWrap } from "@/components/admin/ui";
 import { DailyBars, RankBars, TrendChart } from "@/components/admin/charts";
+import { ResendAdminVerificationForm } from "../login/form";
+import { googleConfig, GOOGLE_AUTH_PATH } from "@/lib/google-auth";
 
 export const metadata = { title: "Dashboard" };
 
-export default async function Dashboard({ searchParams }: { searchParams: Promise<{ range?: string; from?: string; to?: string; denied?: string }> }) {
+export default async function Dashboard({ searchParams }: { searchParams: Promise<{ range?: string; from?: string; to?: string; denied?: string; google?: string }> }) {
   const admin = await requireAdmin();
   const sp = await searchParams;
   const r = resolveRange(sp, "30d");
@@ -56,6 +58,17 @@ export default async function Dashboard({ searchParams }: { searchParams: Promis
         }
       />
       {sp.denied && <p className="mb-4 rounded-xl bg-amber-50 px-4 py-2 text-sm text-amber-800">You don&apos;t have access to that page. Ask the owner to change your role.</p>}
+      {!admin.emailVerified && (
+        <div className="mb-4 rounded-xl bg-amber-50 px-4 py-3 text-sm text-amber-900">
+          <p>Verify {admin.email} to sign in with your password next time.</p>
+          <ResendAdminVerificationForm />
+        </div>
+      )}
+      {admin.emailVerified && !admin.googleLinked && googleConfig() && (
+        <p className="mb-4 text-sm"><a href={`${GOOGLE_AUTH_PATH}?link=1`} className="font-semibold text-brand underline">Connect Google sign-in</a></p>
+      )}
+      {sp.google === "linked" && <p role="status" className="mb-4 text-sm text-emerald-800">Google sign-in is connected.</p>}
+      {sp.google === "error" && <p role="alert" className="mb-4 text-sm text-red-700">Google could not be connected. Use the Google account with your admin email.</p>}
 
       {/* Today */}
       <h2 className="mb-3 text-[15px] font-semibold">Today&apos;s work</h2>

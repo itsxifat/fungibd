@@ -1,27 +1,42 @@
 import { redirect } from "next/navigation";
+import Link from "next/link";
 import { getAdmin } from "@/lib/auth";
+import { safeAdminNext, setupIsOpen } from "@/lib/admin-auth";
+import { googleConfig, GOOGLE_AUTH_PATH } from "@/lib/google-auth";
+import { GooglePrivacyNotice } from "@/components/store/GooglePrivacyNotice";
 import { AdminLoginForm } from "./form";
+import { AdminAuthFrame } from "./frame";
 
 export const metadata = { title: "Admin login", robots: { index: false } };
 
-export default async function AdminLogin({ searchParams }: { searchParams: Promise<{ next?: string }> }) {
+export default async function AdminLogin({ searchParams }: { searchParams: Promise<{ next?: string; reset?: string; google?: string }> }) {
   if (await getAdmin()) redirect("/admin");
-  const { next } = await searchParams;
+  const { next, reset, google } = await searchParams;
+  const setupOpen = await setupIsOpen();
+  const destination = safeAdminNext(next);
+  const googleError = google === "link"
+    ? "Sign in with your verified FungiBd email first, then connect Google from the admin dashboard."
+    : google === "unavailable"
+      ? "Google sign-in is currently unavailable."
+      : "Google could not sign you in. Use the Google account associated with your admin email.";
+
   return (
-    <div className="grid min-h-dvh place-items-center bg-[#f6f6f4] px-4">
-      <div className="w-full max-w-sm">
-        <div className="flex items-center gap-2.5">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/brand/badge.svg" alt="" className="h-9 w-9 rounded-[10px]" />
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/brand/wordmark-green.svg" alt="FungiBd" className="h-[20px]" />
-        </div>
-        <h1 className="mt-8 text-2xl font-semibold tracking-tight">Admin sign in</h1>
-        <p className="mt-1 text-sm text-muted">Farm, sales &amp; customer management</p>
-        <div className="mt-6 rounded-2xl border border-line bg-white p-6">
-          <AdminLoginForm next={next} />
-        </div>
-      </div>
-    </div>
+    <AdminAuthFrame title="Admin sign in" description="Farm, sales & customer management">
+      {reset === "1" && <p role="status" className="text-sm text-emerald-800">Your password was changed. Sign in with your new password.</p>}
+      {google && <p role="alert" className="text-sm text-red-700">{googleError}</p>}
+      {setupOpen ? (
+        <Link href="/admin/login/setup" className="btn btn-primary w-full">Set up owner account</Link>
+      ) : (
+        <>
+          <AdminLoginForm next={destination} />
+          {googleConfig() && (
+            <div>
+              <a href={`${GOOGLE_AUTH_PATH}?next=${encodeURIComponent(destination)}`} className="btn btn-outline w-full">Continue with Google</a>
+              <GooglePrivacyNotice />
+            </div>
+          )}
+        </>
+      )}
+    </AdminAuthFrame>
   );
 }

@@ -3,18 +3,21 @@
 Online shop for **fungibd.com** (Bangla + English) plus an admin panel to run the whole business: orders, pre-orders, delivery, production, stock, supplies, costs, profit & loss, customers, leads, support and email marketing.
 
 - Website: `http://localhost:3000`
-- Admin panel: `http://localhost:3000/admin` (login from `ADMIN_EMAIL` / `ADMIN_PASSWORD` in `.env`)
+- Admin panel: `http://localhost:3000/admin` (set up the first owner with a private code)
 
 ## Quick start (on a computer with Node.js 20+)
 
 ```bash
 npm install
 cp .env.example .env        # then edit .env
-npm run setup               # creates the database + your admin login + products & Dhaka delivery areas
+npm run setup               # creates the database, products and Dhaka delivery areas
+npm run admin:prepare-setup --silent  # prints the private setup code for a new installation
 npm run dev                 # open http://localhost:3000
 ```
 
-Want sample data to explore the dashboards first? `npm run db:demo` adds ~75 days of example orders, customers, farm records and expenses. **Before going live run `npm run db:fresh`** — it wipes everything and starts clean (products, delivery areas and your admin login are recreated).
+Open `/admin/login/setup` with the private code to choose your owner email and password. Configure SMTP for verification and forgotten-password emails.
+
+Want sample data to explore the dashboards first? `npm run db:demo` adds ~75 days of example orders, customers, farm records and expenses. **Before going live with a demo database, run `npm run db:fresh`** to wipe the demo data, then prepare owner setup for the new database.
 
 Deploying on the office server: see **[DEPLOYMENT.md](DEPLOYMENT.md)**.
 

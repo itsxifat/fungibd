@@ -5,13 +5,23 @@ import { db } from "@/lib/db";
 import { getProducts } from "@/lib/store-data";
 import { ProductCard } from "@/components/store/ProductCard";
 import { cn } from "@/lib/utils";
+import { storefrontMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = { title: "শপ · Shop fresh mushrooms" };
+type ShopSearch = { category?: string; filter?: string; q?: string };
+const shopMetadata = storefrontMetadata(
+  "/shop", "Shop Fresh Mushrooms in Dhaka · মাশরুমের দাম",
+  "Compare FungiBd mushroom pack sizes and prices, check the current harvest's availability, and order for cash-on-delivery in supported areas of Dhaka.",
+);
 
-export default async function ShopPage({ searchParams }: { searchParams: Promise<{ category?: string; filter?: string; q?: string }> }) {
+export async function generateMetadata({ searchParams }: { searchParams: Promise<ShopSearch> }): Promise<Metadata> {
+  const { category, filter, q } = await searchParams;
+  return category || filter || q ? { ...shopMetadata, robots: { index: false, follow: true } } : shopMetadata;
+}
+
+export default async function ShopPage({ searchParams }: { searchParams: Promise<ShopSearch> }) {
   const sp = await searchParams;
   const [cats, all] = await Promise.all([db.category.findMany({ orderBy: { sortOrder: "asc" } }), getProducts()]);
-  const q = (sp.q ?? "").trim().toLowerCase();
+  const q = typeof sp.q === "string" ? sp.q.trim().toLowerCase() : "";
   const products = all.filter((p) => {
     if (sp.category && p.categorySlug !== sp.category) return false;
     if (sp.filter === "preorder" && !p.variants.some((v) => v.mode === "PREORDER")) return false;
@@ -32,9 +42,10 @@ export default async function ShopPage({ searchParams }: { searchParams: Promise
     <div className="container-x pb-10 pt-10">
       <div className="flex flex-col gap-6 border-b border-line pb-8 md:flex-row md:items-end md:justify-between">
         <div>
-          <h1 className="font-display text-4xl">{sp.filter === "preorder" ? "প্রি-অর্ডার" : "সব মাশরুম"}</h1>
+          <h1 className="font-display text-4xl">{sp.filter === "preorder" ? "প্রি-অর্ডার" : "ঢাকায় তাজা মাশরুম কিনুন"}</h1>
           <p className="mt-2 max-w-xl font-bangla text-ink-soft">
-            {sp.filter === "preorder" ? "এখনই বুক করুন, হারভেস্টের পর নির্ধারিত দিনে ডেলিভারি। টাকা দেবেন ডেলিভারির সময়।" : "আমাদের নিজস্ব খামারের মাশরুম — অনলাইনে অর্ডার করুন।"}
+            {sp.filter === "preorder" ? "এখনই বুক করুন, হারভেস্টের পর নির্ধারিত দিনে ডেলিভারি। টাকা দেবেন ডেলিভারির সময়।" : "আমাদের খামারের মাশরুমের প্যাক, দাম ও স্টক দেখুন।"}{" "}
+            <Link href="/delivery" className="font-semibold text-brand underline underline-offset-2">ডেলিভারি এলাকা দেখুন</Link>
           </p>
         </div>
         <form action="/shop" className="flex w-full max-w-sm items-center gap-2 rounded-full border border-line-strong bg-white p-1.5 pl-4">

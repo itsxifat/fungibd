@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import type { CSSProperties } from "react";
 import { Plus_Jakarta_Sans, Noto_Sans_Bengali } from "next/font/google";
 import { getSettings, isHex } from "@/lib/settings";
+import { defaultShareImage } from "@/lib/seo";
 import { siteUrl } from "@/lib/utils";
 import "./globals.css";
 
@@ -17,8 +18,8 @@ export async function generateMetadata(): Promise<Metadata> {
     metadataBase: new URL(siteUrl()),
     title: { default: `${s.store.name} — তাজা মাশরুম · Farm-fresh mushrooms in Dhaka`, template: `%s · ${s.store.name}` },
     description: `${s.store.taglineBn}। ${s.store.taglineEn}. Order online, delivered inside Dhaka. Pre-order specialty mushrooms.`,
-    openGraph: { type: "website", siteName: s.store.name, images: ["/brand/og.png"], locale: "bn_BD" },
-    twitter: { card: "summary_large_image", images: ["/brand/og.png"] },
+    openGraph: { type: "website", siteName: s.store.name, images: [defaultShareImage], locale: "bn_BD" },
+    twitter: { card: "summary_large_image", images: [defaultShareImage] },
     manifest: "/manifest.webmanifest",
   };
 }

@@ -3,8 +3,9 @@ import { getSettings } from "@/lib/settings";
 import { getCustomer } from "@/lib/auth";
 import { FAQS } from "@/lib/content";
 import { SupportForm } from "@/components/store/StoreForms";
+import { storefrontMetadata } from "@/lib/seo";
 
-export const metadata = { title: "যোগাযোগ ও সাপোর্ট · Contact & support" };
+export const metadata = storefrontMetadata("/support", "Contact & Order Support · যোগাযোগ", "Contact FungiBd about mushroom orders, delivery in Dhaka, product questions or a problem with your order.");
 
 export default async function SupportPage({ searchParams }: { searchParams: Promise<{ order?: string }> }) {
   const [s, c, sp] = await Promise.all([getSettings(), getCustomer(), searchParams]);
@@ -15,7 +16,7 @@ export default async function SupportPage({ searchParams }: { searchParams: Prom
       <p className="mt-2 text-muted">Questions about an order, delivery or our mushrooms? Send us a message — we reply by email.</p>
       <div className="mt-10 grid gap-10 lg:grid-cols-[1.4fr_1fr]">
         <section className="rounded-2xl border border-line bg-white p-6">
-          <SupportForm defaults={{ name: c?.name, email: c?.email ?? "", phone: c?.phone, orderNo: sp.order }} />
+          <SupportForm defaults={{ name: c?.name, email: c?.email ?? "", phone: c?.phone ?? "", orderNo: sp.order }} />
         </section>
         <aside className="space-y-4">
           <div className="rounded-2xl border border-line bg-white p-6 text-sm">

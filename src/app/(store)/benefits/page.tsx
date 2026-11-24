@@ -4,8 +4,9 @@ import { getSettings } from "@/lib/settings";
 import { BENEFITS, COOK_IDEAS, NUTRITION, STORAGE_TIPS } from "@/lib/content";
 import { MotionStory } from "@/components/store/MotionStory";
 import { BenefitGrid } from "@/components/store/BenefitGrid";
+import { storefrontMetadata } from "@/lib/seo";
 
-export const metadata = { title: "মাশরুমের উপকারিতা · Benefits of mushrooms" };
+export const metadata = storefrontMetadata("/benefits", "মাশরুমের উপকারিতা · Oyster Mushroom Nutrition", "Learn about oyster mushroom nutrition, how to store fresh mushrooms and ways to cook them. Includes a Bangla guide and a printable leaflet.");
 
 function videoEmbed(url: string) {
   const yt = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/shorts\/)([\w-]{11})/);

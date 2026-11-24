@@ -106,9 +106,10 @@ export async function createManualOrderAction(input: {
   source: string;
   lines: { variantId: string; qty: number }[];
   confirm: boolean;
+  customerId?: string;
 }) {
   const a = await requireAdmin();
-  const res = await placeOrder({ ...input, lat: null, lng: null, isAdmin: true, by: a.name, customerId: null });
+  const res = await placeOrder({ ...input, lat: null, lng: null, isAdmin: true, by: a.name });
   if (!res.ok) return { ok: false as const, error: res.error };
   if (input.confirm) for (const o of res.orders) await changeOrderStatus(o.id, "CONFIRMED", { by: a.name, note: "Confirmed when created" });
   revalidatePath("/admin/orders");

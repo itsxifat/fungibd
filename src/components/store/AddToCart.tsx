@@ -7,10 +7,10 @@ import { cn, taka } from "@/lib/utils";
 import { fmtDateBn } from "@/lib/dates";
 import { SOLD_OUT_TEXT } from "@/lib/catalog";
 
-export function AddToCart({ product, size = "card", dark = false }: { product: ProductDTO; size?: "card" | "full"; dark?: boolean }) {
+export function AddToCart({ product, size = "card", dark = false, initialVariantId }: { product: ProductDTO; size?: "card" | "full"; dark?: boolean; initialVariantId?: string }) {
   const add = useCart((s) => s.add);
   const firstBuyable = product.variants.find((v) => v.mode !== "SOLD_OUT") ?? product.variants[0];
-  const [vid, setVid] = useState(firstBuyable?.id);
+  const [vid, setVid] = useState(initialVariantId ?? firstBuyable?.id);
   const [qty, setQty] = useState(1);
   const v = product.variants.find((x) => x.id === vid) ?? firstBuyable;
   if (!v) return null;

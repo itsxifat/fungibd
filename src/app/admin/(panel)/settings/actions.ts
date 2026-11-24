@@ -2,6 +2,7 @@
 import { revalidatePath } from "next/cache";
 import { db } from "@/lib/db";
 import { hashPassword, requireAdmin } from "@/lib/auth";
+import { adminPasswordHint, validAdminEmail, validAdminPassword } from "@/lib/admin-auth";
 import { isHex, saveSettings } from "@/lib/settings";
 import { sendMail, verifySmtp } from "@/lib/email/mailer";
 import { clearSmtpConfig, saveSmtpConfig } from "@/lib/email/config";
@@ -157,15 +158,23 @@ export async function userAction(_: ActionState, fd: FormData): Promise<ActionSt
   const id = str(fd, "id");
   const role = ["OWNER", "MANAGER", "STAFF"].includes(str(fd, "role")) ? str(fd, "role") : "STAFF";
   const password = str(fd, "password");
+  if (password && !validAdminPassword(password)) return { error: adminPasswordHint };
   if (id) {
-    if (id === me.id && (role !== "OWNER" || !boolField(fd, "isActive"))) return { error: "You can't remove your own owner access." };
+    const isActive = boolField(fd, "isActive");
+    if (id === me.id && (role !== "OWNER" || !isActive)) return { error: "You can't remove your own owner access." };
     await db.adminUser.update({
       where: { id },
-      data: { name: str(fd, "name"), role, isActive: boolField(fd, "isActive"), ...(password ? { passwordHash: await hashPassword(password) } : {}) },
+      data: {
+        name: str(fd, "name"), role, isActive,
+        ...(password ? { passwordHash: await hashPassword(password) } : {}),
+        ...(password || !isActive ? {
+          sessionVersion: { increment: 1 }, verifyTokenHash: null, verifyTokenExpiresAt: null, resetTokenHash: null, resetTokenExpiresAt: null,
+        } : {}),
+      },
     });
   } else {
     const email = str(fd, "email").toLowerCase();
-    if (!email || password.length < 8) return { error: "Email and a password of at least 8 characters are required" };
+    if (!validAdminEmail(email) || !password) return { error: "A valid email and password are required." };
     if (await db.adminUser.findUnique({ where: { email } })) return { error: "A user with this email already exists" };
     await db.adminUser.create({ data: { name: str(fd, "name") || email, email, role, passwordHash: await hashPassword(password) } });
   }

@@ -57,12 +57,16 @@ export default async function CustomerPage({ params }: { params: Promise<{ id: s
         }
         actions={
           <>
-            <a href={`tel:${c.phone}`} className="btn btn-outline btn-sm rounded-lg">
-              <Phone className="h-4 w-4" /> Call
-            </a>
-            <a href={`https://wa.me/88${c.phone}`} target="_blank" rel="noreferrer" className="btn btn-outline btn-sm rounded-lg">
-              <MessageCircle className="h-4 w-4" /> WhatsApp
-            </a>
+            {c.phone && (
+              <>
+                <a href={`tel:${c.phone}`} className="btn btn-outline btn-sm rounded-lg">
+                  <Phone className="h-4 w-4" /> Call
+                </a>
+                <a href={`https://wa.me/88${c.phone}`} target="_blank" rel="noreferrer" className="btn btn-outline btn-sm rounded-lg">
+                  <MessageCircle className="h-4 w-4" /> WhatsApp
+                </a>
+              </>
+            )}
             {c.email && (
               <a href={`mailto:${c.email}`} className="btn btn-outline btn-sm rounded-lg">
                 <Mail className="h-4 w-4" /> Email

@@ -11,6 +11,13 @@ import { BenefitsLeaflet, leafletQr } from "@/components/store/Leaflet";
 import { ScaledLeaflet } from "@/components/store/ScaledLeaflet";
 import { HarvestAlertForm } from "@/components/store/HarvestAlertForm";
 import { SectionHeading } from "@/components/store/SectionHeading";
+import { StructuredData } from "@/components/store/StructuredData";
+import { absoluteUrl, storefrontMetadata } from "@/lib/seo";
+
+export const metadata = storefrontMetadata(
+  "/", "Fresh Mushrooms in Dhaka · ঢাকায় তাজা মাশরুম",
+  "নিজস্ব খামারের ঝিনুক মাশরুম। Order farm-grown oyster mushrooms online from FungiBd. Check pack prices, availability and delivery in Uttara, Dhaka.",
+);
 
 export default async function HomePage() {
   const [s, products, reviews, zones] = await Promise.all([
@@ -26,12 +33,24 @@ export default async function HomePage() {
 
   return (
     <>
+      <StructuredData data={{
+        "@context": "https://schema.org",
+        "@graph": [
+          { "@type": "WebSite", "@id": absoluteUrl("/#website"), name: s.store.name, url: absoluteUrl("/"), inLanguage: ["bn-BD", "en"], publisher: { "@id": absoluteUrl("/#store") } },
+          {
+            "@type": "OnlineStore", "@id": absoluteUrl("/#store"), name: s.store.name, url: absoluteUrl("/"),
+            logo: absoluteUrl("/brand/icon-512.png"), description: s.store.taglineEn, email: s.store.email || undefined,
+            telephone: /\d{10,}/.test(s.store.phone.replace(/[^\d]/g, "")) ? s.store.phone : undefined,
+            sameAs: [s.store.facebook, s.store.instagram, s.store.youtube].filter((url) => /^https?:\/\//i.test(url)),
+          },
+        ],
+      }} />
       {/* Hero */}
       <section className="container-x grid items-center gap-10 pb-16 pt-10 lg:grid-cols-2 lg:gap-16 lg:pb-24 lg:pt-16">
         <div>
           <p className="text-sm font-semibold text-brand">নিজস্ব খামারে চাষ · Grown on our own farm</p>
           <h1 className="mt-4 font-display text-4xl leading-[1.2] sm:text-5xl lg:text-[3.5rem]">{s.home.heroTitleBn}</h1>
-          <p className="mt-3 text-lg text-muted">{s.home.heroTitleEn}</p>
+          <p lang="en" className="mt-3 text-lg text-muted">{s.home.heroTitleEn}</p>
           <p className="mt-6 max-w-lg font-bangla text-[17px] leading-relaxed text-ink-soft">{s.home.heroSubBn}</p>
           <div className="mt-8 flex flex-wrap gap-3">
             <Link href="/shop" className="btn btn-primary btn-lg">
@@ -166,6 +185,7 @@ export default async function HomePage() {
               চেকআউটে আপনার এলাকা বেছে নিন, ম্যাপে বাসা পিন করুন অথবা বিস্তারিত ঠিকানা লিখুন।
               {s.delivery.freeDeliveryMin > 0 && ` ৳${num(s.delivery.freeDeliveryMin)} বা তার বেশি অর্ডারে ডেলিভারি ফ্রি।`}
             </p>
+            <Link href="/delivery" className="mt-4 inline-block text-sm font-semibold text-brand underline underline-offset-2">ডেলিভারি এলাকা ও চার্জ · Delivery areas and fees</Link>
           </div>
           <ul className="flex flex-wrap content-start gap-2">
             {zones.map((z) => (
