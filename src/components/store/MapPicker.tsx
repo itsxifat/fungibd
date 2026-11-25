@@ -1,11 +1,11 @@
 "use client";
 // Loaded only in the browser (see CheckoutForm: dynamic import with ssr:false)
 import { useEffect, useRef, useState } from "react";
-import { Circle, MapContainer, Marker, TileLayer, useMap, useMapEvents } from "react-leaflet";
+import { Circle, MapContainer, Marker, Polygon, TileLayer, useMap, useMapEvents } from "react-leaflet";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import { Crosshair, Hand, Loader2, MapPin, Search, TriangleAlert } from "lucide-react";
-import { distanceKm } from "@/lib/geo";
+import { cleanAreas, deliveryBounds, distanceKm, insideDeliveryArea, type DeliveryArea, type DeliveryShape } from "@/lib/geo";
 import { GoogleMapView } from "./GoogleMapView";
 import { googleReverse, googleSearch, loadGoogleMaps, onGoogleAuthFailure, type PlaceResult } from "./google-maps";
 
@@ -50,6 +50,7 @@ export default function MapPicker({
   onChange,
   center,
   radiusKm,
+  areas = [],
   onAddress,
   googleKey = "",
 }: {
@@ -57,6 +58,8 @@ export default function MapPicker({
   onChange: (p: Pin) => void;
   center: Pin;
   radiusKm: number;
+  /** Delivery areas drawn in Admin; while there are none, the circle (center + radiusKm) is used. */
+  areas?: DeliveryArea[];
   onAddress?: (label: string) => void;
   /** Admin → Settings → Delivery. Empty = free OpenStreetMap map. */
   googleKey?: string;
@@ -67,7 +70,9 @@ export default function MapPicker({
   const [busy, setBusy] = useState<"search" | "locate" | null>(null);
   const [msg, setMsg] = useState<string>("");
   const [label, setLabel] = useState("");
-  const outside = value ? distanceKm(value.lat, value.lng, center.lat, center.lng) > radiusKm : false;
+  const shape: DeliveryShape = { centerLat: center.lat, centerLng: center.lng, radiusKm, areas };
+  const drawn = cleanAreas(areas);
+  const outside = value ? !insideDeliveryArea(value.lat, value.lng, shape) : false;
   const useGoogle = engine === "google";
   const lastLookup = useRef<Pin | null>(null);
   const lookupSeq = useRef(0);
@@ -114,7 +119,7 @@ export default function MapPicker({
     setBusy("search");
     setMsg("");
     try {
-      let r = useGoogle ? await googleSearch(text, center).catch(() => [] as PlaceResult[]) : [];
+      let r = useGoogle ? await googleSearch(text, deliveryBounds(shape, 5)).catch(() => [] as PlaceResult[]) : [];
       if (!r.length) r = await osmSearch(text).catch(() => [] as PlaceResult[]);
       setResults(r);
       if (!r.length) setMsg("কিছু পাওয়া যায়নি — ম্যাপে ট্যাপ করে পিন দিন · Not found, tap the map instead");
@@ -202,11 +207,20 @@ export default function MapPicker({
             <Loader2 className="size-6 animate-spin text-muted" aria-hidden />
           </div>
         ) : useGoogle ? (
-          <GoogleMapView value={value} center={center} radiusKm={radiusKm} onPick={(p) => pick(p)} onFail={() => setEngine("osm")} />
+          <GoogleMapView value={value} shape={shape} onPick={(p) => pick(p)} onFail={() => setEngine("osm")} />
         ) : (
-        <MapContainer center={value ?? center} zoom={value ? 16 : 12} scrollWheelZoom={false} className="h-[300px] w-full sm:h-[340px]" attributionControl>
+        <MapContainer
+          {...(value ? { center: value, zoom: 16 } : { bounds: ((b) => [[b.south, b.west], [b.north, b.east]] as [[number, number], [number, number]])(deliveryBounds(shape)) })}
+          scrollWheelZoom={false}
+          className="h-[300px] w-full sm:h-[340px]"
+          attributionControl
+        >
           <TileLayer attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>' url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
-          <Circle center={center} radius={radiusKm * 1000} pathOptions={{ color: "#02604A", weight: 1.5, fillOpacity: 0.04, dashArray: "6 6" }} />
+          {drawn.length ? (
+            drawn.map((a, i) => <Polygon key={i} positions={a.points} pathOptions={{ color: "#02604A", weight: 1.5, fillOpacity: 0.05, dashArray: "6 6" }} interactive={false} />)
+          ) : (
+            <Circle center={center} radius={radiusKm * 1000} pathOptions={{ color: "#02604A", weight: 1.5, fillOpacity: 0.04, dashArray: "6 6" }} interactive={false} />
+          )}
           {value && (
             <Marker
               position={value}

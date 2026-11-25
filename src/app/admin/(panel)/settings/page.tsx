@@ -6,6 +6,7 @@ import { getSettings } from "@/lib/settings";
 import { getSmtpPublic } from "@/lib/email/config";
 import { SmtpForm } from "./SmtpForm";
 import { HeroSlidesEditor } from "./HeroSlidesEditor";
+import { DeliveryAreasEditor } from "./DeliveryAreasEditor";
 import { EMAIL_PREVIEWS } from "@/lib/email/previews";
 import { ADMIN_ROLES } from "@/lib/constants";
 import { fmtDateTime } from "@/lib/dates";
@@ -128,9 +129,14 @@ export default async function SettingsPage({ searchParams }: { searchParams: Pro
               <span className="label">Time slots (one per line)</span>
               <textarea name="slots" defaultValue={s.delivery.slots.join("\n")} className="input input-sm min-h-24" />
             </label>
-            <In label="Delivery area centre — latitude" name="centerLat" type="number" value={s.delivery.centerLat} />
-            <In label="Delivery area centre — longitude" name="centerLng" type="number" value={s.delivery.centerLng} />
-            <In label="Delivery radius (km)" name="radiusKm" type="number" value={s.delivery.radiusKm} hint="Map pins outside this circle are rejected at checkout" />
+            <div className="sm:col-span-2">
+              <span className="label">Delivery areas on the map</span>
+              <p className="hint mb-3 block">Draw every place you deliver to, for example Dhaka and Savar. A customer&apos;s map pin at checkout must be inside one of these areas.</p>
+              <DeliveryAreasEditor name="deliveryAreas" defaultAreas={s.delivery.areas} center={{ lat: s.delivery.centerLat, lng: s.delivery.centerLng }} radiusKm={s.delivery.radiusKm} />
+            </div>
+            <In label="Circle centre — latitude" name="centerLat" type="number" value={s.delivery.centerLat} hint="The circle is only used while no areas are drawn" />
+            <In label="Circle centre — longitude" name="centerLng" type="number" value={s.delivery.centerLng} />
+            <In label="Circle radius (km)" name="radiusKm" type="number" value={s.delivery.radiusKm} hint="Only used while no areas are drawn" />
             <In
               label="Google Maps API key (optional)"
               name="googleMapsKey"
@@ -138,7 +144,7 @@ export default async function SettingsPage({ searchParams }: { searchParams: Pro
               hint="Checkout uses Google Maps when this is set. Use a browser key limited to fungibd.com, with Maps JavaScript API, Places API (New) and Geocoding API turned on. Empty = the free OpenStreetMap map. If Google refuses the key, checkout switches to the free map by itself."
               className="sm:col-span-2"
             />
-            <In label="Delivery coverage line (Bangla)" name="coverageNote" value={s.delivery.coverageNote} hint="Shown on the home page, footer and emails — e.g. “শুধুমাত্র ঢাকা সিটির ভিতরে ডেলিভারি”. Update it when you reach new cities." className="sm:col-span-2" />
+            <In label="Delivery coverage line (Bangla)" name="coverageNote" value={s.delivery.coverageNote} hint="Shown on the home page, footer and emails — e.g. “ঢাকা ও আশপাশের এলাকায় হোম ডেলিভারি”. Update it when you reach new places." className="sm:col-span-2" />
             <div className="sm:col-span-2">
               <Submit>Save</Submit>
             </div>

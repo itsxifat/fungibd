@@ -156,7 +156,7 @@ export function BenefitsLeaflet({ s, qr, id = LEAFLET_ID, preview = false }: { s
           <p className="font-bangla text-[12.5px] font-semibold text-tan">খামার থেকে তাজা মাশরুম অর্ডার করুন</p>
           <p className="text-[28px] font-bold leading-tight tracking-tight">{domain}</p>
           <p className="mt-0.5 font-bangla text-[12px] text-white/90">
-            ঢাকার ভিতরে হোম ডেলিভারি · ক্যাশ অন ডেলিভারি · প্রি-অর্ডার{phone ? ` · ${phone}` : ""}
+            ঢাকা ও আশপাশে হোম ডেলিভারি · ক্যাশ অন ডেলিভারি · প্রি-অর্ডার{phone ? ` · ${phone}` : ""}
           </p>
         </div>
         <div className="flex flex-col items-center gap-1">

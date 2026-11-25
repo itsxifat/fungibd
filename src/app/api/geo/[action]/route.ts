@@ -1,12 +1,13 @@
 import { NextResponse } from "next/server";
 import { rateLimit } from "@/lib/security";
+import { getSettings } from "@/lib/settings";
+import { deliveryBounds } from "@/lib/geo";
 
 // Free OpenStreetMap geocoding (Nominatim). We proxy it to send a proper User-Agent, cache results,
-// keep requests within their usage policy (max ~1/sec) and limit searches to the Dhaka area.
+// keep requests within their usage policy (max ~1/sec) and limit searches to the delivery areas (plus a margin).
 const cache = new Map<string, { at: number; data: unknown }>();
 let lastCall = 0;
 const UA = "FungiBd-Website/1.0 (+https://fungibd.com)";
-const DHAKA_VIEWBOX = "90.30,23.95,90.55,23.65"; // left,top,right,bottom
 
 async function nominatim(path: string) {
   const hit = cache.get(path);
@@ -30,7 +31,9 @@ export async function GET(req: Request, { params }: { params: Promise<{ action: 
     if (action === "search") {
       const q = (url.searchParams.get("q") ?? "").trim().slice(0, 120);
       if (q.length < 3) return NextResponse.json({ results: [] });
-      const data = (await nominatim(`/search?format=jsonv2&limit=6&countrycodes=bd&viewbox=${DHAKA_VIEWBOX}&bounded=1&q=${encodeURIComponent(q)}`)) as { lat: string; lon: string; display_name: string }[];
+      const b = deliveryBounds((await getSettings()).delivery, 8);
+      const viewbox = [b.west, b.north, b.east, b.south].map((n) => n.toFixed(4)).join(","); // left,top,right,bottom
+      const data = (await nominatim(`/search?format=jsonv2&limit=6&countrycodes=bd&viewbox=${viewbox}&bounded=1&q=${encodeURIComponent(q)}`)) as { lat: string; lon: string; display_name: string }[];
       return NextResponse.json({ results: data.map((d) => ({ lat: Number(d.lat), lng: Number(d.lon), label: d.display_name })) });
     }
     if (action === "reverse") {

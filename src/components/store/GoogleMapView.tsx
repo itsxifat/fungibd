@@ -2,17 +2,18 @@
 import { useEffect, useRef, useState } from "react";
 import { Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { cleanAreas, deliveryBounds, type DeliveryShape } from "@/lib/geo";
 import type { LatLng } from "./google-maps";
 
 /**
  * Google map with a fixed centre pin: the customer moves the map (or taps a spot) and the pin marks the point
  * under it. Needs loadGoogleMaps() to have resolved. Calls onFail if the map library cannot start.
  */
-export function GoogleMapView({ value, center, radiusKm, onPick, onFail }: { value: LatLng | null; center: LatLng; radiusKm: number; onPick: (p: LatLng) => void; onFail: () => void }) {
+export function GoogleMapView({ value, shape, onPick, onFail }: { value: LatLng | null; shape: DeliveryShape; onPick: (p: LatLng) => void; onFail: () => void }) {
   const box = useRef<HTMLDivElement>(null);
   const map = useRef<google.maps.Map | null>(null);
   const handlers = useRef({ onPick, onFail });
-  const initial = useRef({ value, center, radiusKm });
+  const initial = useRef({ value, shape });
   const touched = useRef(value !== null);
   const skipIdle = useRef(false);
   const [ready, setReady] = useState(false);
@@ -27,11 +28,16 @@ export function GoogleMapView({ value, center, radiusKm, onPick, onFail }: { val
     const listeners: google.maps.MapsEventListener[] = [];
     (async () => {
       try {
-        const { Map, Circle } = (await google.maps.importLibrary("maps")) as google.maps.MapsLibrary;
+        const { Map, Circle, Polygon } = (await google.maps.importLibrary("maps")) as google.maps.MapsLibrary;
         if (cancelled || !box.current) return;
-        const { value: v, center: c, radiusKm: r } = initial.current;
-        const m = new Map(box.current, { center: v ?? c, zoom: v ? 17 : 13, gestureHandling: "greedy", disableDefaultUI: true, zoomControl: true, clickableIcons: false });
-        new Circle({ map: m, center: c, radius: r * 1000, clickable: false, strokeColor: "#02604A", strokeOpacity: 0.8, strokeWeight: 1.5, fillColor: "#02604A", fillOpacity: 0.04 });
+        const { value: v, shape: d } = initial.current;
+        const m = new Map(box.current, { center: v ?? { lat: d.centerLat, lng: d.centerLng }, zoom: v ? 17 : 12, gestureHandling: "greedy", disableDefaultUI: true, zoomControl: true, clickableIcons: false });
+        if (!v) m.fitBounds(deliveryBounds(d), 16);
+        // The delivery areas drawn in Admin, or the older circle while none are drawn
+        const look = { clickable: false, strokeColor: "#02604A", strokeOpacity: 0.8, strokeWeight: 1.5, fillColor: "#02604A", fillOpacity: 0.05 };
+        const areas = cleanAreas(d.areas);
+        if (areas.length) for (const a of areas) new Polygon({ ...look, map: m, paths: a.points.map(([lat, lng]) => ({ lat, lng })) });
+        else new Circle({ ...look, map: m, center: { lat: d.centerLat, lng: d.centerLng }, radius: d.radiusKm * 1000 });
         listeners.push(
           m.addListener("dragstart", () => {
             touched.current = true;

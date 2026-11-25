@@ -88,7 +88,7 @@ export async function placeOrder(input: CheckoutInput): Promise<PlaceResult> {
   const zone = await db.deliveryZone.findFirst({ where: { id: input.zoneId, isActive: true } });
   if (!zone) return { ok: false, error: "ডেলিভারি এলাকা নির্বাচন করুন · Choose your delivery area", field: "zoneId" };
   if (!input.isAdmin && input.lat != null && input.lng != null && !insideDeliveryArea(input.lat, input.lng, s.delivery))
-    return { ok: false, error: "দুঃখিত, ম্যাপের লোকেশনটি আমাদের ডেলিভারি এলাকার বাইরে। আমরা শুধু ঢাকার ভিতরে ডেলিভারি দিই। · Sorry, this pin is outside our Dhaka delivery area.", field: "map" };
+    return { ok: false, error: "দুঃখিত, ম্যাপের লোকেশনটি এখনো আমাদের ডেলিভারি এলাকার বাইরে। ম্যাপে সবুজ দাগের ভিতরে পিন দিন। · Sorry, this pin is outside our delivery area.", field: "map" };
 
   // ── 2. Lines ──
   const merged = new Map<string, CheckoutLine>();

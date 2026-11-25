@@ -3,6 +3,11 @@
 // anything that fails here falls back to the free OpenStreetMap map, so checkout never breaks.
 
 export type LatLng = { lat: number; lng: number };
+export type Bounds = { south: number; west: number; north: number; east: number };
+
+// Google sometimes leads an address with a plus code ("Q93F+82G, ...") and ends it with the country.
+const PLUS_CODE = /^[23456789CFGHJMPQRVWX]{4,8}\+[23456789CFGHJMPQRVWX]{2,3}\s*,?\s*/i;
+const tidy = (address: string) => address.replace(PLUS_CODE, "").replace(/,\s*(বাংলাদেশ|Bangladesh)\s*$/, "").trim();
 export type PlaceResult = { key: string; label: string; resolve: () => Promise<{ pin: LatLng; label: string }> };
 
 type MapsWindow = Window & { google?: typeof google; gm_authFailure?: () => void; __fungibdMapsReady?: () => void };
@@ -51,15 +56,15 @@ export function onGoogleAuthFailure(fn: () => void): () => void {
 // One autocomplete session per search-and-pick, ended by the details call (how Google bills it).
 let session: google.maps.places.AutocompleteSessionToken | null = null;
 
-/** Address search with Places API (New), biased to the delivery area and limited to Bangladesh. */
-export async function googleSearch(q: string, near: LatLng): Promise<PlaceResult[]> {
+/** Address search with Places API (New), biased to the delivery areas and limited to Bangladesh. */
+export async function googleSearch(q: string, near: Bounds): Promise<PlaceResult[]> {
   const { AutocompleteSuggestion, AutocompleteSessionToken } = (await google.maps.importLibrary("places")) as google.maps.PlacesLibrary;
   session ??= new AutocompleteSessionToken();
   const { suggestions } = await AutocompleteSuggestion.fetchAutocompleteSuggestions({
     input: q,
     sessionToken: session,
     includedRegionCodes: ["bd"],
-    locationBias: { center: near, radius: 30000 },
+    locationBias: near,
     language: "bn",
     region: "bd",
   });
@@ -76,7 +81,7 @@ export async function googleSearch(q: string, near: LatLng): Promise<PlaceResult
           session = null;
           const loc = place.location;
           if (!loc) throw new Error("No location for this place");
-          return { pin: { lat: loc.lat(), lng: loc.lng() }, label: place.formattedAddress || p.text.text };
+          return { pin: { lat: loc.lat(), lng: loc.lng() }, label: tidy(place.formattedAddress || p.text.text) };
         },
       },
     ];
@@ -87,6 +92,7 @@ export async function googleSearch(q: string, near: LatLng): Promise<PlaceResult
 export async function googleReverse(p: LatLng): Promise<string> {
   const { Geocoder } = (await google.maps.importLibrary("geocoding")) as google.maps.GeocodingLibrary;
   const { results } = await new Geocoder().geocode({ location: p });
-  const best = results.find((r) => !r.types.includes("plus_code")) ?? results[0];
-  return best?.formatted_address ?? "";
+  const best =
+    results.find((r) => !r.types.includes("plus_code") && !PLUS_CODE.test(r.formatted_address)) ?? results.find((r) => !r.types.includes("plus_code")) ?? results[0];
+  return best ? tidy(best.formatted_address) : "";
 }

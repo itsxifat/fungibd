@@ -4,6 +4,16 @@ import { db } from "@/lib/db";
 import { hashPassword, requireAdmin } from "@/lib/auth";
 import { adminPasswordHint, validAdminEmail, validAdminPassword } from "@/lib/admin-auth";
 import { isHex, saveSettings, type HeroSlide } from "@/lib/settings";
+import { cleanAreas } from "@/lib/geo";
+
+function parseAreas(raw: string) {
+  if (!raw.trim()) return [];
+  try {
+    return cleanAreas(JSON.parse(raw));
+  } catch {
+    return [];
+  }
+}
 import { sendMail, verifySmtp } from "@/lib/email/mailer";
 import { clearSmtpConfig, saveSmtpConfig } from "@/lib/email/config";
 import { layout } from "@/lib/email/templates";
@@ -66,6 +76,8 @@ export async function saveDeliveryAction(_: ActionState, fd: FormData): Promise<
       .map((s) => s.trim())
       .filter(Boolean),
     coverageNote: str(fd, "coverageNote"),
+    // Drawn on the map in the delivery settings; empty means "keep using the circle".
+    ...(fd.has("deliveryAreas") ? { areas: parseAreas(str(fd, "deliveryAreas")) } : {}),
     // Google keys are letters, digits, "-" and "_"; anything else is dropped so it can't break the script URL.
     googleMapsKey: /^[A-Za-z0-9_-]{20,100}$/.test(str(fd, "googleMapsKey").trim()) ? str(fd, "googleMapsKey").trim() : "",
   });

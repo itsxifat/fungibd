@@ -10,6 +10,7 @@ import { placeOrderAction, checkCouponAction } from "@/app/(store)/actions";
 import { cn, round2, takaBn } from "@/lib/utils";
 import { fmtDateBn } from "@/lib/dates";
 import type { Pin } from "./MapPicker";
+import type { DeliveryArea } from "@/lib/geo";
 
 const MapPicker = dynamic(() => import("./MapPicker"), {
   ssr: false,
@@ -27,6 +28,7 @@ export function CheckoutForm(props: {
   freeDeliveryMin: number;
   center: Pin;
   radiusKm: number;
+  areas?: DeliveryArea[];
   googleMapsKey?: string;
   customer: { name: string; phone: string; email: string; addresses: Address[] } | null;
 }) {
@@ -210,7 +212,7 @@ export function CheckoutForm(props: {
         {Section({
           n: "২",
           bn: "ডেলিভারি ঠিকানা",
-          en: "Delivery address — inside Dhaka only",
+          en: "Delivery address",
           id: "sec-address",
           children: (
             <div className="space-y-4">
@@ -247,7 +249,7 @@ export function CheckoutForm(props: {
               <div>
                 <span className="label">ম্যাপে বাসা পিন করুন · Pin your home on the map *</span>
                 <div className={cn(err("map") && "rounded-xl ring-2 ring-red-400 ring-offset-2")}>
-                  <MapPicker value={pin} onChange={setPin} center={props.center} radiusKm={props.radiusKm} onAddress={(l) => setMapLabel(l)} googleKey={props.googleMapsKey} />
+                  <MapPicker value={pin} onChange={setPin} center={props.center} radiusKm={props.radiusKm} areas={props.areas} onAddress={(l) => setMapLabel(l)} googleKey={props.googleMapsKey} />
                 </div>
               </div>
               <div>

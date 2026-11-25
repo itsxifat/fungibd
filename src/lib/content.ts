@@ -150,13 +150,13 @@ export const COOK_IDEAS = [
 export const HOW_IT_WORKS = [
   { bn: "অর্ডার করুন", en: "Order online", textBn: "পছন্দের মাশরুম বেছে নিন, ম্যাপে বাসা পিন করুন বা বিস্তারিত ঠিকানা লিখুন।", textEn: "Choose your mushrooms and pin your home on the map." },
   { bn: "আমরা প্যাক করি", en: "We pack it", textBn: "আমাদের খামার থেকে মাশরুম বাছাই করে যত্নের সাথে প্যাক করা হয়।", textEn: "We sort and pack your order from our farm." },
-  { bn: "দরজায় ডেলিভারি", en: "Delivered to you", textBn: "আপনার বেছে নেওয়া দিন ও সময়ে ঢাকার ভিতরে ডেলিভারি — হাতে পেয়ে টাকা দিন।", textEn: "Delivered in Dhaka on your chosen day. Pay cash on delivery." },
+  { bn: "দরজায় ডেলিভারি", en: "Delivered to you", textBn: "আপনার বেছে নেওয়া দিন ও সময়ে দরজায় ডেলিভারি — হাতে পেয়ে টাকা দিন।", textEn: "Delivered on your chosen day. Pay cash on delivery." },
 ];
 
 export const FAQS = [
   {
     q: "কোন কোন এলাকায় ডেলিভারি দেন? · Where do you deliver?",
-    a: "আমরা শুধুমাত্র ঢাকা সিটির ভিতরে ডেলিভারি দিই। চেকআউটে আপনার এলাকা বেছে নিলে ডেলিভারি চার্জ দেখতে পাবেন। We deliver inside Dhaka city only.",
+    a: "ঢাকা ও আশপাশের কিছু এলাকায় (যেমন সাভার) ডেলিভারি দিই, আর নতুন এলাকা যোগ হচ্ছে। চেকআউটে ম্যাপে বাসা পিন করলেই বুঝবেন আপনার জায়গায় ডেলিভারি যায় কি না, আর এলাকা বেছে নিলে চার্জ দেখতে পাবেন। We deliver in Dhaka and nearby areas such as Savar, with more areas coming. Pin your home at checkout to check.",
   },
   {
     q: "কখন ডেলিভারি পাব? · When will I get my order?",

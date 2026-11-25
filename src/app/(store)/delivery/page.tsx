@@ -5,8 +5,8 @@ import { getSettings } from "@/lib/settings";
 import { taka } from "@/lib/utils";
 
 export const metadata = storefrontMetadata(
-  "/delivery", "Mushroom Delivery in Dhaka · ডেলিভারি এলাকা",
-  "Check where FungiBd delivers mushrooms in Dhaka. See available neighborhoods, delivery fees, and how cash on delivery works.",
+  "/delivery", "Mushroom Delivery Areas · ডেলিভারি এলাকা",
+  "Check where FungiBd delivers mushrooms in Dhaka and nearby areas. See available neighborhoods, delivery fees, and how cash on delivery works.",
 );
 
 export default async function DeliveryPage() {
@@ -17,8 +17,8 @@ export default async function DeliveryPage() {
 
   return (
     <div className="container-x max-w-3xl py-14">
-      <h1 className="font-display text-4xl">ঢাকায় মাশরুম ডেলিভারি</h1>
-      <p lang="en" className="mt-2 text-lg text-muted">Mushroom delivery in Dhaka</p>
+      <h1 className="font-display text-4xl">আমরা কোথায় ডেলিভারি দিই</h1>
+      <p lang="en" className="mt-2 text-lg text-muted">Where we deliver: Dhaka and nearby areas</p>
       <section className="mt-8 rounded-xl border border-line bg-white p-6">
         <h2 className="text-xl font-semibold">সক্রিয় ডেলিভারি এলাকা · Delivery areas</h2>
         {zones.length ? (

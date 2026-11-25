@@ -17,7 +17,7 @@ export async function generateMetadata(): Promise<Metadata> {
   return {
     metadataBase: new URL(siteUrl()),
     title: { default: `${s.store.name} — তাজা মাশরুম · Farm-fresh mushrooms in Dhaka`, template: `%s · ${s.store.name}` },
-    description: `${s.store.taglineBn}। ${s.store.taglineEn}. Order online, delivered inside Dhaka. Pre-order specialty mushrooms.`,
+    description: `${s.store.taglineBn}। ${s.store.taglineEn}. Order online, delivered in Dhaka and nearby areas. Pre-order specialty mushrooms.`,
     openGraph: { type: "website", siteName: s.store.name, images: [defaultShareImage], locale: "bn_BD" },
     twitter: { card: "summary_large_image", images: [defaultShareImage] },
     manifest: "/manifest.webmanifest",

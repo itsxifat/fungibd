@@ -1,5 +1,6 @@
 import { cache } from "react";
 import { db } from "./db";
+import type { DeliveryArea } from "./geo";
 
 /** One picture in the home-page hero slider (Admin → Settings → Home page). */
 export type HeroSlide = { image: string; title: string; caption: string; href: string };
@@ -33,19 +34,21 @@ export const DEFAULT_SETTINGS = {
   delivery: {
     centerLat: 23.7808,
     centerLng: 90.4093,
-    radiusKm: 16,
+    radiusKm: 16, // used only while no delivery areas are drawn
+    // Drawn in Admin → Settings → Delivery; a checkout pin must fall inside one of them.
+    areas: [] as DeliveryArea[],
     freeDeliveryMin: 1500,
     minOrder: 0,
     sameDayCutoffHour: 12,
     daysAhead: 6,
     slots: ["সকাল ১০টা – দুপুর ১টা (10AM–1PM)", "দুপুর ২টা – বিকাল ৫টা (2PM–5PM)", "সন্ধ্যা ৬টা – রাত ৯টা (6PM–9PM)"],
     // Shown in the footer and emails — update it when you start delivering to new cities.
-    coverageNote: "শুধুমাত্র ঢাকা সিটির ভিতরে ডেলিভারি",
+    coverageNote: "ঢাকা ও আশপাশের এলাকায় হোম ডেলিভারি",
     // Browser key for the checkout map (Maps JavaScript, Places (New), Geocoding). Empty = free OpenStreetMap map.
     googleMapsKey: "",
   },
   home: {
-    announcement: "শুধুমাত্র ঢাকার ভিতরে ডেলিভারি · ক্যাশ অন ডেলিভারি",
+    announcement: "ঢাকা ও আশপাশে হোম ডেলিভারি · ক্যাশ অন ডেলিভারি",
     heroEyebrow: "", // empty = shows the next harvest date automatically
     heroTitleBn: "তাজা মাশরুম, হারভেস্টের আগেই বুক করুন",
     heroTitleEn: "",
